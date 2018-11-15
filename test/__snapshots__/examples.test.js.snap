@@ -1,0 +1,190 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`examples 1.spaces.just-sort.js 1`] = `
+// The spacing inside \`{…}\` might look a bit weird after sorting:
+import {bar, baz,foo} from "example";
+
+// The indentation (tabs) will be kept here:
+import {
+	DocumentNode,
+	FieldNode,
+	FragmentDefinitionNode,
+	FragmentSpreadNode,
+	InlineFragmentNode,
+	OperationDefinitionNode,
+	SelectionSetNode,
+} from "../language/ast";
+
+`;
+
+exports[`examples 2.spaces.eslint-builtin.js 1`] = `
+// This file uses other ESLint rules to fix the spacing inside \`{…}\`:
+import {bar, baz, foo} from "example";
+
+// And the “indent” rule changes these tabs to 4 spaces:
+import {
+    DocumentNode,
+    FieldNode,
+    FragmentDefinitionNode,
+    FragmentSpreadNode,
+    InlineFragmentNode,
+    OperationDefinitionNode,
+    SelectionSetNode,
+} from "../language/ast";
+
+`;
+
+exports[`examples 3.spaces.prettier.js 1`] = `
+// This file uses Prettier to fix the spacing inside \`{…}\`:
+import { bar, baz, foo } from "example";
+
+// And Prettier will also change these tabs to 2 spaces:
+import {
+  DocumentNode,
+  FieldNode,
+  FragmentDefinitionNode,
+  FragmentSpreadNode,
+  InlineFragmentNode,
+  OperationDefinitionNode,
+  SelectionSetNode,
+} from "../language/ast";
+
+`;
+
+exports[`examples eslint-plugin-import.js 1`] = `
+// This file uses rules from eslint-plugin-import
+// (https://github.com/benmosher/eslint-plugin-import/) to hoist the imports to
+// the top and add a blank line after them.
+import "z";
+
+import a from "a";
+import b from "b";
+
+foo();
+bar();
+
+`;
+
+exports[`examples ignore.js 1`] = `
+// First off, imports that are only used for side effects stay in the input
+// order. These won’t be sorted:
+import "b";
+import "a";
+
+// Just to separate the chunks of imports for this example. Move along.
+separator();
+
+// You can also disable sorting for a whole chunk. The actual rule name is
+// "simple-import-sort/sort", but for technical reasons it’s just called "sort"
+// within the examples of this repo.
+// For copying: eslint-disable-next-line simple-import-sort/sort
+// eslint-disable-next-line sort
+import d from "d";
+import c from "c";
+
+separator();
+
+// If you lant to both import something from a module _and_ import it for its
+// side effects _and_ you need it to run before other things, but don’t want to
+// disable sorting altogether, there’s a workaround. Import it twice – once for
+// side effects, once for the thing you want to import from it. You might need
+// to disable some “no duplicate imports” rules if you use them.
+// eslint-disable-next-line import/no-duplicates
+import "side-effects";
+
+import Other from "another";
+// eslint-disable-next-line no-duplicate-imports, import/no-duplicates
+import Thing from "side-effects";
+// The above two lines will still be sorted after autofixing! This can be
+// especially useful for long chunks of imports, where you don’t want one little
+// edge case disable sorting for the whole thing. Even better is to try to fix
+// the issue with the side effects – relying on import order is pretty brittle.
+
+`;
+
+exports[`examples readme-comments.js 1`] = `
+// comment before import chunk
+// a1
+/* a2
+ */ import a /* a3 */ from "a"; /* a4 */
+// b1
+import b from "b"; // b2
+/* c1 */ import c from "c"; // c2
+ /* not-a
+*/ // comment after import chunk
+
+`;
+
+exports[`examples readme-comments-items.js 1`] = `
+import { // comment at start
+/* a1
+  */ a, 
+  // b1
+  b as /* b2 */ renamed
+  , /* b3 */ 
+  /* c1 */ c /* c2 */// c3
+/* not-a
+  */ // comment at end
+} from "wherever";
+import {
+  d, /* d */   e,
+/* not-d
+  */ // comment at end after trailing comma
+} from "wherever2";
+import {/* comment at start */ f, /* f */g/* g */ } from "wherever3";
+
+`;
+
+exports[`examples readme-example.js 1`] = `
+import type { User } from "../../types";
+
+import classnames from "classnames";
+import PropTypes from "prop-types";
+import React from "react";
+
+import { getUser } from "../../api";
+import { formatNumber, truncate } from "../../utils";
+import Button from "../Button";
+import styles from "./styles.css";
+
+`;
+
+exports[`examples readme-order.js 1`] = `
+// Flow type imports.
+import type A from "A";
+import type { C } from "./types";
+import typeof B from "B";
+
+// Side effect imports. (These are not sorted internally.)
+import "./setup";
+import "some-polyfill";
+import "./global.css";
+
+// Packages and full URLs.
+import a from "an-npm-package";
+import b from "https://example.com/script.js";
+// Regardless of group, imported items are sorted like this:
+import {
+  // First, Flow type imports.
+  type x,
+  typeof y,
+  // Then everything else, alphabetically:
+  k,
+  l,
+  m as anotherName, // Sorted by the original name “m”, not “anotherName”.
+  n,
+} from "wherever";
+
+// Absolute imports.
+import c from "/";
+import d from "/home/user/foo";
+
+// Relative imports.
+import e from "../../utils";
+import f from "../..";
+import g from "./constants";
+import h from "./styles";
+import i from "html-loader!./text.html";
+import j from ".";
+
+`;
