@@ -81,7 +81,6 @@ npm install --save-dev eslint
 ```
 
 Next, install `eslint-plugin-simple-import-sort`:
-not been released yet**:
 
 ```
 npm install --save-dev eslint-plugin-simple-import-sort
