@@ -3,6 +3,7 @@
 const baseRules = require("eslint-config-lydell");
 
 module.exports = {
+  root: true,
   plugins: ["import", "jest", "prettier"],
   env: { es6: true, node: true },
   rules: Object.assign({}, baseRules({ import: true }), {
