@@ -80,7 +80,7 @@ First you need to install [ESLint]:
 npm install --save-dev eslint
 ```
 
-Next, install `eslint-plugin-simple-import-sort` **– note that this package has
+Next, install `eslint-plugin-simple-import-sort`:
 not been released yet**:
 
 ```
