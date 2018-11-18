@@ -1,4 +1,4 @@
-# eslint-plugin-simple-import-sort
+# eslint-plugin-simple-import-sort [![Build Status][travis-badge]][travis-link]
 
 Easy autofixable import sorting.
 
@@ -541,5 +541,7 @@ You can need [Node.js] 10 and npm 6.
 [sort order]: #sort-order
 [sort-from]: #why-sort-on-from
 [sort-imports]: https://eslint.org/docs/rules/sort-imports
+[travis-badge]: https://travis-ci.com/lydell/eslint-plugin-simple-import-sort.svg?branch=master
+[travis-link]: https://travis-ci.com/lydell/eslint-plugin-simple-import-sort
 [webpack loader syntax]: https://webpack.js.org/concepts/loaders/#inline
 <!-- prettier-ignore-end -->
