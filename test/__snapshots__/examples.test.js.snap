@@ -102,6 +102,24 @@ import Thing from "side-effects";
 
 `;
 
+exports[`examples prettier-comments.js 1`] = `
+/* eslint prettier/prettier: "error" */
+// This is just a test to make sure that this plugin plays well with Prettier.
+
+import def, { // start
+  /*c
+   */
+  c,
+  d /*d*/,
+  e,
+  // f
+  f, // f
+  // end
+} from "s";
+import { /* start */ a, /*a*/ b /*b*/ } from "t";
+
+`;
+
 exports[`examples readme-comments.js 1`] = `
 // comment before import chunk
 // a1
