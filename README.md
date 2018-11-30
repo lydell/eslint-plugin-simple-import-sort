@@ -10,7 +10,7 @@ Easy autofixable import sorting.
 - ✔️ [eslint-plugin-import] friendly
 - ✔️ `git diff` friendly
 - ✔️ 100% code coverage
-- ✅ No configuration
+- ☯️ No configuration
 - ❌ [Does not support `require`][no-require]
 
 ## Contents
