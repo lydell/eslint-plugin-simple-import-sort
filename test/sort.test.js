@@ -1097,10 +1097,10 @@ flowRuleTester.run("sort (flow)", plugin.rules.sort, {
 
     // Sorted alphabetically.
     `
-import type x1 from "c";
-import type x2 from "d"
-import typeof x3 from "a";
-import typeof x4 from "b"
+import type x1 from "a";
+import typeof x2 from "b"
+import typeof x3 from "c";
+import type x4 from "d"
     `.trim(),
   ],
 
@@ -1120,17 +1120,17 @@ import typeof D from "./D";
       `.trim(),
       output: actual => {
         expect(actual).toMatchInlineSnapshot(`
-import type {X} from "X";
-import type {Z} from "Z";
-import type C from "/B";
-import type B from "./B";
-import typeof A from "A";
-import typeof D from "./D";
-
 import './global.css';
 
+import typeof A from "A";
+import type {X} from "X";
+import type {Z} from "Z";
 import react from "react"
 
+import type C from "/B";
+
+import type B from "./B";
+import typeof D from "./D";
 import {type Y, typeof T, pluralize,truncate} from "./utils"
 `);
       },
@@ -1145,6 +1145,36 @@ import {type Y, typeof T, pluralize,truncate} from "./utils"
         expect(actual).toMatchInlineSnapshot(
           `import {a/*1*/, a,/*2*/a as b2, a as c, b} from "specifiers-duplicates"`
         );
+      },
+      errors: 1,
+    },
+
+    // All at once.
+    {
+      code: `
+import A from "webpack!a";
+import B from "webpack!./a";
+import type C from "a";
+import D from "a";
+import typeof E from "a";
+import type F from "flow!./a";
+import type G from "flow!a";
+import typeof H from "a";
+import type I from "./a";
+      `.trim(),
+      output: actual => {
+        expect(actual).toMatchInlineSnapshot(`
+import type C from "a";
+import type G from "flow!a";
+import typeof E from "a";
+import typeof H from "a";
+import D from "a";
+import A from "webpack!a";
+
+import type I from "./a";
+import type F from "flow!./a";
+import B from "webpack!./a";
+`);
       },
       errors: 1,
     },
@@ -1169,20 +1199,19 @@ import typeof * as switch from "foo";
       `.trim(),
       output: actual => {
         expect(actual).toMatchInlineSnapshot(`
+import typeof foo from "bar";
+import type, { foo } from "bar";
 import type { bar,foo } from "baz";
+import typeof { foo as bar } from "baz";
 import type Def from "foo";
 import type {named} from "foo";
 import type Def, {named} from "foo";
 import type switch from "foo";
 import type { switch } from "foo";
-import typeof foo from "bar";
-import typeof { foo as bar } from "baz";
 import typeof switch from "foo";
 import typeof { switch } from "foo";
 import typeof * as ns from "foo";
 import typeof * as switch from "foo";
-
-import type, { foo } from "bar";
 import type from "foo";
 `);
       },
@@ -1255,8 +1284,20 @@ import type {
       `.trim(),
       output: actual => {
         expect(actual).toMatchInlineSnapshot(`
+import { forEach, isCollection } from 'iterall';
+
+import { GraphQLError } from '../error/GraphQLError';
+import { locatedError } from '../error/locatedError';
 import type { MaybePromise } from '../jsutils/MaybePromise';
 import type { ObjMap } from '../jsutils/ObjMap';
+import inspect from '../jsutils/inspect';
+import invariant from '../jsutils/invariant';
+import isInvalid from '../jsutils/isInvalid';
+import isNullish from '../jsutils/isNullish';
+import isPromise from '../jsutils/isPromise';
+import memoize3 from '../jsutils/memoize3';
+import promiseForObject from '../jsutils/promiseForObject';
+import promiseReduce from '../jsutils/promiseReduce';
 import type {
   DocumentNode,
   FieldNode,
@@ -1266,6 +1307,7 @@ import type {
   OperationDefinitionNode,
   SelectionSetNode,
 } from '../language/ast';
+import { Kind } from '../language/kinds';
 import type {
   GraphQLAbstractType,
   GraphQLField,
@@ -1277,21 +1319,6 @@ import type {
   GraphQLResolveInfo,
   ResponsePath,
 } from '../type/definition';
-import type { GraphQLSchema } from '../type/schema';
-
-import { forEach, isCollection } from 'iterall';
-
-import { GraphQLError } from '../error/GraphQLError';
-import { locatedError } from '../error/locatedError';
-import inspect from '../jsutils/inspect';
-import invariant from '../jsutils/invariant';
-import isInvalid from '../jsutils/isInvalid';
-import isNullish from '../jsutils/isNullish';
-import isPromise from '../jsutils/isPromise';
-import memoize3 from '../jsutils/memoize3';
-import promiseForObject from '../jsutils/promiseForObject';
-import promiseReduce from '../jsutils/promiseReduce';
-import { Kind } from '../language/kinds';
 import {
   isAbstractType,
   isLeafType,
@@ -1308,6 +1335,7 @@ import {
   TypeMetaFieldDef,
   TypeNameMetaFieldDef,
 } from '../type/introspection';
+import type { GraphQLSchema } from '../type/schema';
 import { assertValidSchema } from '../type/validate';
 import { getOperationRootType } from '../utilities/getOperationRootType';
 import { typeFromAST } from '../utilities/typeFromAST';

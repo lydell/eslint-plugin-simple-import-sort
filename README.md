@@ -58,13 +58,12 @@ import { truncate, formatNumber } from "../../utils";
 
 <!-- prettier-ignore -->
 ```js
-import type { User } from "../../types";
-
 import classnames from "classnames";
 import PropTypes from "prop-types";
 import React from "react";
 
 import { getUser } from "../../api";
+import type { User } from "../../types";
 import { formatNumber, truncate } from "../../utils";
 import Button from "../Button";
 import styles from "./styles.css";
@@ -191,12 +190,10 @@ end up in the same chunk.
 
 Then, each chunk is _grouped_ into sections with a blank line between each.
 
-1. `import type { A } from "A"`: [Flow type imports] \(`type` first, then
-   `typeof`)
-2. `import "./setup"`: Side effect imports. (These are not sorted internally.)
-3. `import react from "react"`: Packages and full URLs.
-4. `import a from "/a"`: Absolute imports.
-5. `import a from "./a"`: Relative imports.
+1. `import "./setup"`: Side effect imports. (These are not sorted internally.)
+2. `import react from "react"`: Packages and full URLs.
+3. `import a from "/a"`: Absolute imports.
+4. `import a from "./a"`: Relative imports.
 
 Within each section, the imports are sorted alphabetically on the `from` string
 like [`array.sort()`][array-sort] works. Keep it simple! See also [“Why sort on
@@ -213,24 +210,21 @@ Within [Flow type imports], the imports are also sub-grouped with packages
 first, followed by absolute imports, followed by relative imports.
 
 [webpack loader syntax] is stripped before sorting, so `"loader!a"` sorts before
-`"b"`. (If two source are equal after stripping the loader syntax, the one with
-loader syntax comes last.)
+`"b"`. If two source are equal after stripping the loader syntax, the one with
+loader syntax comes last. Similarly, if both `import type` _and_ regular imports
+are used for the same source, the [Flow type imports] come first.
 
 Example:
 
 <!-- prettier-ignore -->
 ```js
-// Flow type imports.
-import type A from "A";
-import type { C } from "./types";
-import typeof B from "B";
-
 // Side effect imports. (These are not sorted internally.)
 import "./setup";
 import "some-polyfill";
 import "./global.css";
 
 // Packages and full URLs.
+import type A from "an-npm-package";
 import a from "an-npm-package";
 import b from "https://example.com/script.js";
 
@@ -241,6 +235,8 @@ import d from "/home/user/foo";
 // Relative imports.
 import e from "../../utils";
 import f from "../..";
+import type { B } from "../types";
+import typeof C from "../types";
 import g from "./constants";
 import h from "./styles";
 import i from "html-loader!./text.html";
@@ -256,7 +252,7 @@ import {
   l,
   m as anotherName, // Sorted by the original name “m”, not “anotherName”.
   n,
-} from "wherever";
+} from ".";
 ```
 
 <!--

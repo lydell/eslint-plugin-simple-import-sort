@@ -68,23 +68,17 @@ function maybeReportSorting(imports, context) {
 }
 
 function printSortedImports(importItems, sourceCode) {
-  const typeImports = [];
-  const typeofImports = [];
   const sideEffectImports = [];
   const absoluteImports = [];
   const relativeImports = [];
   const restImports = [];
 
   for (const item of importItems) {
-    if (isTypeImport(item.node)) {
-      typeImports.push(item);
-    } else if (isTypeofImport(item.node)) {
-      typeofImports.push(item);
-    } else if (isSideEffectImport(item.node)) {
+    if (item.group === "sideEffect") {
       sideEffectImports.push(item);
-    } else if (isAbsoluteImport(item.source)) {
+    } else if (item.group === "absolute") {
       absoluteImports.push(item);
-    } else if (isRelativeImport(item.source)) {
+    } else if (item.group === "relative") {
       relativeImports.push(item);
     } else {
       restImports.push(item);
@@ -92,7 +86,6 @@ function printSortedImports(importItems, sourceCode) {
   }
 
   const sortedItems = [
-    sortImportItems(typeImports).concat(sortImportItems(typeofImports)),
     sideEffectImports,
     sortImportItems(restImports),
     sortImportItems(absoluteImports),
@@ -174,12 +167,15 @@ function getImportItems(imports, sourceCode) {
     const { start } = all[0];
     const { end } = all[all.length - 1];
 
+    const { group, source } = getGroupAndSource(importNode);
+
     return {
       node: importNode,
       code,
       start,
       end,
-      source: getSource(importNode),
+      group,
+      source,
       index: importIndex,
       needsNewline:
         commentsAfter.length > 0 &&
@@ -211,26 +207,11 @@ function printSortedSpecifiers(importNode, sourceCode) {
   const specifierTokens = allTokens.slice(openBraceIndex + 1, closeBraceIndex);
   const itemsResult = getSpecifierItems(specifierTokens, sourceCode);
 
-  const typeSpecifiers = [];
-  const typeofSpecifiers = [];
-  const restSpecifiers = [];
+  const items = itemsResult.items.map((originalItem, index) =>
+    Object.assign({}, originalItem, { node: specifiers[index] })
+  );
 
-  for (const [index, originalItem] of itemsResult.items.entries()) {
-    const item = Object.assign({}, originalItem, { node: specifiers[index] });
-    if (isTypeImport(item.node)) {
-      typeSpecifiers.push(item);
-    } else if (isTypeofImport(item.node)) {
-      typeofSpecifiers.push(item);
-    } else {
-      restSpecifiers.push(item);
-    }
-  }
-
-  const sortedItems = [
-    ...sortSpecifierItems(typeSpecifiers),
-    ...sortSpecifierItems(typeofSpecifiers),
-    ...sortSpecifierItems(restSpecifiers),
-  ];
+  const sortedItems = sortSpecifierItems(items);
 
   const newline = guessNewline(sourceCode);
 
@@ -649,7 +630,12 @@ function printCommentsAfter(node, comments, sourceCode) {
 function sortImportItems(items) {
   return items.slice().sort(
     (itemA, itemB) =>
-      compare(itemA.source, itemB.source) ||
+      // First compare the `from` part, excluding webpack loader syntax.
+      compare(itemA.source.source, itemB.source.source) ||
+      // Then put Flow type imports before regular ones.
+      compare(itemA.source.importKind, itemB.source.importKind) ||
+      // Then sort by webpack loader syntax (no loaders comes first).
+      compare(itemA.source.webpack, itemB.source.webpack) ||
       // Keep the original order if the sources are the same. It's not worth
       // trying to compare anything else, and you can use `import/no-duplicates`
       // to get rid of the problem anyway.
@@ -660,7 +646,11 @@ function sortImportItems(items) {
 function sortSpecifierItems(items) {
   return items.slice().sort(
     (itemA, itemB) =>
+      // Put Flow type imports before regular ones.
+      compare(getImportKind(itemA.node), getImportKind(itemB.node)) ||
+      // Then compare by name.
       compare(itemA.node.imported.name, itemB.node.imported.name) ||
+      // Then compare by the `as` name.
       compare(itemA.node.local.name, itemB.node.local.name) ||
       // Keep the original order if the names are the same. It's not worth
       // trying to compare anything else, `import {a, a} from "mod"` is a syntax
@@ -685,18 +675,6 @@ function isImportSpecifier(node) {
   return node.type === "ImportSpecifier";
 }
 
-// import type A from "A"
-// import { type A } from "A"
-function isTypeImport(importNode) {
-  return importNode.importKind === "type";
-}
-
-// import typeof A from "A"
-// import { typeof A } from "A"
-function isTypeofImport(importNode) {
-  return importNode.importKind === "typeof";
-}
-
 // import "setup"
 function isSideEffectImport(importNode) {
   return importNode.specifiers.length === 0;
@@ -704,14 +682,12 @@ function isSideEffectImport(importNode) {
 
 // import a from "/"
 function isAbsoluteImport(source) {
-  // Check index 1 rather than 0 due to the `tweak` function.
-  return source[1] === "/";
+  return source[0] === "/";
 }
 
 // import a from "./"
 function isRelativeImport(source) {
-  // Check index 1 rather than 0 due to the `tweak` function.
-  return source[1] === ".";
+  return source[0] === ".";
 }
 
 function isIdentifier(node) {
@@ -738,37 +714,41 @@ function isNewline(node) {
   return node.type === "Newline";
 }
 
-// Get the `from` part of an import, stripping away webpack loader syntax:
+// Parse the `from` part of an import, stripping away webpack loader syntax:
 //
 //     import x from "webpack-loader!./index.js"
 //                                   ^^^^^^^^^^
-//
-// Actually, the loader syntax is moved to the end, allowing to sort on it if
-// only the loaders differ.
-//
 // Loader syntax documentation: https://webpack.js.org/concepts/loaders/#inline
-function getSource(importNode) {
+function getGroupAndSource(importNode) {
   const rawSource = importNode.source.value;
   const index = rawSource.lastIndexOf("!");
-  return index >= 0
-    ? tweak(rawSource.slice(index + 1)) + "\n" + rawSource.slice(0, index + 1)
-    : tweak(rawSource);
+  const [source, webpack] =
+    index >= 0
+      ? [rawSource.slice(index + 1), rawSource.slice(0, index + 1)]
+      : [rawSource, ""];
+
+  return {
+    group: isSideEffectImport(importNode)
+      ? "sideEffect"
+      : isAbsoluteImport(source)
+      ? "absolute"
+      : isRelativeImport(source)
+      ? "relative"
+      : "rest",
+    source: {
+      // This makes "." sort after "..", for instance. "\uffff" sorts after
+      // anything else (as far as I know).
+      source: source.replace(/\.\/?$/, "$&\uffff"),
+      importKind: getImportKind(importNode),
+      webpack,
+    },
+  };
 }
 
-// Tweak the `from` part of an import for sorting purposes.
-function tweak(source) {
-  // Add a prefix so that `import type A from "npm-package"` comes before
-  // `import type B from "./B"`.
-  const tmp = `x${source}`;
-  const prefix = isAbsoluteImport(tmp)
-    ? "1"
-    : isRelativeImport(tmp)
-    ? "2"
-    : "0";
-
-  // This makes "." sort after "..", for instance. "\uffff" sorts after anything
-  // else (as far as I know).
-  return prefix + source.replace(/\.\/?$/, "$&\uffff");
+function getImportKind(importNode) {
+  // Flow `type` and `typeof` imports. Default to "\uffff" to make regular
+  // imports come after the type imports.
+  return importNode.importKind || "\uffff";
 }
 
 // Like `Array.prototype.findIndex`, but searches from the end.
