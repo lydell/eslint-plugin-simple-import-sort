@@ -1,3 +1,7 @@
+### Version 2.1.0 (2019-01-26)
+
+- Added: [TypeScript] support, via [@typescript-eslint/parser].
+
 ### Version 2.0.0 (2018-11-30)
 
 - Changed: [Flow type imports] are no longer put in their own group at the top.
@@ -23,6 +27,8 @@
 - Initial release.
 
 <!-- prettier-ignore-start -->
+[@typescript-eslint/parser]: https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/parser
 [flow type imports]: https://flow.org/en/docs/types/modules/
 [sort-from]: README.md#why-sort-on-from
+[typescript]: https://www.typescriptlang.org/
 <!-- prettier-ignore-end -->
