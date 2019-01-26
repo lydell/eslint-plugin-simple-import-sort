@@ -164,8 +164,8 @@ function getImportItems(imports, sourceCode) {
     const code = before + printSortedSpecifiers(importNode, sourceCode) + after;
 
     const all = [...commentsBefore, importNode, ...commentsAfter];
-    const { start } = all[0];
-    const { end } = all[all.length - 1];
+    const [start] = all[0].range;
+    const [, end] = all[all.length - 1].range;
 
     const { group, source } = getGroupAndSource(importNode);
 
@@ -582,12 +582,14 @@ function getAllTokens(node, sourceCode) {
           commentIndex === 0 ? token : comments[commentIndex - 1];
         return [
           ...parseWhitespace(
-            sourceCode.text.slice(previous.end, comment.start)
+            sourceCode.text.slice(previous.range[1], comment.range[0])
           ),
           Object.assign({}, comment, { code: sourceCode.getText(comment) }),
         ];
       }),
-      ...parseWhitespace(sourceCode.text.slice(last.end, nextToken.start)),
+      ...parseWhitespace(
+        sourceCode.text.slice(last.range[1], nextToken.range[0])
+      ),
     ];
   });
 }
@@ -607,7 +609,7 @@ function printCommentsBefore(node, comments, sourceCode) {
       const next = index === lastIndex ? node : comments[index + 1];
       return (
         sourceCode.getText(comment) +
-        removeBlankLines(sourceCode.text.slice(comment.end, next.start))
+        removeBlankLines(sourceCode.text.slice(comment.range[1], next.range[0]))
       );
     })
     .join("");
@@ -620,8 +622,9 @@ function printCommentsAfter(node, comments, sourceCode) {
     .map((comment, index) => {
       const previous = index === 0 ? node : comments[index - 1];
       return (
-        removeBlankLines(sourceCode.text.slice(previous.end, comment.start)) +
-        sourceCode.getText(comment)
+        removeBlankLines(
+          sourceCode.text.slice(previous.range[1], comment.range[0])
+        ) + sourceCode.getText(comment)
       );
     })
     .join("");

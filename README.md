@@ -4,8 +4,9 @@ Easy autofixable import sorting.
 
 - ✔️ Runs via `eslint --fix` – no new tooling
 - ✔️ Handles comments
-- ✔️ Handles [Flow type imports]
+- ✔️ Handles [Flow type imports] \(via [babel-eslint])
 - ✔️ Handles [webpack loader syntax]
+- ✔️ [TypeScript] friendly \(via [@typescript-eslint/parser])
 - ✔️ [Prettier] friendly
 - ✔️ [eslint-plugin-import] friendly
 - ✔️ `git diff` friendly
@@ -516,7 +517,9 @@ You can need [Node.js] 10 and npm 6.
 [MIT](LICENSE)
 
 <!-- prettier-ignore-start -->
+[@typescript-eslint/parser]: https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/parser
 [array-sort]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+[babel-eslint]: https://github.com/babel/babel-eslint
 [comment-handling]: #comment-and-whitespace-handling
 [doctoc]: https://github.com/thlorenz/doctoc/
 [eslint-fix]: https://eslint.org/docs/user-guide/command-line-interface#--fix
@@ -542,5 +545,6 @@ You can need [Node.js] 10 and npm 6.
 [sort-imports]: https://eslint.org/docs/rules/sort-imports
 [travis-badge]: https://travis-ci.com/lydell/eslint-plugin-simple-import-sort.svg?branch=master
 [travis-link]: https://travis-ci.com/lydell/eslint-plugin-simple-import-sort
+[typescript]: https://www.typescriptlang.org/
 [webpack loader syntax]: https://webpack.js.org/concepts/loaders/#inline
 <!-- prettier-ignore-end -->

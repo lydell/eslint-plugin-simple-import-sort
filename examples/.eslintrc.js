@@ -78,5 +78,10 @@ module.exports = {
         "prettier/prettier": "off",
       },
     },
+    {
+      // TypeScript.
+      files: ["*.ts"],
+      parser: "@typescript-eslint/parser",
+    },
   ],
 };

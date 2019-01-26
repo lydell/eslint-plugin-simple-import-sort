@@ -25,11 +25,7 @@ expect.addSnapshotSerializer({
   print: value => value,
 });
 
-const ruleTester = new RuleTester({
-  parserOptions: { ecmaVersion: 2015, sourceType: "module" },
-});
-
-ruleTester.run("sort", plugin.rules.sort, {
+const baseTests = expect => ({
   valid: [
     // Simple cases.
     `import "a"`,
@@ -1066,11 +1062,7 @@ import ListErrors from './ListErrors';
   ],
 });
 
-const flowRuleTester = new RuleTester({
-  parser: "babel-eslint",
-});
-
-flowRuleTester.run("sort (flow)", plugin.rules.sort, {
+const flowTests = {
   valid: [
     // Simple cases.
     `import type a from "a"`,
@@ -1349,4 +1341,76 @@ import {
       errors: 1,
     },
   ],
+};
+
+const typescriptTests = {
+  valid: [],
+  invalid: [
+    {
+      code: `
+import React from "react";
+import Button from "../Button";
+
+import styles from "./styles.css";
+import { getUser } from "../../api";
+
+import PropTypes from "prop-types";
+import classnames from "classnames";
+import { truncate, formatNumber } from "../../utils";
+
+function pluck<T, K extends keyof T>(o: T, names: K[]): T[K][] {
+  return names.map(n => o[n]);
+}
+      `.trim(),
+      output: actual => {
+        expect(actual).toMatchInlineSnapshot(`
+import classnames from "classnames";
+import PropTypes from "prop-types";
+import React from "react";
+
+import { getUser } from "../../api";
+import { formatNumber,truncate } from "../../utils";
+import Button from "../Button";
+import styles from "./styles.css";
+
+function pluck<T, K extends keyof T>(o: T, names: K[]): T[K][] {
+  return names.map(n => o[n]);
+}
+`);
+      },
+      errors: 1,
+    },
+  ],
+};
+
+const javascriptRuleTester = new RuleTester({
+  parserOptions: { ecmaVersion: 2015, sourceType: "module" },
 });
+
+const flowRuleTester = new RuleTester({
+  parser: "babel-eslint",
+});
+
+const typescriptRuleTester = new RuleTester({
+  parser: "@typescript-eslint/parser",
+  parserOptions: { sourceType: "module" },
+});
+
+// Run `baseTests` with all parsers, but only use `.toMatchInlineSnapshot` with
+// the first one, because Jest can’t update the snapshots otherwise.
+const expect2 = (...args) => {
+  const ret = expect(...args);
+  ret.toMatchInlineSnapshot = string => ret.toBe(string.trim());
+  return ret;
+};
+javascriptRuleTester.run("JavaScript", plugin.rules.sort, baseTests(expect));
+flowRuleTester.run("Flow", plugin.rules.sort, baseTests(expect2));
+typescriptRuleTester.run("TypeScript", plugin.rules.sort, baseTests(expect2));
+
+flowRuleTester.run("Flow-specific", plugin.rules.sort, flowTests);
+
+typescriptRuleTester.run(
+  "TypeScript-specific",
+  plugin.rules.sort,
+  typescriptTests
+);

@@ -23,7 +23,7 @@
   "scripts": {
     "eslint": "eslint .",
     "eslint:fix": "npm run eslint -- --fix",
-    "eslint:examples": "eslint --rulesdir src --no-ignore --fix-dry-run --format json --report-unused-disable-directives examples",
+    "eslint:examples": "eslint --rulesdir src --no-ignore --fix-dry-run --format json --report-unused-disable-directives examples --ext .js,.ts",
     "prettier": "prettier --write \"*.md\"",
     "doctoc": "doctoc README.md",
     "jest": "jest",
@@ -32,6 +32,7 @@
     "prepublishOnly": "npm test"
   },
   "devDependencies": {
+    "@typescript-eslint/parser": "1.1.0",
     "babel-eslint": "10.0.1",
     "cross-spawn": "6.0.5",
     "doctoc": "1.4.0",
@@ -41,7 +42,8 @@
     "eslint-plugin-jest": "22.1.3",
     "eslint-plugin-prettier": "3.0.1",
     "jest": "24.0.0",
-    "prettier": "1.16.1"
+    "prettier": "1.16.1",
+    "typescript": "3.2.4"
   },
   "peerDependencies": {
     "eslint": ">=5.0.0"

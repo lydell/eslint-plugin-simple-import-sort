@@ -203,3 +203,22 @@ import {
 } from ".";
 
 `;
+
+exports[`examples typescript.ts 1`] = `
+import classnames from "classnames";
+import PropTypes from "prop-types";
+import React from "react";
+
+import { getUser } from "../../api";
+import { formatNumber,truncate } from "../../utils";
+import Button from "../Button";
+import styles from "./styles.css";
+
+// The above is the same as readme-example.js. The below function is here to
+// make sure that this file isn’t both valid JS and valid TS, forcing the need
+// for \`@typescript-eslint/parser\`.
+function pluck<T, K extends keyof T>(o: T, names: K[]): T[K][] {
+  return names.map(n => o[n]);
+}
+
+`;
