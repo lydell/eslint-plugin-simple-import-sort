@@ -4,7 +4,20 @@ module.exports = {
   meta: {
     type: "layout",
     fixable: "code",
-    schema: [],
+    schema: [
+      {
+        type: "object",
+        properties: {
+          absolutePrefixes: {
+            type: "array",
+            items: {
+              type: "string",
+            },
+          },
+        },
+        additionalProperties: false,
+      },
+    ],
     docs: {
       url:
         "https://github.com/lydell/eslint-plugin-simple-import-sort#sort-order",
@@ -23,6 +36,15 @@ module.exports = {
     };
   },
 };
+
+function getOptions(context) {
+  return Object.assign(
+    {
+      absolutePrefixes: ["/"],
+    },
+    context.options[0]
+  );
+}
 
 // A “chunk” is a sequence of import statements with only comments and
 // whitespace between.
@@ -48,7 +70,7 @@ function extractImportChunks(programNode) {
 
 function maybeReportSorting(imports, context) {
   const sourceCode = context.getSourceCode();
-  const items = getImportItems(imports, sourceCode);
+  const items = getImportItems(imports, sourceCode, context);
   const sorted = printSortedImports(items, sourceCode);
 
   const { start } = items[0];
@@ -129,7 +151,7 @@ function printSortedImports(importItems, sourceCode) {
 // import. Most importantly there’s a `code` property that contains the import
 // node as a string, with comments (if any). Finding the corresponding comments
 // is the hard part.
-function getImportItems(imports, sourceCode) {
+function getImportItems(imports, sourceCode, context) {
   return imports.map((importNode, importIndex) => {
     const lastLine =
       importIndex === 0
@@ -167,7 +189,7 @@ function getImportItems(imports, sourceCode) {
     const [start] = all[0].range;
     const [, end] = all[all.length - 1].range;
 
-    const { group, source } = getGroupAndSource(importNode);
+    const { group, source } = getGroupAndSource(importNode, context);
 
     return {
       node: importNode,
@@ -684,8 +706,12 @@ function isSideEffectImport(importNode) {
 }
 
 // import a from "/"
-function isAbsoluteImport(source) {
-  return source[0] === "/";
+// import a from "custom-prefix/"
+function isAbsoluteImport(source, context) {
+  const options = getOptions(context);
+  return (
+    options.absolutePrefixes.findIndex(prefix => source.startsWith(prefix)) >= 0
+  );
 }
 
 // import a from "./"
@@ -722,7 +748,7 @@ function isNewline(node) {
 //     import x from "webpack-loader!./index.js"
 //                                   ^^^^^^^^^^
 // Loader syntax documentation: https://webpack.js.org/concepts/loaders/#inline
-function getGroupAndSource(importNode) {
+function getGroupAndSource(importNode, context) {
   const rawSource = importNode.source.value;
   const index = rawSource.lastIndexOf("!");
   const [source, webpack] =
@@ -733,7 +759,7 @@ function getGroupAndSource(importNode) {
   return {
     group: isSideEffectImport(importNode)
       ? "sideEffect"
-      : isAbsoluteImport(source)
+      : isAbsoluteImport(source, context)
       ? "absolute"
       : isRelativeImport(source)
       ? "relative"

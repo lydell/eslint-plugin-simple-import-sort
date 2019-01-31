@@ -43,6 +43,17 @@ module.exports = {
       },
     },
     {
+      files: ["absolute-prefix.js"],
+      rules: {
+        sort: [
+          "error",
+          {
+            absolutePrefixes: ["/", "@/"],
+          },
+        ],
+      },
+    },
+    {
       // Use these rules from eslint-plugin-import
       // (https://github.com/benmosher/eslint-plugin-import/) if you want hoist
       // imports to the top and add a blank line after them.
