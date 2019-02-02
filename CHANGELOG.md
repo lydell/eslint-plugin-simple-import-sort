@@ -1,3 +1,18 @@
+### Version 3.0.0 (2019-02-02)
+
+- Changed: `@/foo` imports and similar are now treated as absolute imports. This
+  is a common convention in Vue to avoid `../../../foo` imports. Previously,
+  `@/foo` ended up among npm packages. This was fixed by turning the absolute
+  imports group into the “rest / trash can” group instead of the packages group.
+  The packages group now only contain valid npm package names and Node.js
+  builtins. The new grouping logic is:
+
+  1. `import "./setup"`: Side effect imports. (These are not sorted internally.)
+  2. `import react from "react"`: Packages (npm packages and Node.js builtins).
+  3. `import Error from "@/components/error.vue"`: Absolute imports, full URLs
+     and other imports (such as Vue-style `@/foo` ones).
+  4. `import a from "./a"`: Relative imports.
+
 ### Version 2.1.0 (2019-01-26)
 
 - Added: [TypeScript] support, via [@typescript-eslint/parser].
