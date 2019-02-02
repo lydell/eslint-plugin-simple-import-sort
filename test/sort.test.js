@@ -628,7 +628,7 @@ import x2 from "webpack-loader!./c"
       errors: 1,
     },
 
-    // Dots and slashes sorting order.
+    // Special characters sorting order.
     {
       code: `
 import x0 from "";
@@ -654,18 +654,44 @@ import x17 from "async";
 import x18 from "./a/-";
 import x19 from "./a/.";
 import x20 from "./a/0";
+import x21 from "@/components/error.vue"
+import x22 from "@/components/Alert"
+import x23 from "~/test"
+import x24 from "#/test"
+import x25 from "fs";
+import x26 from "fs/something";
+import x27 from "Fs";
+import x28 from "lodash/fp";
+import x29 from "@storybook/react";
+import x30 from "@storybook/react/something";
+import x31 from "1";
+import x32 from "1*";
+import x33 from "a*";
       `.trim(),
       output: actual => {
         expect(actual).toMatchInlineSnapshot(`
-import x0 from "";
+import x31 from "1";
+import x29 from "@storybook/react";
+import x30 from "@storybook/react/something";
 import x17 from "async";
-import x15 from "http://example.com/script.js";
-import x14 from "https://example.com/script.js";
+import x25 from "fs";
+import x26 from "fs/something";
+import x28 from "lodash/fp";
 import x16 from "react";
 
+import x0 from "";
+import x32 from "1*";
+import x27 from "Fs";
+import x33 from "a*";
+import x15 from "http://example.com/script.js";
+import x14 from "https://example.com/script.js";
+import x24 from "#/test"
 import x11 from "/";
 import x12 from "/a";
 import x13 from "/a/b";
+import x22 from "@/components/Alert"
+import x21 from "@/components/error.vue"
+import x23 from "~/test"
 
 import x10 from "../../a";
 import x9 from "../../";
@@ -1107,6 +1133,7 @@ import type {X} from "X";
 import {truncate, typeof T, type Y, pluralize} from "./utils"
 import type B from "./B";
 import type C from "/B";
+import type E from "@/B";
 import typeof A from "A";
 import typeof D from "./D";
       `.trim(),
@@ -1114,12 +1141,13 @@ import typeof D from "./D";
         expect(actual).toMatchInlineSnapshot(`
 import './global.css';
 
+import react from "react"
+
 import typeof A from "A";
 import type {X} from "X";
 import type {Z} from "Z";
-import react from "react"
-
 import type C from "/B";
+import type E from "@/B";
 
 import type B from "./B";
 import typeof D from "./D";

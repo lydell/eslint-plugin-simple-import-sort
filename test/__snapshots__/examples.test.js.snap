@@ -172,14 +172,16 @@ import "./setup";
 import "some-polyfill";
 import "./global.css";
 
-// Packages and full URLs.
+// Packages.
 import type A from "an-npm-package";
 import a from "an-npm-package";
-import b from "https://example.com/script.js";
+import fs from "fs";
 
-// Absolute imports.
+// Absolute imports, full URLs and other imports.
+import b from "https://example.com/script.js";
 import c from "/";
 import d from "/home/user/foo";
+import Error from "@/components/error.vue";
 
 // Relative imports.
 import e from "../../utils";

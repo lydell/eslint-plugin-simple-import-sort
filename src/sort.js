@@ -1,5 +1,7 @@
 "use strict";
 
+const validateNpmPackageName = require("validate-npm-package-name");
+
 module.exports = {
   meta: {
     type: "layout",
@@ -69,15 +71,15 @@ function maybeReportSorting(imports, context) {
 
 function printSortedImports(importItems, sourceCode) {
   const sideEffectImports = [];
-  const absoluteImports = [];
+  const packageImports = [];
   const relativeImports = [];
   const restImports = [];
 
   for (const item of importItems) {
     if (item.group === "sideEffect") {
       sideEffectImports.push(item);
-    } else if (item.group === "absolute") {
-      absoluteImports.push(item);
+    } else if (item.group === "package") {
+      packageImports.push(item);
     } else if (item.group === "relative") {
       relativeImports.push(item);
     } else {
@@ -87,8 +89,8 @@ function printSortedImports(importItems, sourceCode) {
 
   const sortedItems = [
     sideEffectImports,
+    sortImportItems(packageImports),
     sortImportItems(restImports),
-    sortImportItems(absoluteImports),
     sortImportItems(relativeImports),
   ];
 
@@ -683,9 +685,21 @@ function isSideEffectImport(importNode) {
   return importNode.specifiers.length === 0;
 }
 
-// import a from "/"
-function isAbsoluteImport(source) {
-  return source[0] === "/";
+const PACKAGE_REGEX = /^(?:@[^/]+\/)?[^/]+/;
+
+// import fs from "fs";
+// import { compose } from "lodash/fp";
+// import { storiesOf } from '@storybook/react';
+function isPackageImport(source) {
+  const match = PACKAGE_REGEX.exec(source);
+  if (match == null) {
+    return false;
+  }
+  const { errors = [], warnings = [] } = validateNpmPackageName(match[0]);
+  return (
+    errors.length === 0 &&
+    warnings.filter(warning => !warning.includes("core module")).length === 0
+  );
 }
 
 // import a from "./"
@@ -729,19 +743,27 @@ function getGroupAndSource(importNode) {
     index >= 0
       ? [rawSource.slice(index + 1), rawSource.slice(0, index + 1)]
       : [rawSource, ""];
+  const group = isSideEffectImport(importNode)
+    ? "sideEffect"
+    : isPackageImport(source)
+    ? "package"
+    : isRelativeImport(source)
+    ? "relative"
+    : "rest";
 
   return {
-    group: isSideEffectImport(importNode)
-      ? "sideEffect"
-      : isAbsoluteImport(source)
-      ? "absolute"
-      : isRelativeImport(source)
-      ? "relative"
-      : "rest",
+    group,
     source: {
-      // This makes "." sort after "..", for instance. "\uffff" sorts after
-      // anything else (as far as I know).
-      source: source.replace(/\.\/?$/, "$&\uffff"),
+      source:
+        group === "relative"
+          ? // This makes "." sort after "..", for instance. "\uffff" sorts
+            // after anything else (as far as I know).
+            source.replace(/\.\/?$/, "$&\uffff")
+          : group === "rest"
+          ? // This makes ASCII letters and digits sort before anything else
+            // (except `\0` itself and the empty string).
+            source.replace(/^[a-z\d]/i, "\0$&")
+          : source,
       importKind: getImportKind(importNode),
       webpack,
     },

@@ -193,8 +193,9 @@ end up in the same chunk.
 Then, each chunk is _grouped_ into sections with a blank line between each.
 
 1. `import "./setup"`: Side effect imports. (These are not sorted internally.)
-2. `import react from "react"`: Packages and full URLs.
-3. `import a from "/a"`: Absolute imports.
+2. `import react from "react"`: Packages (npm packages and Node.js builtins).
+3. `import a from "/a"`: Absolute imports, full URLs and other imports (such as
+   Vue-style `@/foo` ones).
 4. `import a from "./a"`: Relative imports.
 
 Within each section, the imports are sorted alphabetically on the `from` string
@@ -206,13 +207,12 @@ structure come before closer ones – `"../../utils"` comes before `"../utils"`.
 Perhaps surprisingly though, `".."` would come before `"../../utils"` (since
 shorter substrings sort before longer strings). For that reason there’s one
 addition to the alphabetical rule: sources ending with `.` or `./` are sorted
-_after_ other sources with the same prefix.
-
-Within [Flow type imports], the imports are also sub-grouped with packages
-first, followed by absolute imports, followed by relative imports.
+_after_ other sources with the same prefix. Also, within the absolute imports
+group, imports starting with an ASCII letter or digit come first, separating
+them from those starting with symbols.
 
 [webpack loader syntax] is stripped before sorting, so `"loader!a"` sorts before
-`"b"`. If two source are equal after stripping the loader syntax, the one with
+`"b"`. If two sources are equal after stripping the loader syntax, the one with
 loader syntax comes last. Similarly, if both `import type` _and_ regular imports
 are used for the same source, the [Flow type imports] come first.
 
@@ -225,14 +225,16 @@ import "./setup";
 import "some-polyfill";
 import "./global.css";
 
-// Packages and full URLs.
+// Packages.
 import type A from "an-npm-package";
 import a from "an-npm-package";
-import b from "https://example.com/script.js";
+import fs from "fs";
 
-// Absolute imports.
+// Absolute imports, full URLs and other imports.
+import b from "https://example.com/script.js";
 import c from "/";
 import d from "/home/user/foo";
+import Error from "@/components/error.vue"
 
 // Relative imports.
 import e from "../../utils";
