@@ -1221,18 +1221,6 @@ import {type Y, typeof T, pluralize,truncate} from "./utils"
       errors: 1,
     },
 
-    // Original order is preserved for duplicate specifiers.
-    // espree considers this a syntax error, but babel-eslint allows it.
-    {
-      code: `import {a as c, a as b2, a/*1*/, b, a/*2*/} from "specifiers-duplicates"`.trim(),
-      output: actual => {
-        expect(actual).toMatchInlineSnapshot(
-          `import {a/*1*/, a,/*2*/a as b2, a as c, b} from "specifiers-duplicates"`
-        );
-      },
-      errors: 1,
-    },
-
     // All at once.
     {
       code: `
@@ -1258,45 +1246,6 @@ import A from "webpack!a";
 import type I from "./a";
 import type F from "flow!./a";
 import B from "webpack!./a";
-`);
-      },
-      errors: 1,
-    },
-
-    // https://github.com/babel/babel/blob/1af57e6f71ecffae10cb932415ac849d9cdc14e9/packages/babel-parser/test/fixtures/flow/type-imports/import-type/input.js#L1-L14
-    {
-      code: `
-import type Def from "foo";
-import type {named} from "foo";
-import type Def, {named} from "foo";
-import type switch from "foo";
-import type { switch } from "foo";
-import type { foo, bar } from "baz";
-import type from "foo";
-import type, { foo } from "bar";
-import typeof foo from "bar";
-import typeof switch from "foo";
-import typeof { switch } from "foo";
-import typeof { foo as bar } from "baz";
-import typeof * as ns from "foo";
-import typeof * as switch from "foo";
-      `.trim(),
-      output: actual => {
-        expect(actual).toMatchInlineSnapshot(`
-import typeof foo from "bar";
-import type, { foo } from "bar";
-import type { bar,foo } from "baz";
-import typeof { foo as bar } from "baz";
-import type Def from "foo";
-import type {named} from "foo";
-import type Def, {named} from "foo";
-import type switch from "foo";
-import type { switch } from "foo";
-import typeof switch from "foo";
-import typeof { switch } from "foo";
-import typeof * as ns from "foo";
-import typeof * as switch from "foo";
-import type from "foo";
 `);
       },
       errors: 1,
