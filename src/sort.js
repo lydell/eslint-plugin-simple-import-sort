@@ -684,7 +684,8 @@ function sortSpecifierItems(items) {
       compare(itemA.node.local.name, itemB.node.local.name) ||
       // Keep the original order if the names are the same. It's not worth
       // trying to compare anything else, `import {a, a} from "mod"` is a syntax
-      // error anyway (but babel-eslint supports it).
+      // error anyway (but babel-eslint kind of supports it).
+      // istanbul ignore next
       itemA.index - itemB.index
   );
 }
