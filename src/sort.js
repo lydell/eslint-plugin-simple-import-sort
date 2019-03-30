@@ -163,7 +163,18 @@ function getImportItems(imports, sourceCode) {
     const before = printCommentsBefore(importNode, commentsBefore, sourceCode);
     const after = printCommentsAfter(importNode, commentsAfter, sourceCode);
 
-    const code = before + printSortedSpecifiers(importNode, sourceCode) + after;
+    // Print the indentation before the the import or its first comment, if any,
+    // to support indentation in `<script>` tags.
+    const indentation = getIndentation(
+      commentsBefore.length > 0 ? commentsBefore[0] : importNode,
+      sourceCode
+    );
+
+    const code =
+      indentation +
+      before +
+      printSortedSpecifiers(importNode, sourceCode) +
+      after;
 
     const all = [...commentsBefore, importNode, ...commentsAfter];
     const [start] = all[0].range;
@@ -174,7 +185,7 @@ function getImportItems(imports, sourceCode) {
     return {
       node: importNode,
       code,
-      start,
+      start: start - indentation.length,
       end,
       group,
       source,
@@ -630,6 +641,20 @@ function printCommentsAfter(node, comments, sourceCode) {
       );
     })
     .join("");
+}
+
+function getIndentation(node, sourceCode) {
+  const tokenBefore = sourceCode.getTokenBefore(node, {
+    includeComments: true,
+  });
+  if (tokenBefore == null) {
+    const text = sourceCode.text.slice(0, node.range[0]);
+    const lines = text.split(NEWLINE);
+    return lines[lines.length - 1];
+  }
+  const text = sourceCode.text.slice(tokenBefore.range[1], node.range[0]);
+  const lines = text.split(NEWLINE);
+  return lines.length > 1 ? lines[lines.length - 1] : "";
 }
 
 function sortImportItems(items) {

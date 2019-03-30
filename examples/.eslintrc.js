@@ -4,6 +4,8 @@
 // `example/` look like after running `eslint --fix`. Each file has slightly
 // different configuration – see below.
 
+const vue = require("eslint-plugin-vue");
+
 module.exports = {
   root: true,
   parserOptions: {
@@ -82,6 +84,12 @@ module.exports = {
       // TypeScript.
       files: ["*.ts"],
       parser: "@typescript-eslint/parser",
+    },
+    {
+      // Vue `<script>` tags.
+      files: ["*.vue"],
+      parser: vue.configs.base.parser,
+      plugins: ["vue"],
     },
   ],
 };

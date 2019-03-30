@@ -23,7 +23,7 @@
   "scripts": {
     "eslint": "eslint .",
     "eslint:fix": "npm run eslint -- --fix",
-    "eslint:examples": "eslint --rulesdir src --no-ignore --fix-dry-run --format json --report-unused-disable-directives examples --ext .js,.ts",
+    "eslint:examples": "eslint --rulesdir src --no-ignore --fix-dry-run --format json --report-unused-disable-directives examples --ext .js,.ts,.vue",
     "prettier": "prettier --write \"*.md\"",
     "doctoc": "doctoc README.md",
     "jest": "jest",
@@ -44,6 +44,7 @@
     "eslint-plugin-import": "2.16.0",
     "eslint-plugin-jest": "22.2.2",
     "eslint-plugin-prettier": "3.0.1",
+    "eslint-plugin-vue": "5.2.2",
     "jest": "24.0.0",
     "prettier": "1.16.3",
     "typescript": "3.2.4"

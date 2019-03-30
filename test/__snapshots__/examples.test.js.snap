@@ -224,3 +224,22 @@ function pluck<T, K extends keyof T>(o: T, names: K[]): T[K][] {
 }
 
 `;
+
+exports[`examples vue.vue 1`] = `
+<script lang="ts">
+  /* a */ import a from "a";
+  // b
+  import {
+    b2,
+b3,
+    b4  } from "b";
+import c from "c"
+    // d
+    import d from "d"
+  import e from "e"
+  // Comment for vue-property-decorator
+  import { Component, Vue, Watch } from 'vue-property-decorator';
+  import { Location } from 'vue-router';
+  </script>
+
+`;

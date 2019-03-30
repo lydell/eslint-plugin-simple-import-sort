@@ -1006,6 +1006,70 @@ a,  b // b
       errors: 1,
     },
 
+    // Preserve indentation (for `<script>` tags).
+    {
+      code: `
+  import e from "e"
+  // b
+  import {
+    b4, b3,
+    b2
+  } from "b";
+  /* a */ import a from "a"; import c from "c"
+
+    // d
+    import d from "d"
+`.replace(/^\n|\n$/g, ""),
+      output: actual => {
+        expect(actual).toMatchInlineSnapshot(`
+  /* a */ import a from "a";
+  // b
+  import {
+    b2,
+b3,
+    b4  } from "b";
+import c from "c"
+    // d
+    import d from "d"
+  import e from "e"
+`);
+      },
+      errors: 1,
+    },
+
+    // Preserve indentation (for `<script>` tags) – CR.
+    {
+      code: `
+      \r
+  import e from "e"\r
+  // b\r
+  import {\r
+    b4, b3,\r
+    b2\r
+  } from "b";\r
+  /* a */ import a from "a"; import c from "c"\r
+ \r
+    // d\r
+    import d from "d"\r
+`.replace(/^\n|\n$/g, ""),
+      output: actual => {
+        expect(actual.replace(/\r/g, "<CR>")).toMatchInlineSnapshot(`
+      <CR>
+  /* a */ import a from "a";<CR>
+  // b<CR>
+  import {<CR>
+    b2,<CR>
+b3,<CR>
+    b4  } from "b";<CR>
+import c from "c"<CR>
+    // d<CR>
+    import d from "d"<CR>
+  import e from "e"<CR>
+`);
+      },
+      errors: 1,
+    },
+
     // https://github.com/gothinkster/react-redux-realworld-example-app/blob/b5557d1fd40afebe023e3102ad6ef50475146506/src/components/App.js#L1-L16
     {
       code: `
@@ -1428,7 +1492,8 @@ const typescriptRuleTester = new RuleTester({
 // the first one, because Jest can’t update the snapshots otherwise.
 const expect2 = (...args) => {
   const ret = expect(...args);
-  ret.toMatchInlineSnapshot = string => ret.toBe(string.trim());
+  ret.toMatchInlineSnapshot = string =>
+    ret.toBe(string.replace(/^\n|\n$/g, ""));
   return ret;
 };
 javascriptRuleTester.run("JavaScript", plugin.rules.sort, baseTests(expect));
