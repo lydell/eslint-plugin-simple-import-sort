@@ -1,3 +1,7 @@
+### Version 3.1.0 (2019-03-30)
+
+- Added: Support for indentation in Vue `<script>` tags.
+
 ### Version 3.0.0 (2019-02-02)
 
 - Changed: `@/foo` imports and similar are now treated as absolute imports. This
