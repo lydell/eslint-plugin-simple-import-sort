@@ -14,6 +14,9 @@ Easy autofixable import sorting.
 - ☯️ No configuration
 - ❌ [Does not support `require`][no-require]
 
+This is for those who use `eslint --fix` (autofix) a lot and want to completely
+forget about sorting imports!
+
 ## Contents
 
 <!-- prettier-ignore-start -->
@@ -32,6 +35,7 @@ Easy autofixable import sorting.
   - [Why sort on `from`?](#why-sort-on-from)
   - [Is sorting imports safe?](#is-sorting-imports-safe)
   - [The sorting autofix causes some odd whitespace!](#the-sorting-autofix-causes-some-odd-whitespace)
+  - [Can I use this without autofix?](#can-i-use-this-without-autofix)
 - [Development](#development)
   - [npm scripts](#npm-scripts)
   - [Directories](#directories)
@@ -142,7 +146,7 @@ want to enable some other sorting rule only for files that use `require`:
 
 ## Example configuration
 
-This example uses the following extra plugins:
+This example uses the following extra (optional) plugins:
 
 - [eslint-plugin-prettier]
 - [eslint-plugin-import]
@@ -174,6 +178,24 @@ This example uses the following extra plugins:
   ]
 }
 ```
+
+- `simple-import-sort/sort` is turned on by default.
+- The standard [sort-imports] rule is turned off, in case you extend a config
+  that includes it.
+- [prettier/prettier] runs [Prettier] inside ESLint and helps formatting your
+  imports (and all other code) nicely. (autofixable)
+- [import/first] makes sure all imports are at the top of the file.
+  (autofixable)
+- [import/newline-after-import] makes sure there’s a newline after the imports.
+  (autofixable)
+- [import/no-duplicates] merges import statements of the same file.
+  (autofixable, mostly)
+- For Node.js code, `simple-import-sort/sort` is turned off and replaced with
+  [import/order] for sorting of `require` calls.
+
+With the above configuration, you don’t need to scroll to the top of the file to
+add another import. Just put it above your function! ESLint will then snap it
+into place (at the top of the file, in order, and without duplicates).
 
 ## Sort order
 
@@ -491,6 +513,16 @@ moves around already existing whitespace rather than removing and adding new
 whitespace. This is to stay compatible with other ESLint rules that deal with
 whitespace.
 
+### Can I use this without autofix?
+
+Not really. The error message for this rule is literally “Run autofix to sort
+these imports!” Why? To actively encourage you to use autofix, and not waste
+time on manually doing something that the computer does a lot better. I’ve seen
+people painstakingly fixing cryptic (and annoying!) sorting errors from other
+rules one by one, not realizing they could have been autofixed. Finally, not
+trying to make more detailed messages makes the code of this plugin _much_
+easier to work with.
+
 ## Development
 
 You can need [Node.js] 10 and npm 6.
@@ -533,6 +565,9 @@ You can need [Node.js] 10 and npm 6.
 [flow type imports]: https://flow.org/en/docs/types/modules/
 [flow]: https://flow.org/
 [import/first]: https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/first.md
+[import/first]: https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/first.md
+[import/newline-after-import]: https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/newline-after-import.md
+[import/no-duplicates]: https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/no-duplicates.md
 [import/order]: https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/order.md
 [jest]: https://jestjs.io/
 [lines-around-comment]: https://eslint.org/docs/rules/lines-around-comment

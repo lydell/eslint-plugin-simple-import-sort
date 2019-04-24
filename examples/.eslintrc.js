@@ -47,12 +47,13 @@ module.exports = {
     {
       // Use these rules from eslint-plugin-import
       // (https://github.com/benmosher/eslint-plugin-import/) if you want hoist
-      // imports to the top and add a blank line after them.
+      // imports to the top, add a blank line after them and merge duplicates.
       files: ["eslint-plugin-import.js"],
       plugins: ["import"],
       rules: {
         "import/first": "error",
         "import/newline-after-import": "error",
+        "import/no-duplicates": "error"
       },
     },
     {
