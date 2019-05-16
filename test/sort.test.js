@@ -134,6 +134,111 @@ const baseTests = expect => ({
       errors: 1,
     },
 
+    // Semicolon-free code style, with start-of-line guarding semicolon.
+    {
+      code: input`
+          |import x2 from "b"
+          |import x1 from "a"
+          |
+          |;[].forEach()
+      `,
+      output: actual => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import x1 from "a"
+          |import x2 from "b"
+          |
+          |;[].forEach()
+        `);
+      },
+      errors: 1,
+    },
+
+    // Semicolon-free code style 2.
+    {
+      code: input`
+          |import { foo } from "bar"
+          |import a from "a"
+          |
+          |;(async function() {
+          |  await foo()
+          |})()
+      `,
+      output: actual => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import a from "a"
+          |import { foo } from "bar"
+          |
+          |;(async function() {
+          |  await foo()
+          |})()
+        `);
+      },
+      errors: 1,
+      parserOptions: { ecmaVersion: 2018 },
+    },
+
+    // Semicolons edge cases.
+    {
+      code: input`
+          |import x2 from "b"
+          |import x7 from "g";
+          |import x6 from "f"
+          |;import x5 from "e"
+          |import x4 from "d" ; import x3 from "c"
+          |import x1 from "a" ; [].forEach()
+      `,
+      output: actual => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import x1 from "a" ;
+          |import x2 from "b"
+          |import x3 from "c"
+          |import x4 from "d" ;
+          |import x5 from "e"
+          |import x6 from "f"
+          |;
+          |import x7 from "g"; [].forEach()
+        `);
+      },
+      errors: 1,
+    },
+
+    // Comments around start-of-line guarding semicolon.
+    {
+      code: input`
+          |import x2 from "b"
+          |import x1 from "a" // a
+          |
+          |;/* comment */[].forEach()
+      `,
+      output: actual => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import x1 from "a" // a
+          |import x2 from "b"
+          |
+          |;/* comment */[].forEach()
+        `);
+      },
+      errors: 1,
+    },
+
+    // No more code after last semicolon.
+    {
+      code: input`
+          |import x2 from "b"
+          |import x1 from "a"
+          |
+          |;
+      `,
+      output: actual => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import x1 from "a"
+          |;
+          |import x2 from "b"
+        `);
+      },
+      errors: 1,
+    },
+
     // Sorting specifiers.
     {
       code: `import { e, b, a as c } from "specifiers"`,

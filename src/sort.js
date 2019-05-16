@@ -127,11 +127,12 @@ function printSortedImports(importItems, sourceCode) {
   return sorted + maybeNewline;
 }
 
-// Wrap the import nodes in `imports` in objects with more data about the
+// Wrap the import nodes in `passedImports` in objects with more data about the
 // import. Most importantly there’s a `code` property that contains the import
 // node as a string, with comments (if any). Finding the corresponding comments
 // is the hard part.
-function getImportItems(imports, sourceCode) {
+function getImportItems(passedImports, sourceCode) {
+  const imports = handleLastSemicolon(passedImports, sourceCode);
   return imports.map((importNode, importIndex) => {
     const lastLine =
       importIndex === 0
@@ -195,6 +196,51 @@ function getImportItems(imports, sourceCode) {
         isLineComment(commentsAfter[commentsAfter.length - 1]),
     };
   });
+}
+
+// Parsers think that a semicolon after a statement belongs to that statement.
+// But in a semicolon-free code style it might belong to the next statement:
+//
+//     import x from "x"
+//     ;[].forEach()
+//
+// If the last import of a chunk ends with a semicolon, and that semicolon isn’t
+// located on the same line as the `from` string, adjust the import node to end
+// at the `from` string instead.
+//
+// In the above example, the import is adjusted to end after `"x"`.
+function handleLastSemicolon(imports, sourceCode) {
+  const lastIndex = imports.length - 1;
+  const lastImport = imports[lastIndex];
+  const [nextToLastToken, lastToken] = sourceCode.getLastTokens(lastImport, {
+    count: 2,
+  });
+  const lastIsSemicolon = isPunctuator(lastToken, ";");
+
+  if (!lastIsSemicolon) {
+    return imports;
+  }
+
+  const semicolonBelongsToImport =
+    nextToLastToken.loc.end.line === lastToken.loc.start.line ||
+    // If there’s no more code after the last import the semicolon has to belong
+    // to the import, even if it is not on the same line.
+    sourceCode.getTokenAfter(lastToken) == null;
+
+  if (semicolonBelongsToImport) {
+    return imports;
+  }
+
+  // Preserve the start position, but use the end position of the `from` string.
+  const newLastImport = Object.assign({}, lastImport, {
+    range: [lastImport.range[0], nextToLastToken.range[1]],
+    loc: {
+      start: lastImport.loc.start,
+      end: nextToLastToken.loc.end,
+    },
+  });
+
+  return imports.slice(0, lastIndex).concat(newLastImport);
 }
 
 function printSortedSpecifiers(importNode, sourceCode) {
