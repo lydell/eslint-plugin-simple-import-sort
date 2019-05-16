@@ -1,3 +1,8 @@
+### Version 3.1.1 (2019-05-16)
+
+- Fixed: Semicolon-free code style is now supported. The plugin now leaves a
+  semicolon at the start of a line of code after an import alone.
+
 ### Version 3.1.0 (2019-03-30)
 
 - Added: Support for indentation in Vue `<script>` tags.
