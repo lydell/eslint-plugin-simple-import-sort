@@ -96,8 +96,17 @@ also install `eslint-plugin-simple-import-sort` globally.
 
 ## Usage
 
-Add `simple-import-sort` to the plugins section of your `.eslintrc`
-configuration file. You can omit the `eslint-plugin-` prefix:
+The simplest way to use this plugin, is to add its `recommended` preset. You can
+omit the `eslint-plugin-` prefix:
+
+```json
+{
+  "extends" ["plugin:simple-import-sort/recommended"]
+}
+```
+
+Alternavively, add `simple-import-sort` to the plugins section of your
+`.eslintrc` configuration file:
 
 ```json
 {
@@ -116,7 +125,8 @@ Then add the import sort rule:
 ```
 
 Make sure to remove or disable other sorting rules, such as [sort-imports] and
-[import/order].
+[import/order]. I you’re using the recommended preset, `sort-imports` is already
+included and can be omitted.
 
 ```json
 {
@@ -157,15 +167,11 @@ This example uses the following extra (optional) plugins:
     "sourceType": "module"
   },
   "env": { "es6": true },
-  "plugins": ["simple-import-sort", "prettier", "import"],
-  "rules": {
-    "simple-import-sort/sort": "error",
-    "sort-imports": "off",
-    "prettier/prettier": "error",
-    "import/first": "error",
-    "import/newline-after-import": "error",
-    "import/no-duplicates": "error"
-  },
+  "extends": [
+    "plugin:prettier/recommended",
+    "plugin:import/recommended",
+    "plugin:simple-import-sort/recommended"
+  ],
   "overrides": [
     {
       "files": "server/**/*.js",
@@ -179,17 +185,12 @@ This example uses the following extra (optional) plugins:
 }
 ```
 
-- `simple-import-sort/sort` is turned on by default.
-- The standard [sort-imports] rule is turned off, in case you extend a config
-  that includes it.
-- [prettier/prettier] runs [Prettier] inside ESLint and helps formatting your
-  imports (and all other code) nicely. (autofixable)
-- [import/first] makes sure all imports are at the top of the file.
-  (autofixable)
-- [import/newline-after-import] makes sure there’s a newline after the imports.
-  (autofixable)
-- [import/no-duplicates] merges import statements of the same file.
-  (autofixable, mostly)
+- `plugin:simple-import-sort/recommended` is extended last, so it overrides
+  other configurations. (autofixable)
+- `plugin:prettier/recommended` runs [Prettier] inside ESLint and helps
+  formatting your imports (and all other code) nicely. (autofixable)
+- `plugin:import/recommended` enables the minimal recommended ruleset by
+  `eslint-plugin-import`.
 - For Node.js code, `simple-import-sort/sort` is turned off and replaced with
   [import/order] for sorting of `require` calls.
 
