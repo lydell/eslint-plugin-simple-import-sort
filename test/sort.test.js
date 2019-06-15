@@ -41,9 +41,7 @@ function input(strings) {
   if (strings.length !== 1) {
     const loc = getLoc();
     throw new Error(
-      `input: ${loc} Expected no interpolations, but got ${
-        strings.length
-      } separate parts.`
+      `input: ${loc} Expected no interpolations, but got ${strings.length} separate parts.`
     );
   }
 
