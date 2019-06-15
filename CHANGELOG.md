@@ -1,3 +1,29 @@
+### Version 4.0.0-beta.1 (2019-06-15)
+
+- Changed: Sorting is now more human – it is case insensitive (matching the
+  default behavior of TSLint, as well as many IDEs) and numbers are sorted by
+  their numeric values. This might cause some churn but feels a lot nicer. See
+  [#7] for more discussion.
+- Improved: `from` paths ending with dots in various ways used to be treated
+  specially. This has now been simplified, which gives a more consistent
+  sorting. Now, `"."` and `".."` are treated as `"./"` and `"../"` – and those
+  are the only special cases for “dotty” paths. For example, you might see
+  `import x from "."` now sorting before `import y from "./y"`.
+- Fixed: `".x"` is no longer considered to be a relative import. Only `from`
+  paths equal to `"."` or `".."`, or that start with `"./"` or `"../"` are truly
+  relative. This is a bit of an edge case, but if you do have “weird” imports
+  starting with dots in unusual ways you might notice them jumping up to another
+  group of imports.
+- Fixed: `import {} from "a"` is no longer considered a side-effect import. Only
+  imports completely lacking the `{...} from` part are. Remove `{} from` if you
+  relied on this from earlier versions.
+- Improved: Trailing spaces after imports are now preserved. Before, if you
+  accidentally added some trailing spaces it would result in a “Run autofix to
+  sort these imports!” error, but the autofix wouldn’t actually sort anything –
+  it would only remove some spaces. That was a bit weird. Now, those spaces are
+  preserved. It is up to other rules or [Prettier] to take care of trailing
+  spaces.
+
 ### Version 3.1.1 (2019-05-16)
 
 - Fixed: Semicolon-free code style is now supported. The plugin now leaves a
@@ -52,7 +78,9 @@
 
 <!-- prettier-ignore-start -->
 [@typescript-eslint/parser]: https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/parser
+[#7]: https://github.com/lydell/eslint-plugin-simple-import-sort/issues/7
 [flow type imports]: https://flow.org/en/docs/types/modules/
+[prettier]: https://prettier.io/
 [sort-from]: README.md#why-sort-on-from
 [typescript]: https://www.typescriptlang.org/
 <!-- prettier-ignore-end -->
