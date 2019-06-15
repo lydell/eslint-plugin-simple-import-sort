@@ -114,6 +114,13 @@ const baseTests = expect => ({
           |  d, // d
           |} from "specifiers-comment-space-2"
     `,
+
+    // Accidental trailing spaces doesn’t produce a sorting error.
+    input`
+          |import a from "a"    
+          |import b from "b";    
+          |import c from "c";  /* comment */  
+    `,
   ],
 
   invalid: [
@@ -187,14 +194,14 @@ const baseTests = expect => ({
       `,
       output: actual => {
         expect(actual).toMatchInlineSnapshot(`
-          |import x1 from "a" ;
+          |import x1 from "a" ; 
           |import x2 from "b"
           |import x3 from "c"
-          |import x4 from "d" ;
+          |import x4 from "d" ; 
           |import x5 from "e"
           |import x6 from "f"
           |;
-          |import x7 from "g"; [].forEach()
+          |import x7 from "g";[].forEach()
         `);
       },
       errors: 1,
@@ -277,6 +284,61 @@ const baseTests = expect => ({
         expect(actual).toMatchInlineSnapshot(
           `import { a,a as b2, a as c, b } from "specifiers-renames"`
         );
+      },
+      errors: 1,
+    },
+
+    // Sorting specifiers like humans do.
+    {
+      code: input`
+          |import {
+          |  B,
+          |  a,
+          |  A,
+          |  b,
+          |  B2,
+          |  bb,
+          |  BB,
+          |  bB,
+          |  Bb,
+          |  ab,
+          |  ba,
+          |  Ba,
+          |  BA,
+          |  bA,
+          |  x as d,
+          |  x as C,
+          |  img10,
+          |  img2,
+          |  img1,
+          |  img10_black,
+          |} from "specifiers-human-sort"
+      `,
+      output: actual => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import {
+          |  A,
+          |  a,
+          |  ab,
+          |  B,
+          |  b,
+          |  B2,
+          |  BA,
+          |  Ba,
+          |  bA,
+          |  ba,
+          |  BB,
+          |  Bb,
+          |  bB,
+          |  bb,
+          |  img1,
+          |  img2,
+          |  img10,
+          |  img10_black,
+          |  x as C,
+          |  x as d,
+          |} from "specifiers-human-sort"
+        `);
       },
       errors: 1,
     },
@@ -516,12 +578,12 @@ const baseTests = expect => ({
           |  , /* b3 */ /* a1
           |  */ a /* not-a
           |  */ // comment at end
-          |} from "specifiers-lots-of-comments-mulitline";
+          |} from "specifiers-lots-of-comments-multiline";
           |import {
           |  e,
           |  d, /* d */ /* not-d
           |  */ // comment at end after trailing comma
-          |} from "specifiers-lots-of-comments-mulitline-2";
+          |} from "specifiers-lots-of-comments-multiline-2";
       `,
       output: actual => {
         expect(actual).toMatchInlineSnapshot(`
@@ -534,12 +596,12 @@ const baseTests = expect => ({
           |  /* c1 */ c /* c2 */// c3
           |/* not-a
           |  */ // comment at end
-          |} from "specifiers-lots-of-comments-mulitline";
+          |} from "specifiers-lots-of-comments-multiline";
           |import {
           |  d, /* d */   e,
           |/* not-d
           |  */ // comment at end after trailing comma
-          |} from "specifiers-lots-of-comments-mulitline-2";
+          |} from "specifiers-lots-of-comments-multiline-2";
         `);
       },
       errors: 1,
@@ -710,11 +772,11 @@ const baseTests = expect => ({
           |// c1
           |require("c");
           |// x6-1
-          |import x6 from "a"
-          |import x5 from "b" /* after
+          |import x6 from "a" 
+          |import x5 from "b"/* after
           |*/
           |
-          |require("c"); import x8 from "a";
+          |require("c"); import x8 from "a"; 
           |import x7 from "b"; require("c")
         `);
       },
@@ -785,83 +847,113 @@ const baseTests = expect => ({
     // Special characters sorting order.
     {
       code: input`
-          |import x0 from "";
-          |import x1 from ".";
-          |import x2 from "loader!.";
-          |import x3meh from ".//";
-          |import x3 from "./";
-          |import x4 from "./a";
-          |import x41 from "./ä";
-          |import x5 from "..";
-          |import x6 from "../";
-          |import x7 from "../a";
-          |import x8 from "../..";
-          |import x9 from "../../";
-          |import x10 from "../../a";
-          |import x11 from "/";
-          |import x12 from "/a";
-          |import x13 from "/a/b";
-          |import x14 from "https://example.com/script.js";
-          |import x15 from "http://example.com/script.js";
-          |import x16 from "react";
-          |import x17 from "async";
-          |import x18 from "./a/-";
-          |import x19 from "./a/.";
-          |import x20 from "./a/0";
-          |import x21 from "@/components/error.vue"
-          |import x22 from "@/components/Alert"
-          |import x23 from "~/test"
-          |import x24 from "#/test"
-          |import x25 from "fs";
-          |import x26 from "fs/something";
-          |import x27 from "Fs";
-          |import x28 from "lodash/fp";
-          |import x29 from "@storybook/react";
-          |import x30 from "@storybook/react/something";
-          |import x31 from "1";
-          |import x32 from "1*";
-          |import x33 from "a*";
+          |import {} from "";
+          |import {} from ".";
+          |import {} from "loader!.";
+          |import {} from ".//";
+          |import {} from "./";
+          |import {} from "./B"; // B1
+          |import {} from "./b";
+          |import {} from "./B"; // B2
+          |import {} from "./A";
+          |import {} from "./a";
+          |import {} from "./ä";
+          |import {} from "./ä"; // “a” followed by “\u0308̈” (COMBINING DIAERESIS).
+          |import {} from "..";
+          |import {} from "../";
+          |import {} from "../a";
+          |import {} from "../a/..";
+          |import {} from "../a/../";
+          |import {} from "../a/...";
+          |import {} from "../a/../b";
+          |import {} from "../../";
+          |import {} from "../..";
+          |import {} from "../../a";
+          |import {} from "...";
+          |import {} from ".../";
+          |import {} from ".a";
+          |import {} from "/";
+          |import {} from "/a";
+          |import {} from "/a/b";
+          |import {} from "https://example.com/script.js";
+          |import {} from "http://example.com/script.js";
+          |import {} from "react";
+          |import {} from "async";
+          |import {} from "./a/-";
+          |import {} from "./a/.";
+          |import {} from "./a/0";
+          |import {} from "@/components/error.vue"
+          |import {} from "@/components/Alert"
+          |import {} from "~/test"
+          |import {} from "#/test"
+          |import {} from "fs";
+          |import {} from "fs/something";
+          |import {} from "Fs";
+          |import {} from "lodash/fp";
+          |import {} from "@storybook/react";
+          |import {} from "@storybook/react/something";
+          |import {} from "1";
+          |import {} from "1*";
+          |import {} from "a*";
+          |import img2 from "./img2";
+          |import img10 from "./img10";
+          |import img1 from "./img1";
       `,
       output: actual => {
         expect(actual).toMatchInlineSnapshot(`
-          |import x31 from "1";
-          |import x29 from "@storybook/react";
-          |import x30 from "@storybook/react/something";
-          |import x17 from "async";
-          |import x25 from "fs";
-          |import x26 from "fs/something";
-          |import x28 from "lodash/fp";
-          |import x16 from "react";
+          |import {} from "@storybook/react";
+          |import {} from "@storybook/react/something";
+          |import {} from "1";
+          |import {} from "async";
+          |import {} from "fs";
+          |import {} from "fs/something";
+          |import {} from "lodash/fp";
+          |import {} from "react";
           |
-          |import x0 from "";
-          |import x32 from "1*";
-          |import x27 from "Fs";
-          |import x33 from "a*";
-          |import x15 from "http://example.com/script.js";
-          |import x14 from "https://example.com/script.js";
-          |import x24 from "#/test"
-          |import x11 from "/";
-          |import x12 from "/a";
-          |import x13 from "/a/b";
-          |import x22 from "@/components/Alert"
-          |import x21 from "@/components/error.vue"
-          |import x23 from "~/test"
+          |import {} from "";
+          |import {} from "1*";
+          |import {} from "a*";
+          |import {} from "Fs";
+          |import {} from "http://example.com/script.js";
+          |import {} from "https://example.com/script.js";
+          |import {} from "...";
+          |import {} from ".../";
+          |import {} from ".a";
+          |import {} from "@/components/Alert"
+          |import {} from "@/components/error.vue"
+          |import {} from "/";
+          |import {} from "/a";
+          |import {} from "/a/b";
+          |import {} from "#/test"
+          |import {} from "~/test"
           |
-          |import x10 from "../../a";
-          |import x9 from "../../";
-          |import x8 from "../..";
-          |import x7 from "../a";
-          |import x6 from "../";
-          |import x5 from "..";
-          |import x3meh from ".//";
-          |import x4 from "./a";
-          |import x18 from "./a/-";
-          |import x19 from "./a/.";
-          |import x20 from "./a/0";
-          |import x41 from "./ä";
-          |import x3 from "./";
-          |import x1 from ".";
-          |import x2 from "loader!.";
+          |import {} from "..";
+          |import {} from "../";
+          |import {} from "../..";
+          |import {} from "../../";
+          |import {} from "../../a";
+          |import {} from "../a";
+          |import {} from "../a/..";
+          |import {} from "../a/...";
+          |import {} from "../a/../";
+          |import {} from "../a/../b";
+          |import {} from ".";
+          |import {} from "loader!.";
+          |import {} from "./";
+          |import {} from ".//";
+          |import {} from "./A";
+          |import {} from "./a";
+          |import {} from "./ä"; // “a” followed by “̈̈” (COMBINING DIAERESIS).
+          |import {} from "./ä";
+          |import {} from "./a/-";
+          |import {} from "./a/.";
+          |import {} from "./a/0";
+          |import {} from "./B"; // B1
+          |import {} from "./B"; // B2
+          |import {} from "./b";
+          |import img1 from "./img1";
+          |import img2 from "./img2";
+          |import img10 from "./img10";
         `);
       },
       errors: 1,
@@ -886,12 +978,12 @@ const baseTests = expect => ({
           |// before
           |
           |/* also
-          |before */ import a from "a" /*a*/
+          |before */ import a from "a" /*a*/ 
           |/* b */ import b from "b" // b
           |/* before
           |  c0 */ // before c1
           |  /* c0
-          |*/ /*c1*/ /*c2*/import c from 'c' ; /*c3*/
+          |*/ /*c1*/ /*c2*/import c from 'c' ; /*c3*/ 
           |// above d
           |  import d /*d1*/ from   "d" ; /* d2 */ /*
           |   x1 */ /* x2 */
@@ -908,9 +1000,9 @@ const baseTests = expect => ({
       `,
       output: actual => {
         expect(actual).toMatchInlineSnapshot(`
-          |import a from "a";
+          |import a from "a"; 
           |import b from "b"; // b
-          | code();
+          |code();
         `);
       },
       errors: 1,
@@ -925,9 +1017,9 @@ const baseTests = expect => ({
       `,
       output: actual => {
         expect(actual).toMatchInlineSnapshot(`
-          |import a from "a";
+          |import a from "a"; 
           |import b from "b"; // b
-          | /*
+          |/*
           |after */
         `);
       },
@@ -962,8 +1054,8 @@ const baseTests = expect => ({
         expect(actual).toMatchInlineSnapshot(`
           |// before
           |/* also
-          |before */ import a from "a"; /*a*/
-          |import b from "b"; /* comment
+          |before */ import a from "a"; /*a*/ 
+          |import b from "b";/* comment
           |after */ // after
         `);
       },
@@ -973,7 +1065,7 @@ const baseTests = expect => ({
           line: 3,
           column: 11,
           endLine: 4,
-          endColumn: 25,
+          endColumn: 26,
         },
       ],
     },
@@ -1176,7 +1268,7 @@ const baseTests = expect => ({
 `,
       output: actual => {
         expect(actual).toMatchInlineSnapshot(`
-          |  /* a */ import a from "a";
+          |  /* a */ import a from "a"; 
           |  // b
           |  import {
           |    b2,
@@ -1205,11 +1297,12 @@ const baseTests = expect => ({
           | \r
           |    // d\r
           |    import d from "d"\r
+          |
 `,
       output: actual => {
         expect(actual).toMatchInlineSnapshot(`
           |      <CR>
-          |  /* a */ import a from "a";<CR>
+          |  /* a */ import a from "a"; <CR>
           |  // b<CR>
           |  import {<CR>
           |    b2,<CR>
@@ -1219,6 +1312,68 @@ const baseTests = expect => ({
           |    // d<CR>
           |    import d from "d"<CR>
           |  import e from "e"<CR>
+          |
+        `);
+      },
+      errors: 1,
+    },
+
+    // Trailing spaces.
+    {
+      code: input`
+          |import c from "c";  /* comment */  
+          |import b from "b";    
+          |import d from "d";  /* multiline
+          |comment */  
+          |import a from "a"    
+          |import e from "e"; /* multiline
+          |comment 2 */ import f from "f";
+      `,
+      output: actual => {
+        expect(actual).toMatchInlineSnapshot(`
+          |/* multiline
+          |comment */  
+          |import a from "a"    
+          |import b from "b";    
+          |import c from "c";  /* comment */  
+          |import d from "d";  
+          |import e from "e"; 
+          |/* multiline
+          |comment 2 */ import f from "f";
+        `);
+      },
+      errors: 1,
+    },
+
+    // Sort like IntelliJ/WebStorm (case insensitive on `from`).
+    // https://github.com/lydell/eslint-plugin-simple-import-sort/issues/7#issuecomment-500593886
+    {
+      code: input`
+          |import FloatingActionButton from 'src/components/FloatingActionButton'
+          |import { Select, linkButton, buttonPrimary, spinnerOverlay } from 'src/components/common'
+          |import { icon, spinner } from 'src/components/icons'
+          |import { notify } from 'src/components/Notifications'
+          |import { IGVBrowser } from 'src/components/IGVBrowser'
+          |import { IGVFileSelector } from 'src/components/IGVFileSelector'
+          |import { DelayedSearchInput, TextInput } from 'src/components/input'
+          |import DataTable from 'src/components/DataTable'
+          |import { FlexTable, SimpleTable, HeaderCell, TextCell } from 'src/components/table'
+          |import Modal from 'src/components/Modal'
+          |import ExportDataModal from 'src/components/ExportDataModal'
+      `,
+      output: actual => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import { buttonPrimary, linkButton, Select, spinnerOverlay } from 'src/components/common'
+          |import DataTable from 'src/components/DataTable'
+          |import ExportDataModal from 'src/components/ExportDataModal'
+          |import FloatingActionButton from 'src/components/FloatingActionButton'
+          |import { icon, spinner } from 'src/components/icons'
+          |import { IGVBrowser } from 'src/components/IGVBrowser'
+          |import { IGVFileSelector } from 'src/components/IGVFileSelector'
+          |import { DelayedSearchInput, TextInput } from 'src/components/input'
+          |import Modal from 'src/components/Modal'
+          |import { notify } from 'src/components/Notifications'
+          |import { FlexTable, HeaderCell, SimpleTable, TextCell } from 'src/components/table'
         `);
       },
       errors: 1,
@@ -1364,8 +1519,8 @@ const flowTests = {
           |import typeof A from "A";
           |import type {X} from "X";
           |import type {Z} from "Z";
-          |import type C from "/B";
           |import type E from "@/B";
+          |import type C from "/B";
           |
           |import type B from "./B";
           |import typeof D from "./D";
@@ -1475,14 +1630,14 @@ const flowTests = {
           |
           |import { GraphQLError } from '../error/GraphQLError';
           |import { locatedError } from '../error/locatedError';
-          |import type { MaybePromise } from '../jsutils/MaybePromise';
-          |import type { ObjMap } from '../jsutils/ObjMap';
           |import inspect from '../jsutils/inspect';
           |import invariant from '../jsutils/invariant';
           |import isInvalid from '../jsutils/isInvalid';
           |import isNullish from '../jsutils/isNullish';
           |import isPromise from '../jsutils/isPromise';
+          |import type { MaybePromise } from '../jsutils/MaybePromise';
           |import memoize3 from '../jsutils/memoize3';
+          |import type { ObjMap } from '../jsutils/ObjMap';
           |import promiseForObject from '../jsutils/promiseForObject';
           |import promiseReduce from '../jsutils/promiseReduce';
           |import type {

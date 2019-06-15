@@ -164,10 +164,20 @@ function getImportItems(passedImports, sourceCode) {
     const before = printCommentsBefore(importNode, commentsBefore, sourceCode);
     const after = printCommentsAfter(importNode, commentsAfter, sourceCode);
 
-    // Print the indentation before the the import or its first comment, if any,
-    // to support indentation in `<script>` tags.
+    // Print the indentation before the import or its first comment, if any, to
+    // support indentation in `<script>` tags.
     const indentation = getIndentation(
       commentsBefore.length > 0 ? commentsBefore[0] : importNode,
+      sourceCode
+    );
+
+    // Print spaces after the import or its last comment, if any, to avoid
+    // producing a sort error just because you accidentally added a few trailing
+    // spaces among the imports.
+    const trailingSpaces = getTrailingSpaces(
+      commentsAfter.length > 0
+        ? commentsAfter[commentsAfter.length - 1]
+        : importNode,
       sourceCode
     );
 
@@ -175,19 +185,20 @@ function getImportItems(passedImports, sourceCode) {
       indentation +
       before +
       printSortedSpecifiers(importNode, sourceCode) +
-      after;
+      after +
+      trailingSpaces;
 
     const all = [...commentsBefore, importNode, ...commentsAfter];
     const [start] = all[0].range;
     const [, end] = all[all.length - 1].range;
 
-    const { group, source } = getGroupAndSource(importNode);
+    const { group, source } = getGroupAndSource(importNode, sourceCode);
 
     return {
       node: importNode,
       code,
       start: start - indentation.length,
-      end,
+      end: end + trailingSpaces.length,
       group,
       source,
       index: importIndex,
@@ -703,11 +714,28 @@ function getIndentation(node, sourceCode) {
   return lines.length > 1 ? lines[lines.length - 1] : "";
 }
 
+function getTrailingSpaces(node, sourceCode) {
+  const tokenAfter = sourceCode.getTokenAfter(node, {
+    includeComments: true,
+  });
+  if (tokenAfter == null) {
+    const text = sourceCode.text.slice(node.range[1]);
+    const lines = text.split(NEWLINE);
+    return lines[0];
+  }
+  const text = sourceCode.text.slice(node.range[1], tokenAfter.range[0]);
+  const lines = text.split(NEWLINE);
+  return lines[0];
+}
+
 function sortImportItems(items) {
   return items.slice().sort(
     (itemA, itemB) =>
       // First compare the `from` part, excluding webpack loader syntax.
       compare(itemA.source.source, itemB.source.source) ||
+      // The `.source` has been slightly tweaked. To stay fully deterministic,
+      // also sort on the original value.
+      compare(itemA.source.originalSource, itemB.source.originalSource) ||
       // Then put Flow type imports before regular ones.
       compare(itemA.source.importKind, itemB.source.importKind) ||
       // Then sort by webpack loader syntax (no loaders comes first).
@@ -736,9 +764,13 @@ function sortSpecifierItems(items) {
   );
 }
 
-// `array.sort()` and `array.sort(compare)` are supposed to be equal.
+const collator = new Intl.Collator("en", {
+  sensitivity: "base",
+  numeric: true,
+});
+
 function compare(a, b) {
-  return a < b ? -1 : a > b ? 1 : 0;
+  return collator.compare(a, b) || (a < b ? -1 : a > b ? 1 : 0);
 }
 
 // Full import statement.
@@ -753,8 +785,14 @@ function isImportSpecifier(node) {
 }
 
 // import "setup"
-function isSideEffectImport(importNode) {
-  return importNode.specifiers.length === 0;
+// But not: import {} from "setup"
+// And not: import type {} from "setup"
+function isSideEffectImport(importNode, sourceCode) {
+  return (
+    importNode.specifiers.length === 0 &&
+    !importNode.importKind &&
+    !isPunctuator(sourceCode.getFirstToken(importNode, { skip: 1 }), "{")
+  );
 }
 
 const PACKAGE_REGEX = /^(?:@[^/]+\/)?[^/]+/;
@@ -774,9 +812,17 @@ function isPackageImport(source) {
   );
 }
 
-// import a from "./"
+// import a from "."
+// import a from "./x"
+// import a from ".."
+// import a from "../x"
 function isRelativeImport(source) {
-  return source[0] === ".";
+  return (
+    source === "." ||
+    source === ".." ||
+    source.startsWith("./") ||
+    source.startsWith("../")
+  );
 }
 
 function isIdentifier(node) {
@@ -808,14 +854,14 @@ function isNewline(node) {
 //     import x from "webpack-loader!./index.js"
 //                                   ^^^^^^^^^^
 // Loader syntax documentation: https://webpack.js.org/concepts/loaders/#inline
-function getGroupAndSource(importNode) {
+function getGroupAndSource(importNode, sourceCode) {
   const rawSource = importNode.source.value;
   const index = rawSource.lastIndexOf("!");
   const [source, webpack] =
     index >= 0
       ? [rawSource.slice(index + 1), rawSource.slice(0, index + 1)]
       : [rawSource, ""];
-  const group = isSideEffectImport(importNode)
+  const group = isSideEffectImport(importNode, sourceCode)
     ? "sideEffect"
     : isPackageImport(source)
     ? "package"
@@ -828,14 +874,23 @@ function getGroupAndSource(importNode) {
     source: {
       source:
         group === "relative"
-          ? // This makes "." sort after "..", for instance. "\uffff" sorts
-            // after anything else (as far as I know).
-            source.replace(/\.\/?$/, "$&\uffff")
+          ? // Due to "." sorting before "/" by default, relative imports are
+            // automatically sorted in a logical manner for us: Imports from files
+            // further up come first, with deeper imports last. There’s one
+            // exception, though: When the `from` part ends with one or two dots:
+            // "." and "..". Those are supposed to sort just like "./", "../". So
+            // add in the slash for them. (No special handling is done for cases
+            // like "./a/.." because nobody writes that anyway.)
+            source === "." || source === ".."
+            ? `${source}/`
+            : source
           : group === "rest"
-          ? // This makes ASCII letters and digits sort before anything else
-            // (except `\0` itself and the empty string).
-            source.replace(/^[a-z\d]/i, "\0$&")
+          ? // This makes ASCII letters and digits sort first. When using
+            // `Intl.Collator`, `\t` followed by a letter sorts first (while `\0`
+            // followed by a letter comes a lot later!).
+            source.replace(/^[a-z\d]/i, "\t$&")
           : source,
+      originalSource: source,
       importKind: getImportKind(importNode),
       webpack,
     },

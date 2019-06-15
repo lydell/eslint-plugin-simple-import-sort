@@ -221,17 +221,32 @@ Then, each chunk is _grouped_ into sections with a blank line between each.
 4. `import a from "./a"`: Relative imports.
 
 Within each section, the imports are sorted alphabetically on the `from` string
-like [`array.sort()`][array-sort] works. Keep it simple! See also [“Why sort on
-`from`?”][sort-from].
+(see also [“Why sort on `from`?”][sort-from]). Keep it simple! It helps looking
+at the code here:
+
+```js
+const collator = new Intl.Collator("en", {
+  sensitivity: "base",
+  numeric: true,
+});
+
+function compare(a, b) {
+  return collator.compare(a, b) || (a < b ? -1 : a > b ? 1 : 0);
+}
+```
+
+In other words, the imports within groups are sorted alphabetically,
+case-insensitively and treating numbers like a human would, falling back to good
+old character code sorting in case of ties. See [Intl.Collator] for more
+information.
 
 Since “.” sorts before “/”, relative imports of files higher up in the directory
 structure come before closer ones – `"../../utils"` comes before `"../utils"`.
 Perhaps surprisingly though, `".."` would come before `"../../utils"` (since
 shorter substrings sort before longer strings). For that reason there’s one
-addition to the alphabetical rule: sources ending with `.` or `./` are sorted
-_after_ other sources with the same prefix. Also, within the absolute imports
-group, imports starting with an ASCII letter or digit come first, separating
-them from those starting with symbols.
+addition to the alphabetical rule: `"."` and `".."` are treated as `"./"` and
+`"../"`. Also, within the absolute imports group, imports starting with an ASCII
+letter or digit come first, separating them from those starting with symbols.
 
 [webpack loader syntax] is stripped before sorting, so `"loader!a"` sorts before
 `"b"`. If two sources are equal after stripping the loader syntax, the one with
@@ -254,31 +269,36 @@ import fs from "fs";
 
 // Absolute imports, full URLs and other imports.
 import b from "https://example.com/script.js";
+import Error from "@/components/error.vue";
 import c from "/";
 import d from "/home/user/foo";
-import Error from "@/components/error.vue"
 
 // Relative imports.
-import e from "../../utils";
-import f from "../..";
+import e from "../..";
+import f from "../../Utils"; // Case insensitive.
 import type { B } from "../types";
 import typeof C from "../types";
-import g from "./constants";
-import h from "./styles";
-import i from "html-loader!./text.html";
-import j from ".";
+import g from ".";
+import h from "./constants";
+import i from "./styles";
+import j from "html-loader!./text.html";
 
 // Regardless of group, imported items are sorted like this:
 import {
   // First, Flow type imports.
   type x,
   typeof y,
+  // Numbers are sorted by their numeric value:
+  img1,
+  img2,
+  img10,
   // Then everything else, alphabetically:
   k,
-  l,
+  L, // Case insensitive.
   m as anotherName, // Sorted by the original name “m”, not “anotherName”.
+  m as tie, // But do use the \`as\` name in case of a tie.
   n,
-} from ".";
+} from "./x";
 ```
 
 <!--
@@ -492,6 +512,8 @@ import { c, b, a } from "wherever";
 import { a, b, c } from "wherever";
 ```
 
+Note: `import {} from "wherever"` is _not_ treated as a side effect import.
+
 ### The sorting autofix causes some odd whitespace!
 
 You might end up with slightly weird spacing, for example a missing space after
@@ -552,7 +574,6 @@ You can need [Node.js] 10 and npm 6.
 
 <!-- prettier-ignore-start -->
 [@typescript-eslint/parser]: https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/parser
-[array-sort]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
 [babel-eslint]: https://github.com/babel/babel-eslint
 [comment-handling]: #comment-and-whitespace-handling
 [doctoc]: https://github.com/thlorenz/doctoc/
@@ -569,6 +590,7 @@ You can need [Node.js] 10 and npm 6.
 [import/newline-after-import]: https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/newline-after-import.md
 [import/no-duplicates]: https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/no-duplicates.md
 [import/order]: https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/order.md
+[intl.collator]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Collator
 [jest]: https://jestjs.io/
 [lines-around-comment]: https://eslint.org/docs/rules/lines-around-comment
 [no-require]: #does-it-support-require

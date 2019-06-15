@@ -124,11 +124,11 @@ exports[`examples readme-comments.js 1`] = `
 // comment before import chunk
 // a1
 /* a2
- */ import a /* a3 */ from "a"; /* a4 */
+ */ import a /* a3 */ from "a"; /* a4 */ 
 // b1
 import b from "b"; // b2
 /* c1 */ import c from "c"; // c2
- /* not-a
+/* not-a
 */ // comment after import chunk
 
 `;
@@ -179,30 +179,35 @@ import fs from "fs";
 
 // Absolute imports, full URLs and other imports.
 import b from "https://example.com/script.js";
+import Error from "@/components/error.vue";
 import c from "/";
 import d from "/home/user/foo";
-import Error from "@/components/error.vue";
 
 // Relative imports.
-import e from "../../utils";
-import f from "../..";
+import e from "../..";
+import f from "../../Utils"; // Case insensitive.
 import type { B } from "../types";
 import typeof C from "../types";
-import g from "./constants";
-import h from "./styles";
-import i from "html-loader!./text.html";
-import j from ".";
+import g from ".";
+import h from "./constants";
+import i from "./styles";
+import j from "html-loader!./text.html";
 // Regardless of group, imported items are sorted like this:
 import {
   // First, Flow type imports.
   type x,
   typeof y,
+  // Numbers are sorted by their numeric value:
+  img1,
+  img2,
+  img10,
   // Then everything else, alphabetically:
   k,
-  l,
+  L, // Case insensitive.
   m as anotherName, // Sorted by the original name “m”, not “anotherName”.
+  m as tie, // But do use the \`as\` name in case of a tie.
   n,
-} from ".";
+} from "./x";
 
 `;
 
@@ -227,7 +232,7 @@ function pluck<T, K extends keyof T>(o: T, names: K[]): T[K][] {
 
 exports[`examples vue.vue 1`] = `
 <script lang="ts">
-  /* a */ import a from "a";
+  /* a */ import a from "a"; 
   // b
   import {
     b2,
