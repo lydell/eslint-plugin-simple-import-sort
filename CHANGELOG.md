@@ -1,4 +1,4 @@
-### Version 4.0.0-beta.1 (2019-06-15)
+### Version 4.0.0 (2019-06-19)
 
 - Changed: Sorting is now more human – it is case insensitive (matching the
   default behavior of TSLint, as well as many IDEs) and numbers are sorted by
