@@ -91,9 +91,6 @@ Next, install `eslint-plugin-simple-import-sort`:
 npm install --save-dev eslint-plugin-simple-import-sort
 ```
 
-**Note:** If you installed ESLint globally (using the `-g` flag) then you must
-also install `eslint-plugin-simple-import-sort` globally.
-
 ## Usage
 
 Add `simple-import-sort` to the plugins section of your `.eslintrc`
