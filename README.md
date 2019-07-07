@@ -596,6 +596,7 @@ You can need [Node.js] 10 and npm 6.
 [odd-whitespace]: #the-sorting-autofix-causes-some-odd-whitespace
 [padding-line-between-statements]: https://eslint.org/docs/rules/padding-line-between-statements
 [prettier]: https://prettier.io/
+[prettier/prettier]: https://github.com/prettier/eslint-plugin-prettier
 [sort order]: #sort-order
 [sort-from]: #why-sort-on-from
 [sort-imports]: https://eslint.org/docs/rules/sort-imports
