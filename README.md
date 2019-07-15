@@ -211,11 +211,11 @@ end up in the same chunk.
 
 Then, each chunk is _grouped_ into sections with a blank line between each.
 
-1. `import "./setup"`: Side effect imports. (These are not sorted internally.)
-2. `import react from "react"`: Packages (npm packages and Node.js builtins).
-3. `import a from "/a"`: Absolute imports, full URLs and other imports (such as
+1. `import react from "react"`: Packages (npm packages and Node.js builtins).
+2. `import a from "/a"`: Absolute imports, full URLs and other imports (such as
    Vue-style `@/foo` ones).
-4. `import a from "./a"`: Relative imports.
+3. `import a from "./a"`: Relative imports.
+4. `import "./setup"`: Side effect imports. (These are not sorted internally.)
 
 Within each section, the imports are sorted alphabetically on the `from` string
 (see also [“Why sort on `from`?”][sort-from]). Keep it simple! It helps looking

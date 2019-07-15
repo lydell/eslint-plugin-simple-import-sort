@@ -88,10 +88,10 @@ function printSortedImports(importItems, sourceCode) {
   }
 
   const sortedItems = [
-    sideEffectImports,
     sortImportItems(packageImports),
     sortImportItems(restImports),
     sortImportItems(relativeImports),
+    sideEffectImports,
   ];
 
   const newline = guessNewline(sourceCode);

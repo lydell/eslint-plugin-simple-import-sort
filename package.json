@@ -1,10 +1,10 @@
 {
-  "name": "eslint-plugin-simple-import-sort",
-  "version": "4.0.0",
+  "name": "@bigtaddy/eslint-plugin-simple-import-sort",
+  "version": "1.0.0",
   "license": "MIT",
   "author": "Simon Lydell",
-  "repository": "lydell/eslint-plugin-simple-import-sort",
-  "description": "Easy autofixable import sorting",
+  "repository": "bigtaddy/eslint-plugin-simple-import-sort",
+  "description": "autofixable import sorting",
   "main": "src/index.js",
   "files": [
     "src"
