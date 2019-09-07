@@ -1738,11 +1738,11 @@ const javascriptRuleTester = new RuleTester({
 });
 
 const flowRuleTester = new RuleTester({
-  parser: "babel-eslint",
+  parser: require.resolve("babel-eslint"),
 });
 
 const typescriptRuleTester = new RuleTester({
-  parser: "@typescript-eslint/parser",
+  parser: require.resolve("@typescript-eslint/parser"),
   parserOptions: { sourceType: "module" },
 });
 
