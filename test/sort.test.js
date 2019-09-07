@@ -7,7 +7,8 @@ const { RuleTester } = require("eslint");
 const plugin = require("../");
 
 // Hack to allow using `.toMatchInlineSnapshot` for `output` in `RuleTester`.
-// https://github.com/eslint/eslint/blob/e18c827cc12cb1c52e5d0aa993f572cb56238704/lib/testers/rule-tester.js#L569
+// https://github.com/eslint/eslint/blob/7621f5d2aa7d87e798b75ca47d6889c280597e99/lib/rule-tester/rule-tester.js#L614
+
 const originalStrictEqual = assert.strictEqual;
 assert.strictEqual = (actual, expected, message) => {
   if (message === "Output is incorrect." && typeof expected === "function") {
