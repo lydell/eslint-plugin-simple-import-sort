@@ -425,8 +425,9 @@ in [Sort order].
 [lines-around-comment] and [padding-line-between-statements] rules – I don’t use
 those myself, but I think there should be workarounds.)
 
-The final whitespace rule is that this plugin puts one import per line, with no
-indentation. I’ve never seen imports written any other way.
+The final whitespace rule is that this plugin puts one import per line. I’ve
+never seen real projects that intentionally puts several imports on the same
+line.
 
 ## FAQ
 
