@@ -102,6 +102,43 @@ import Thing from "side-effects";
 
 `;
 
+exports[`examples markdown.md 1`] = `
+# Markdown
+
+\`\`\`js
+import a1 from "a";
+import b1 from "b"
+\`\`\`
+
+Some text.
+
+\`\`\`js
+code();
+
+import a2 from "a";
+import b2 from "b";
+
+code()
+
+import c2 from "c";
+import d2 from "d"
+import e2 from "e";
+
+;[].forEach()
+\`\`\`
+
+- Item 1.
+- Item 2.
+
+  \`\`\`js
+  import a3 from "a"
+  import b3 from "b"
+  \`\`\`
+
+End text.
+
+`;
+
 exports[`examples prettier-comments.js 1`] = `
 /* eslint prettier/prettier: "error" */
 // This is just a test to make sure that this plugin plays well with Prettier.

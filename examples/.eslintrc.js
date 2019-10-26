@@ -92,5 +92,10 @@ module.exports = {
       parser: vue.configs.base.parser,
       plugins: ["vue"],
     },
+    {
+      // Markdown JS code blocks.
+      files: ["*.md"],
+      plugins: ["markdown"],
+    },
   ],
 };
