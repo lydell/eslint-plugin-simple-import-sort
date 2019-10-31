@@ -1,5 +1,6 @@
 "use strict";
 
+const isBuiltin = require("is-builtin-module");
 const validateNpmPackageName = require("validate-npm-package-name");
 
 module.exports = {
@@ -70,13 +71,16 @@ function maybeReportSorting(imports, context) {
 }
 
 function printSortedImports(importItems, sourceCode) {
+  const builtinImports = [];
   const sideEffectImports = [];
   const packageImports = [];
   const relativeImports = [];
   const restImports = [];
 
   for (const item of importItems) {
-    if (item.group === "sideEffect") {
+    if (item.group === "builtin") {
+      builtinImports.push(item);
+    } else if (item.group === "sideEffect") {
       sideEffectImports.push(item);
     } else if (item.group === "package") {
       packageImports.push(item);
@@ -89,6 +93,7 @@ function printSortedImports(importItems, sourceCode) {
 
   const sortedItems = [
     sideEffectImports,
+    sortImportItems(builtinImports),
     sortImportItems(packageImports),
     sortImportItems(restImports),
     sortImportItems(relativeImports),
@@ -861,13 +866,26 @@ function getGroupAndSource(importNode, sourceCode) {
     index >= 0
       ? [rawSource.slice(index + 1), rawSource.slice(0, index + 1)]
       : [rawSource, ""];
-  const group = isSideEffectImport(importNode, sourceCode)
-    ? "sideEffect"
-    : isPackageImport(source)
-    ? "package"
-    : isRelativeImport(source)
-    ? "relative"
-    : "rest";
+
+  let group = undefined;
+
+  switch (true) {
+    case isSideEffectImport(importNode, sourceCode):
+      group = "sideEffect";
+      break;
+    case isBuiltin(source):
+      group = "builtin";
+      break;
+    case isPackageImport(source):
+      group = "package";
+      break;
+    case isRelativeImport(source):
+      group = "relative";
+      break;
+    default:
+      group = "rest";
+      break;
+  }
 
   return {
     group,

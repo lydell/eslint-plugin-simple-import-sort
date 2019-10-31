@@ -3,14 +3,16 @@ import "./setup";
 import "some-polyfill";
 import "./global.css";
 
+// Node.js builtins.
+import fs from "fs";
+
 // Packages.
 import type A from "an-npm-package";
 import a from "an-npm-package";
-import fs from "fs";
 
 // Absolute imports, full URLs and other imports.
 import b from "https://example.com/script.js";
-import Error from "@/components/error.vue"
+import Error from "@/components/error.vue";
 import c from "/";
 import d from "/home/user/foo";
 

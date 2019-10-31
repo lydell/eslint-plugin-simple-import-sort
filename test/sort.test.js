@@ -902,11 +902,12 @@ const baseTests = expect => ({
       `,
       output: actual => {
         expect(actual).toMatchInlineSnapshot(`
+          |import {} from "fs";
+          |
           |import {} from "@storybook/react";
           |import {} from "@storybook/react/something";
           |import {} from "1";
           |import {} from "async";
-          |import {} from "fs";
           |import {} from "fs/something";
           |import {} from "lodash/fp";
           |import {} from "react";

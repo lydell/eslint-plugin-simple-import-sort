@@ -32,6 +32,7 @@
     "prepublishOnly": "npm test"
   },
   "dependencies": {
+    "is-builtin-module": "^3.0.0",
     "validate-npm-package-name": "^3.0.0"
   },
   "devDependencies": {
