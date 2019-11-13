@@ -5,13 +5,11 @@ Easy autofixable import sorting.
 - ✔️ Runs via `eslint --fix` – no new tooling
 - ✔️ Handles comments
 - ✔️ Handles [Flow type imports] \(via [babel-eslint])
-- ✔️ Handles [webpack loader syntax]
 - ✔️ [TypeScript] friendly \(via [@typescript-eslint/parser])
 - ✔️ [Prettier] friendly
 - ✔️ [eslint-plugin-import] friendly
 - ✔️ `git diff` friendly
 - ✔️ 100% code coverage
-- ☯️ No configuration
 - ❌ [Does not support `require`][no-require]
 
 This is for those who use `eslint --fix` (autofix) a lot and want to completely
@@ -29,6 +27,7 @@ forget about sorting imports!
 - [Usage](#usage)
 - [Example configuration](#example-configuration)
 - [Sort order](#sort-order)
+- [Custom grouping](#custom-grouping)
 - [Comment and whitespace handling](#comment-and-whitespace-handling)
 - [FAQ](#faq)
   - [Does it support `require`?](#does-it-support-require)
@@ -213,9 +212,12 @@ Then, each chunk is _grouped_ into sections with a blank line between each.
 
 1. `import "./setup"`: Side effect imports. (These are not sorted internally.)
 2. `import react from "react"`: Packages (npm packages and Node.js builtins).
-3. `import a from "/a"`: Absolute imports, full URLs and other imports (such as
-   Vue-style `@/foo` ones).
+3. `import a from "/a"`: Absolute imports and other imports such as Vue-style
+   `@/foo`.
 4. `import a from "./a"`: Relative imports.
+
+Note: The above groups are very loosely defined. See [Custom grouping] for more
+information.
 
 Within each section, the imports are sorted alphabetically on the `from` string
 (see also [“Why sort on `from`?”][sort-from]). Keep it simple! It helps looking
@@ -242,13 +244,10 @@ structure come before closer ones – `"../../utils"` comes before `"../utils"`.
 Perhaps surprisingly though, `".."` would come before `"../../utils"` (since
 shorter substrings sort before longer strings). For that reason there’s one
 addition to the alphabetical rule: `"."` and `".."` are treated as `"./"` and
-`"../"`. Also, within the absolute imports group, imports starting with an ASCII
-letter or digit come first, separating them from those starting with symbols.
+`"../"`.
 
-[webpack loader syntax] is stripped before sorting, so `"loader!a"` sorts before
-`"b"`. If two sources are equal after stripping the loader syntax, the one with
-loader syntax comes last. Similarly, if both `import type` _and_ regular imports
-are used for the same source, the [Flow type imports] come first.
+If both `import type` _and_ regular imports are used for the same source, the
+[Flow type imports] come first.
 
 Example:
 
@@ -263,9 +262,9 @@ import "./global.css";
 import type A from "an-npm-package";
 import a from "an-npm-package";
 import fs from "fs";
-
-// Absolute imports, full URLs and other imports.
 import b from "https://example.com/script.js";
+
+// Absolute imports and other imports.
 import Error from "@/components/error.vue";
 import c from "/";
 import d from "/home/user/foo";
@@ -278,7 +277,6 @@ import typeof C from "../types";
 import g from ".";
 import h from "./constants";
 import i from "./styles";
-import j from "html-loader!./text.html";
 
 // Regardless of group, imported items are sorted like this:
 import {
@@ -303,6 +301,97 @@ Workaround to make the next section to appear in the table of contents.
 ```js
 ```
 -->
+
+## Custom grouping
+
+For a long time, this plugin used to have no options, which helped keeping it
+simple.
+
+While the human alphabetical sorting and comment handling seems to work for a
+lot of people, grouping of imports is more difficult. Projects differ too much
+to have a one-size-fits-all grouping.
+
+However, the default grouping is fine for many use cases! Don’t bother learning
+how custom grouping works unless you _really_ need it.
+
+> If you’re looking at custom grouping because you want to move `src/Button`,
+> `@company/Button` and similar – also consider using names that do not look
+> like npm packages, such as `@/Button` and `~company/Button`. Then you won’t
+> need to customize the grouping at all, and as a bonus things might be less
+> confusing for other people working on the code base.
+>
+> In the future, it would be cool if the plugin could automatically detect your
+> “first party”/“absolute” imports for TypeScript projects by reading your
+> tsconfig.json – see [issue #31].
+
+There is **one** option (and I would really like it to stay that way!) called
+`groups` that allows you to:
+
+- Move `src/Button`, `@company/Button` and similar out of the (third party)
+  “packages” group, into their own group.
+- Move `react` first.
+- Remove blank lines between groups.
+- Make a separate group for Node.js builtins.
+- Make a separate group for style imports.
+- Separate `./` and `../` imports.
+- Not use groups at all and only sort alphabetically.
+
+`groups` is an array of arrays of strings:
+
+```ts
+type Options = {
+  groups: Array<Array<string>>;
+};
+```
+
+Each string is a regex (with the `u` flag) and defines a group. (Remember to
+escape backslashes – it’s `"\\w"`, not `"\w"`, for example.)
+
+Each `import` is matched against _all_ regexes on the `from` string. The import
+ends up in the group with **the longest match.** In case of a tie, the first
+matching group wins.
+
+> If an import ends up in the wrong group – try making the desired group regex
+> match more of the `from` string, or use negative lookahead (`(?!x)`) to
+> exclude things from other groups.
+
+Imports that don’t match any regex are grouped together last.
+
+Side effect imports have `\u0000` prepended to their `from` string. You can
+match them with `"^\\u0000"`.
+
+The inner arrays are joined with one newline; the outer arrays are joined with
+two (creating a blank line).
+
+Every group is sorted internally as mentioned in [Sort order]. Side effect
+imports are sorted too – but will keep their internal order. It’s recommended to
+keep side effect imports in their own group.
+
+These are the default groups:
+
+```js
+[
+  // Side effect imports.
+  ["^\\u0000"],
+  // Packages.
+  // Things that start with a letter (or digit or underscore), or `@` followed by a letter.
+  ["^@?\\w"],
+  // Absolute imports and other imports such as Vue-style `@/foo`.
+  // Anything that does not start with a dot.
+  ["^[^.]"],
+  // Relative imports.
+  // Anything that starts with a dot.
+  ["^\\."],
+];
+```
+
+The astute reader might notice that the above regexes match more than their
+comments say. For example, `"@config"` and `"_internal"` are matched as
+packages, but none of them are valid npm package names. `".foo"` is matched as a
+relative import, but what does `".foo"` even mean? There’s little gain in having
+more specific rules, though. So keep it simple!
+
+See the [examples] for inspiration.
 
 ## Comment and whitespace handling
 
@@ -332,11 +421,11 @@ import b from "b"; // b2
 // comment before import chunk
 // a1
 /* a2
- */ import a /* a3 */ from "a"; /* a4 */
+ */ import a /* a3 */ from "a"; /* a4 */ 
 // b1
 import b from "b"; // b2
 /* c1 */ import c from "c"; // c2
- /* not-a
+/* not-a
 */ // comment after import chunk
 ```
 
@@ -574,6 +663,7 @@ You can need [Node.js] 10 and npm 6.
 [@typescript-eslint/parser]: https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/parser
 [babel-eslint]: https://github.com/babel/babel-eslint
 [comment-handling]: #comment-and-whitespace-handling
+[custom grouping]: #custom-grouping
 [doctoc]: https://github.com/thlorenz/doctoc/
 [eslint-fix]: https://eslint.org/docs/user-guide/command-line-interface#--fix
 [eslint-plugin-import]: https://github.com/benmosher/eslint-plugin-import/
@@ -589,6 +679,7 @@ You can need [Node.js] 10 and npm 6.
 [import/no-duplicates]: https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/no-duplicates.md
 [import/order]: https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/order.md
 [intl.collator]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Collator
+[issue #31]: https://github.com/lydell/eslint-plugin-simple-import-sort/issues/31
 [jest]: https://jestjs.io/
 [lines-around-comment]: https://eslint.org/docs/rules/lines-around-comment
 [no-require]: #does-it-support-require
@@ -604,5 +695,4 @@ You can need [Node.js] 10 and npm 6.
 [travis-badge]: https://travis-ci.com/lydell/eslint-plugin-simple-import-sort.svg?branch=master
 [travis-link]: https://travis-ci.com/lydell/eslint-plugin-simple-import-sort
 [typescript]: https://www.typescriptlang.org/
-[webpack loader syntax]: https://webpack.js.org/concepts/loaders/#inline
 <!-- prettier-ignore-end -->

@@ -7,9 +7,9 @@ import "./global.css";
 import type A from "an-npm-package";
 import a from "an-npm-package";
 import fs from "fs";
-
-// Absolute imports, full URLs and other imports.
 import b from "https://example.com/script.js";
+
+// Absolute imports and other imports.
 import Error from "@/components/error.vue"
 import c from "/";
 import d from "/home/user/foo";
@@ -22,7 +22,6 @@ import typeof C from "../types";
 import g from ".";
 import h from "./constants";
 import i from "./styles";
-import j from "html-loader!./text.html";
 
 // Regardless of group, imported items are sorted like this:
 import {

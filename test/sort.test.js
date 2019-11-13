@@ -818,39 +818,11 @@ const baseTests = expect => ({
       errors: 1,
     },
 
-    // Webpack loader syntax
-    {
-      code: input`
-          |import x1 from "webpack-loader!b"
-          |import x2 from "webpack-loader!./c"
-          |import x3 from "webpack-loader!/d"
-          |import x4 from 'loader1!loader2?query!loader3?{"key":"value!"}!a'
-          |import x5 from "webpack-loader!b"
-          |import x6 from "other-loader!b"
-          |import x7 from "b"
-      `,
-      output: actual => {
-        expect(actual).toMatchInlineSnapshot(`
-          |import x4 from 'loader1!loader2?query!loader3?{"key":"value!"}!a'
-          |import x7 from "b"
-          |import x6 from "other-loader!b"
-          |import x1 from "webpack-loader!b"
-          |import x5 from "webpack-loader!b"
-          |
-          |import x3 from "webpack-loader!/d"
-          |
-          |import x2 from "webpack-loader!./c"
-        `);
-      },
-      errors: 1,
-    },
-
     // Special characters sorting order.
     {
       code: input`
           |import {} from "";
           |import {} from ".";
-          |import {} from "loader!.";
           |import {} from ".//";
           |import {} from "./";
           |import {} from "./B"; // B1
@@ -905,21 +877,17 @@ const baseTests = expect => ({
           |import {} from "@storybook/react";
           |import {} from "@storybook/react/something";
           |import {} from "1";
+          |import {} from "1*";
+          |import {} from "a*";
           |import {} from "async";
+          |import {} from "Fs";
           |import {} from "fs";
           |import {} from "fs/something";
+          |import {} from "http://example.com/script.js";
+          |import {} from "https://example.com/script.js";
           |import {} from "lodash/fp";
           |import {} from "react";
           |
-          |import {} from "";
-          |import {} from "1*";
-          |import {} from "a*";
-          |import {} from "Fs";
-          |import {} from "http://example.com/script.js";
-          |import {} from "https://example.com/script.js";
-          |import {} from "...";
-          |import {} from ".../";
-          |import {} from ".a";
           |import {} from "@/components/Alert"
           |import {} from "@/components/error.vue"
           |import {} from "/";
@@ -928,6 +896,8 @@ const baseTests = expect => ({
           |import {} from "#/test"
           |import {} from "~/test"
           |
+          |import {} from "...";
+          |import {} from ".../";
           |import {} from "..";
           |import {} from "../";
           |import {} from "../..";
@@ -939,7 +909,6 @@ const baseTests = expect => ({
           |import {} from "../a/../";
           |import {} from "../a/../b";
           |import {} from ".";
-          |import {} from "loader!.";
           |import {} from "./";
           |import {} from ".//";
           |import {} from "./A";
@@ -955,6 +924,9 @@ const baseTests = expect => ({
           |import img1 from "./img1";
           |import img2 from "./img2";
           |import img10 from "./img10";
+          |import {} from ".a";
+          |
+          |import {} from "";
         `);
       },
       errors: 1,
@@ -1082,7 +1054,7 @@ const baseTests = expect => ({
           |// a
           |
           |import a from "a"
-`,
+      `,
       output: actual => {
         expect(actual).toMatchInlineSnapshot(`
           |// a
@@ -1108,7 +1080,7 @@ const baseTests = expect => ({
           |\r
           |import a from "a"\r
           |after();\r
-`,
+      `,
       output: actual => {
         expect(actual).toMatchInlineSnapshot(`
           |// a<CR>
@@ -1181,7 +1153,7 @@ const baseTests = expect => ({
           |// final
           |
           |;
-`,
+      `,
       output: actual => {
         expect(actual).toMatchInlineSnapshot(`
           |import
@@ -1224,7 +1196,7 @@ const baseTests = expect => ({
           |import {
           |
           |    } from "specifiers-empty"
-`,
+      `,
       output: actual => {
         expect(actual).toMatchInlineSnapshot(`
           |import {
@@ -1242,7 +1214,7 @@ const baseTests = expect => ({
           |
           |  b // b
           |  ,a} from "specifiers-line-comment"
-`,
+      `,
       output: actual => {
         expect(actual).toMatchInlineSnapshot(`
           |import {
@@ -1266,7 +1238,7 @@ const baseTests = expect => ({
           |  
           |    // d
           |    import d from "d"
-`,
+      `,
       output: actual => {
         expect(actual).toMatchInlineSnapshot(`
           |  /* a */ import a from "a"; 
@@ -1299,7 +1271,7 @@ const baseTests = expect => ({
           |    // d\r
           |    import d from "d"\r
           |
-`,
+      `,
       output: actual => {
         expect(actual).toMatchInlineSnapshot(`
           |      <CR>
@@ -1459,6 +1431,141 @@ const baseTests = expect => ({
       },
       errors: 1,
     },
+
+    // `groups` – `u` flag.
+    {
+      options: [{ groups: [["^\\p{L}"], ["^\\."]] }],
+      code: input`
+          |import b from '.';
+          |import a from 'ä';
+      `,
+      output: actual => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import a from 'ä';
+          |
+          |import b from '.';
+        `);
+      },
+      errors: 1,
+    },
+
+    // `groups` – non-matching imports end up last.
+    {
+      options: [{ groups: [["^\\w"], ["^\\."]] }],
+      code: input`
+          |import c from '';
+          |import b from '.';
+          |import a from 'a';
+          |import d from '@/a';
+      `,
+      output: actual => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import a from 'a';
+          |
+          |import b from '.';
+          |
+          |import c from '';
+          |import d from '@/a';
+        `);
+      },
+      errors: 1,
+    },
+
+    // `groups` – first longest match wins.
+    {
+      options: [{ groups: [["^\\w"], ["^\\w{2}"], ["^.{2}"]] }],
+      code: input`
+          |import c from './';
+          |import b from 'bx';
+          |import a from 'a';
+      `,
+      output: actual => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import a from 'a';
+          |
+          |import b from 'bx';
+          |
+          |import c from './';
+        `);
+      },
+      errors: 1,
+    },
+
+    // `groups` – side effect imports.
+    {
+      options: [{ groups: [["^\\w"], ["^\\."], ["^\\u0000"]] }],
+      code: input`
+          |import '@/';
+          |import c from '@/';
+          |import b from './';
+          |import './';
+          |import a from 'a';
+          |import 'a';
+          |import {} from 'a';
+      `,
+      output: actual => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import a from 'a';
+          |import {} from 'a';
+          |
+          |import b from './';
+          |
+          |import '@/';
+          |import './';
+          |import 'a';
+          |
+          |import c from '@/';
+        `);
+      },
+      errors: 1,
+    },
+
+    // `groups` – side effect imports keep internal order but are sorted otherwise.
+    {
+      options: [{ groups: [] }],
+      code: input`
+          |import b from 'b';
+          |import 'c';
+          |import d from 'd';
+          |import 'a';
+          |import '.';
+          |import x from './x';
+      `,
+      output: actual => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import x from './x';
+          |import b from 'b';
+          |import 'c';
+          |import 'a';
+          |import '.';
+          |import d from 'd';
+        `);
+      },
+      errors: 1,
+    },
+
+    // `groups` – no line breaks between inner array items.
+    {
+      options: [{ groups: [["^\\w", "^react"], ["^\\."]] }],
+      code: input`
+          |import react from 'react';
+          |import a from 'a';
+          |import webpack from "webpack"
+          |import Select from 'react-select';
+          |import App from './App';
+      `,
+      output: actual => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import a from 'a';
+          |import webpack from "webpack"
+          |import react from 'react';
+          |import Select from 'react-select';
+          |
+          |import App from './App';
+        `);
+      },
+      errors: 1,
+    },
   ],
 });
 
@@ -1515,47 +1622,17 @@ const flowTests = {
         expect(actual).toMatchInlineSnapshot(`
           |import './global.css';
           |
-          |import react from "react"
-          |
           |import typeof A from "A";
+          |import react from "react"
           |import type {X} from "X";
           |import type {Z} from "Z";
+          |
           |import type E from "@/B";
           |import type C from "/B";
           |
           |import type B from "./B";
           |import typeof D from "./D";
           |import {type Y, typeof T, pluralize,truncate} from "./utils"
-        `);
-      },
-      errors: 1,
-    },
-
-    // All at once.
-    {
-      code: input`
-          |import A from "webpack!a";
-          |import B from "webpack!./a";
-          |import type C from "a";
-          |import D from "a";
-          |import typeof E from "a";
-          |import type F from "flow!./a";
-          |import type G from "flow!a";
-          |import typeof H from "a";
-          |import type I from "./a";
-      `,
-      output: actual => {
-        expect(actual).toMatchInlineSnapshot(`
-          |import type C from "a";
-          |import type G from "flow!a";
-          |import typeof E from "a";
-          |import typeof H from "a";
-          |import D from "a";
-          |import A from "webpack!a";
-          |
-          |import type I from "./a";
-          |import type F from "flow!./a";
-          |import B from "webpack!./a";
         `);
       },
       errors: 1,

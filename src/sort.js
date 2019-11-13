@@ -1,12 +1,40 @@
 "use strict";
 
-const validateNpmPackageName = require("validate-npm-package-name");
+const defaultGroups = [
+  // Side effect imports.
+  ["^\\u0000"],
+  // Packages.
+  // Things that start with a letter (or digit or underscore), or `@` followed by a letter.
+  ["^@?\\w"],
+  // Absolute imports and other imports such as Vue-style `@/foo`.
+  // Anything that does not start with a dot.
+  ["^[^.]"],
+  // Relative imports.
+  // Anything that starts with a dot.
+  ["^\\."],
+];
 
 module.exports = {
   meta: {
     type: "layout",
     fixable: "code",
-    schema: [],
+    schema: [
+      {
+        type: "object",
+        properties: {
+          groups: {
+            type: "array",
+            items: {
+              type: "array",
+              items: {
+                type: "string",
+              },
+            },
+          },
+        },
+        additionalProperties: false,
+      },
+    ],
     docs: {
       url:
         "https://github.com/lydell/eslint-plugin-simple-import-sort#sort-order",
@@ -16,10 +44,14 @@ module.exports = {
     },
   },
   create: context => {
+    const { groups: rawGroups = defaultGroups } = context.options[0] || {};
+    const outerGroups = rawGroups.map(groups =>
+      groups.map(item => RegExp(item, "u"))
+    );
     return {
       Program: node => {
         for (const imports of extractImportChunks(node)) {
-          maybeReportSorting(imports, context);
+          maybeReportSorting(imports, context, outerGroups);
         }
       },
     };
@@ -48,10 +80,10 @@ function extractImportChunks(programNode) {
   return chunks;
 }
 
-function maybeReportSorting(imports, context) {
+function maybeReportSorting(imports, context, outerGroups) {
   const sourceCode = context.getSourceCode();
   const items = getImportItems(imports, sourceCode);
-  const sorted = printSortedImports(items, sourceCode);
+  const sorted = printSortedImports(items, sourceCode, outerGroups);
 
   const { start } = items[0];
   const { end } = items[items.length - 1];
@@ -69,42 +101,54 @@ function maybeReportSorting(imports, context) {
   }
 }
 
-function printSortedImports(importItems, sourceCode) {
-  const sideEffectImports = [];
-  const packageImports = [];
-  const relativeImports = [];
-  const restImports = [];
+function printSortedImports(importItems, sourceCode, outerGroups) {
+  const itemGroups = outerGroups.map(groups =>
+    groups.map(regex => ({ regex, items: [] }))
+  );
+  const rest = [];
 
   for (const item of importItems) {
-    if (item.group === "sideEffect") {
-      sideEffectImports.push(item);
-    } else if (item.group === "package") {
-      packageImports.push(item);
-    } else if (item.group === "relative") {
-      relativeImports.push(item);
+    const { originalSource } = item.source;
+    const source = item.isSideEffectImport
+      ? `\0${originalSource}`
+      : originalSource;
+    const [matchedGroup] = flatMap(itemGroups, groups =>
+      groups.map(group => [group, group.regex.exec(source)])
+    ).reduce(
+      ([group, longestMatch], [nextGroup, nextMatch]) =>
+        nextMatch != null &&
+        (longestMatch == null || nextMatch[0].length > longestMatch[0].length)
+          ? [nextGroup, nextMatch]
+          : [group, longestMatch],
+      [undefined, undefined]
+    );
+    if (matchedGroup == null) {
+      rest.push(item);
     } else {
-      restImports.push(item);
+      matchedGroup.items.push(item);
     }
   }
 
-  const sortedItems = [
-    sideEffectImports,
-    sortImportItems(packageImports),
-    sortImportItems(restImports),
-    sortImportItems(relativeImports),
-  ];
+  const sortedItems = itemGroups
+    .concat([[{ regex: /^/, items: rest }]])
+    .map(groups => groups.filter(group => group.items.length > 0))
+    .filter(groups => groups.length > 0)
+    .map(groups => groups.map(group => sortImportItems(group.items)));
 
   const newline = guessNewline(sourceCode);
 
   const sorted = sortedItems
-    .filter(items => items.length > 0)
-    .map(items => items.map(item => item.code).join(newline))
+    .map(groups =>
+      groups
+        .map(groupItems => groupItems.map(item => item.code).join(newline))
+        .join(newline)
+    )
     .join(newline + newline);
 
   // Edge case: If the last import (after sorting) ends with a line comment and
   // there’s code (or a multiline block comment) on the same line, add a newline
   // so we don’t accidentally comment stuff out.
-  const flattened = [].concat(...sortedItems);
+  const flattened = flatMap(sortedItems, groups => [].concat(...groups));
   const lastSortedItem = flattened[flattened.length - 1];
   const lastOriginalItem = importItems[importItems.length - 1];
   const nextToken = lastSortedItem.needsNewline
@@ -192,14 +236,14 @@ function getImportItems(passedImports, sourceCode) {
     const [start] = all[0].range;
     const [, end] = all[all.length - 1].range;
 
-    const { group, source } = getGroupAndSource(importNode, sourceCode);
+    const source = getSource(importNode);
 
     return {
       node: importNode,
       code,
       start: start - indentation.length,
       end: end + trailingSpaces.length,
-      group,
+      isSideEffectImport: isSideEffectImport(importNode, sourceCode),
       source,
       index: importIndex,
       needsNewline:
@@ -729,21 +773,21 @@ function getTrailingSpaces(node, sourceCode) {
 }
 
 function sortImportItems(items) {
-  return items.slice().sort(
-    (itemA, itemB) =>
-      // First compare the `from` part, excluding webpack loader syntax.
-      compare(itemA.source.source, itemB.source.source) ||
-      // The `.source` has been slightly tweaked. To stay fully deterministic,
-      // also sort on the original value.
-      compare(itemA.source.originalSource, itemB.source.originalSource) ||
-      // Then put Flow type imports before regular ones.
-      compare(itemA.source.importKind, itemB.source.importKind) ||
-      // Then sort by webpack loader syntax (no loaders comes first).
-      compare(itemA.source.webpack, itemB.source.webpack) ||
-      // Keep the original order if the sources are the same. It's not worth
-      // trying to compare anything else, and you can use `import/no-duplicates`
-      // to get rid of the problem anyway.
-      itemA.index - itemB.index
+  return items.slice().sort((itemA, itemB) =>
+    // If both items are side effect imports, keep their original order.
+    itemA.isSideEffectImport && itemB.isSideEffectImport
+      ? 0
+      : // First compare the `from` part.
+        compare(itemA.source.source, itemB.source.source) ||
+        // The `.source` has been slightly tweaked. To stay fully deterministic,
+        // also sort on the original value.
+        compare(itemA.source.originalSource, itemB.source.originalSource) ||
+        // Then put Flow type imports before regular ones.
+        compare(itemA.source.importKind, itemB.source.importKind) ||
+        // Keep the original order if the sources are the same. It's not worth
+        // trying to compare anything else, and you can use `import/no-duplicates`
+        // to get rid of the problem anyway.
+        itemA.index - itemB.index
   );
 }
 
@@ -795,36 +839,6 @@ function isSideEffectImport(importNode, sourceCode) {
   );
 }
 
-const PACKAGE_REGEX = /^(?:@[^/]+\/)?[^/]+/;
-
-// import fs from "fs";
-// import { compose } from "lodash/fp";
-// import { storiesOf } from '@storybook/react';
-function isPackageImport(source) {
-  const match = PACKAGE_REGEX.exec(source);
-  if (match == null) {
-    return false;
-  }
-  const { errors = [], warnings = [] } = validateNpmPackageName(match[0]);
-  return (
-    errors.length === 0 &&
-    warnings.filter(warning => !warning.includes("core module")).length === 0
-  );
-}
-
-// import a from "."
-// import a from "./x"
-// import a from ".."
-// import a from "../x"
-function isRelativeImport(source) {
-  return (
-    source === "." ||
-    source === ".." ||
-    source.startsWith("./") ||
-    source.startsWith("../")
-  );
-}
-
 function isIdentifier(node) {
   return node.type === "Identifier";
 }
@@ -849,51 +863,21 @@ function isNewline(node) {
   return node.type === "Newline";
 }
 
-// Parse the `from` part of an import, stripping away webpack loader syntax:
-//
-//     import x from "webpack-loader!./index.js"
-//                                   ^^^^^^^^^^
-// Loader syntax documentation: https://webpack.js.org/concepts/loaders/#inline
-function getGroupAndSource(importNode, sourceCode) {
-  const rawSource = importNode.source.value;
-  const index = rawSource.lastIndexOf("!");
-  const [source, webpack] =
-    index >= 0
-      ? [rawSource.slice(index + 1), rawSource.slice(0, index + 1)]
-      : [rawSource, ""];
-  const group = isSideEffectImport(importNode, sourceCode)
-    ? "sideEffect"
-    : isPackageImport(source)
-    ? "package"
-    : isRelativeImport(source)
-    ? "relative"
-    : "rest";
+function getSource(importNode) {
+  const source = importNode.source.value;
 
   return {
-    group,
-    source: {
-      source:
-        group === "relative"
-          ? // Due to "." sorting before "/" by default, relative imports are
-            // automatically sorted in a logical manner for us: Imports from files
-            // further up come first, with deeper imports last. There’s one
-            // exception, though: When the `from` part ends with one or two dots:
-            // "." and "..". Those are supposed to sort just like "./", "../". So
-            // add in the slash for them. (No special handling is done for cases
-            // like "./a/.." because nobody writes that anyway.)
-            source === "." || source === ".."
-            ? `${source}/`
-            : source
-          : group === "rest"
-          ? // This makes ASCII letters and digits sort first. When using
-            // `Intl.Collator`, `\t` followed by a letter sorts first (while `\0`
-            // followed by a letter comes a lot later!).
-            source.replace(/^[a-z\d]/i, "\t$&")
-          : source,
-      originalSource: source,
-      importKind: getImportKind(importNode),
-      webpack,
-    },
+    source:
+      // Due to "." sorting before "/" by default, relative imports are
+      // automatically sorted in a logical manner for us: Imports from files
+      // further up come first, with deeper imports last. There’s one
+      // exception, though: When the `from` part ends with one or two dots:
+      // "." and "..". Those are supposed to sort just like "./", "../". So
+      // add in the slash for them. (No special handling is done for cases
+      // like "./a/.." because nobody writes that anyway.)
+      source === "." || source === ".." ? `${source}/` : source,
+    originalSource: source,
+    importKind: getImportKind(importNode),
   };
 }
 

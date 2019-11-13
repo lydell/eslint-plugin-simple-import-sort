@@ -65,6 +65,63 @@ bar();
 
 `;
 
+exports[`examples groups.custom.js 1`] = `
+import assert from "assert";
+import fs from "fs";
+
+import react from "react";
+import Select from "react-select"
+import _ from "lodash"
+
+import Textarea from "@/ui/Textarea"
+import {name} from "@company/config"
+import Button from "@ui/Button";
+import Label from "components/Label"
+import {API_URL} from "config";
+import {pluralize} from "utils/string"
+import VendoredLib from "vendored-lib"
+import createWrapper from "vendored-lib/lib/create-wrapper"
+
+import "./local-polyfill"
+import "polyfill-package"
+
+import cssGlobals from "../../css/globals"
+import {removeWhitespace,truncate} from "../../utils";
+import {CATEGORIES} from "../"
+
+import now from "./time/now"
+import tomorrow from "./time/tomorrow"
+import {providers} from "./providers"
+import {PRODUCT_NAMES} from "."
+
+import circleSyles from "./circle.scss";
+import "./global.scss"
+import "../../alert.css"
+import styles from "./styles.scss";
+
+`;
+
+exports[`examples groups.no-blank-lines.js 1`] = `
+import classnames from "classnames";
+import PropTypes from "prop-types";
+import React from "react";
+import { getUser } from "../../api";
+import { User } from "../../types";
+import { formatNumber,truncate } from "../../utils";
+import Button from "../Button";
+import styles from "./styles.css";
+
+`;
+
+exports[`examples groups.none.js 1`] = `
+import styles from "./styles";
+import App from "@/App";
+import { storiesOf } from "@storybook/react";
+import config from "/config";
+import react from "react";
+
+`;
+
 exports[`examples ignore.js 1`] = `
 // First off, imports that are only used for side effects stay in the input
 // order. These won’t be sorted:
@@ -213,9 +270,9 @@ import "./global.css";
 import type A from "an-npm-package";
 import a from "an-npm-package";
 import fs from "fs";
-
-// Absolute imports, full URLs and other imports.
 import b from "https://example.com/script.js";
+
+// Absolute imports and other imports.
 import Error from "@/components/error.vue";
 import c from "/";
 import d from "/home/user/foo";
@@ -228,7 +285,6 @@ import typeof C from "../types";
 import g from ".";
 import h from "./constants";
 import i from "./styles";
-import j from "html-loader!./text.html";
 // Regardless of group, imported items are sorted like this:
 import {
   // First, Flow type imports.
