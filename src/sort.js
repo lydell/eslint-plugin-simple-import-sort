@@ -777,7 +777,12 @@ function sortImportItems(items) {
     // If both items are side effect imports, keep their original order.
     itemA.isSideEffectImport && itemB.isSideEffectImport
       ? 0
-      : // First compare the `from` part.
+      : // If one of the items is a side effect import, move it first.
+      itemA.isSideEffectImport
+      ? -1
+      : itemB.isSideEffectImport
+      ? 1
+      : // Compare the `from` part.
         compare(itemA.source.source, itemB.source.source) ||
         // The `.source` has been slightly tweaked. To stay fully deterministic,
         // also sort on the original value.

@@ -364,8 +364,8 @@ The inner arrays are joined with one newline; the outer arrays are joined with
 two (creating a blank line).
 
 Every group is sorted internally as mentioned in [Sort order]. Side effect
-imports are sorted too – but will keep their internal order. It’s recommended to
-keep side effect imports in their own group.
+imports are always placed first in the group and keep their internal order. It’s
+recommended to keep side effect imports in their own group.
 
 These are the default groups:
 

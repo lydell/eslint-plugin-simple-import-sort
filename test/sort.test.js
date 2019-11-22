@@ -75,6 +75,15 @@ function getLoc(depth = 1) {
   return match != null ? match[0] : "?";
 }
 
+function ifSupported(regexString, fallbackRegexString) {
+  try {
+    RegExp(regexString, "u");
+    return regexString;
+  } catch (_error) {
+    return fallbackRegexString;
+  }
+}
+
 const baseTests = expect => ({
   valid: [
     // Simple cases.
@@ -1433,8 +1442,9 @@ const baseTests = expect => ({
     },
 
     // `groups` – `u` flag.
+    // Node.js 8 supports `u` but not `\p{L}`.
     {
-      options: [{ groups: [["^\\p{L}"], ["^\\."]] }],
+      options: [{ groups: [[ifSupported("^\\p{L}", "^[^.]")], ["^\\."]] }],
       code: input`
           |import b from '.';
           |import a from 'ä';
@@ -1533,11 +1543,11 @@ const baseTests = expect => ({
       `,
       output: actual => {
         expect(actual).toMatchInlineSnapshot(`
-          |import x from './x';
-          |import b from 'b';
           |import 'c';
           |import 'a';
           |import '.';
+          |import x from './x';
+          |import b from 'b';
           |import d from 'd';
         `);
       },

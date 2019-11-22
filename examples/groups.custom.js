@@ -11,7 +11,7 @@ import {CATEGORIES} from "../"
 import {truncate, removeWhitespace} from "../../utils";
 import cssGlobals from "../../css/globals"
 import styles from "./styles.scss";
-import circleSyles from "./circle.scss";
+import circleStyles from "./circle.scss";
 import "./global.scss"
 import {name} from "@company/config"
 import Button from "@ui/Button";

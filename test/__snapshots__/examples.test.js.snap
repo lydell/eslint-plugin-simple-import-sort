@@ -94,9 +94,9 @@ import tomorrow from "./time/tomorrow"
 import {providers} from "./providers"
 import {PRODUCT_NAMES} from "."
 
-import circleSyles from "./circle.scss";
 import "./global.scss"
 import "../../alert.css"
+import circleStyles from "./circle.scss";
 import styles from "./styles.scss";
 
 `;
