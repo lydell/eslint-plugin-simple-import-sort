@@ -1,3 +1,15 @@
+### Version 5.0.0 (2019-11-22)
+
+- Added: The `groups` option for [custom sorting].
+- Changed: Due to the new `groups` option, the default grouping is ever so
+  slightly different. Now, not only _valid_ npm package names are placed in the
+  “packages” group, but also things that _look_ like npm package names, such as
+  `@ui/Section`. And anything starting with `.` is now considered to be a
+  relative import. See [custom sorting] for more information.
+- Removed: Built-in support for webpack loader syntax. It didn’t fit well with
+  the new `groups` option, and since I don’t use it myself I decided to remove
+  it. Please open an issue if you have something to say about this!
+
 ### Version 4.0.0 (2019-06-19)
 
 - Changed: Sorting is now more human – it is case insensitive (matching the
@@ -79,6 +91,7 @@
 <!-- prettier-ignore-start -->
 [@typescript-eslint/parser]: https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/parser
 [#7]: https://github.com/lydell/eslint-plugin-simple-import-sort/issues/7
+[custom sorting]: https://github.com/lydell/eslint-plugin-simple-import-sort/tree/06c4db7d92a82ec2e265ad1bbb0c0a3d76566222#custom-grouping
 [flow type imports]: https://flow.org/en/docs/types/modules/
 [prettier]: https://prettier.io/
 [sort-from]: README.md#why-sort-on-from
