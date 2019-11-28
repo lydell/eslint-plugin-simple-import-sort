@@ -6,4 +6,12 @@ module.exports = {
   rules: {
     sort,
   },
+  configs: {
+    sort: {
+      plugins: ["simple-import-sort"],
+      rules: {
+        "simple-import-sort/sort": "error",
+      },
+    },
+  },
 };

@@ -92,22 +92,13 @@ npm install --save-dev eslint-plugin-simple-import-sort
 
 ## Usage
 
-Add `simple-import-sort` to the plugins section of your `.eslintrc`
-configuration file. You can omit the `eslint-plugin-` prefix:
+To add the `simple-import-sort` plugin and activate the
+`simple-import-sort/sort` rule in your `.eslintrc` configuration file,
+just extend the `simple-import-sort/sort` configuration:
 
 ```json
 {
-  "plugins": ["simple-import-sort"]
-}
-```
-
-Then add the import sort rule:
-
-```json
-{
-  "rules": {
-    "simple-import-sort/sort": "error"
-  }
+  "extends": ["plugin:simple-import-sort/sort"]
 }
 ```
 
