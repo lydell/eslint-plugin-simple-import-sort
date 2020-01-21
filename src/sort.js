@@ -776,7 +776,7 @@ function sortImportItems(items) {
   return items.slice().sort((itemA, itemB) =>
     // If both items are side effect imports, keep their original order.
     itemA.isSideEffectImport && itemB.isSideEffectImport
-      ? 0
+      ? itemA.index - itemB.index
       : // If one of the items is a side effect import, move it first.
       itemA.isSideEffectImport
       ? -1
