@@ -368,6 +368,17 @@ const baseTests = expect => ({
       errors: 1,
     },
 
+    // Keyword-like specifiers.
+    {
+      code: `import { aaNotKeyword, zzNotKeyword, abstract, as, asserts, any, async, /*await,*/ boolean, constructor, declare, get, infer, is, keyof, module, namespace, never, readonly, require, number, object, set, string, symbol, type, undefined, unique, unknown, from, global, bigint, of } from 'keyword-identifiers';`,
+      output: actual => {
+        expect(actual).toMatchInlineSnapshot(
+          `import { aaNotKeyword, abstract, any, as, asserts, async, /*await,*/ bigint, boolean, constructor, declare, from, get, global, infer, is, keyof, module, namespace, never, number, object, of,readonly, require, set, string, symbol, type, undefined, unique, unknown, zzNotKeyword } from 'keyword-identifiers';`
+        );
+      },
+      errors: 1,
+    },
+
     // No spaces in specifiers.
     {
       code: `import {e,b,a as c} from "specifiers-no-spaces"`,
