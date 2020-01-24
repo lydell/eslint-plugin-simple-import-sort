@@ -634,7 +634,7 @@ easier to work with.
 
 ## Development
 
-You can need [Node.js] 10 and npm 6.
+You need [Node.js] ~12 and npm 6.
 
 ### npm scripts
 
