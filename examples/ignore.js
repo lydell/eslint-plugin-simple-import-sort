@@ -14,6 +14,10 @@ separator();
 import d from "d";
 import c from "c";
 
+// Note that putting a `eslint-disable-next-line simple-import-sort/sort`
+// comment in the middle of a chunk of imports WON’T WORK. It HAS to be at the
+// very start!
+
 separator();
 
 // If you lant to both import something from a module _and_ import it for its
@@ -30,3 +34,7 @@ import Other from "another";
 // especially useful for long chunks of imports, where you don’t want one little
 // edge case disable sorting for the whole thing. Even better is to try to fix
 // the issue with the side effects – relying on import order is pretty brittle.
+
+// If all else fails, you can use this trick of inserting code between imports
+// to separate chunks of imports.
+separator();

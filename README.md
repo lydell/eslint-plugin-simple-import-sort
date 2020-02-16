@@ -35,6 +35,7 @@ forget about sorting imports!
   - [Is sorting imports safe?](#is-sorting-imports-safe)
   - [The sorting autofix causes some odd whitespace!](#the-sorting-autofix-causes-some-odd-whitespace)
   - [Can I use this without autofix?](#can-i-use-this-without-autofix)
+  - [How do I use eslint-ignore for this rule?](#how-do-i-use-eslint-ignore-for-this-rule)
 - [Development](#development)
   - [npm scripts](#npm-scripts)
   - [Directories](#directories)
@@ -631,6 +632,11 @@ people painstakingly fixing cryptic (and annoying!) sorting errors from other
 rules one by one, not realizing they could have been autofixed. Finally, not
 trying to make more detailed messages makes the code of this plugin _much_
 easier to work with.
+
+### How do I use eslint-ignore for this rule?
+
+Looking for `/* eslint-disable */` for this rule? Read all about **[ignoring
+(parts of) sorting][example-ignore].**
 
 ## Development
 

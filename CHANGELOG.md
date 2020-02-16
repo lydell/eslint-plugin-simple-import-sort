@@ -1,7 +1,7 @@
 ### Version 5.0.1 (2020-01-24)
 
-- Fixed: Side effect imports now correctly keep their original order in
-  Node.js <12. Thanks to Irvin Zhan (@izhan)!
+- Fixed: Side effect imports now correctly keep their original order in Node.js
+  <12. Thanks to Irvin Zhan (@izhan)!
 
 ### Version 5.0.0 (2019-11-22)
 
