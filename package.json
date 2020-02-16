@@ -32,14 +32,14 @@
     "prepublishOnly": "npm test"
   },
   "devDependencies": {
-    "@typescript-eslint/parser": "2.18.0",
+    "@typescript-eslint/parser": "2.19.2",
     "babel-eslint": "10.0.3",
     "cross-spawn": "7.0.1",
     "doctoc": "1.4.0",
     "eslint": "6.8.0",
     "eslint-config-lydell": "14.0.0",
-    "eslint-plugin-import": "2.20.0",
-    "eslint-plugin-jest": "23.6.0",
+    "eslint-plugin-import": "2.20.1",
+    "eslint-plugin-jest": "23.7.0",
     "eslint-plugin-markdown": "1.0.1",
     "eslint-plugin-prettier": "3.1.2",
     "eslint-plugin-vue": "6.1.2",
