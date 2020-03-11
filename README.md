@@ -248,7 +248,7 @@ addition to the alphabetical rule: `"."` and `".."` are treated as `"./"` and
 `"../"`.
 
 If both `import type` _and_ regular imports are used for the same source, the
-[Flow type imports] come first.
+type imports come first.
 
 Example:
 
@@ -281,7 +281,7 @@ import i from "./styles";
 
 // Regardless of group, imported items are sorted like this:
 import {
-  // First, Flow type imports.
+  // First, type imports.
   type x,
   typeof y,
   // Numbers are sorted by their numeric value:

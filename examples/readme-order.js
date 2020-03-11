@@ -25,7 +25,7 @@ import i from "./styles";
 
 // Regardless of group, imported items are sorted like this:
 import {
-  // First, Flow type imports.
+  // First, type imports.
   type x,
   typeof y,
   // Then everything else, alphabetically:

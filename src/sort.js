@@ -787,7 +787,7 @@ function sortImportItems(items) {
         // The `.source` has been slightly tweaked. To stay fully deterministic,
         // also sort on the original value.
         compare(itemA.source.originalSource, itemB.source.originalSource) ||
-        // Then put Flow type imports before regular ones.
+        // Then put type imports before regular ones.
         compare(itemA.source.importKind, itemB.source.importKind) ||
         // Keep the original order if the sources are the same. It's not worth
         // trying to compare anything else, and you can use `import/no-duplicates`
@@ -799,7 +799,7 @@ function sortImportItems(items) {
 function sortSpecifierItems(items) {
   return items.slice().sort(
     (itemA, itemB) =>
-      // Put Flow type imports before regular ones.
+      // Put type imports before regular ones.
       compare(getImportKind(itemA.node), getImportKind(itemB.node)) ||
       // Then compare by name.
       compare(itemA.node.imported.name, itemB.node.imported.name) ||
@@ -839,7 +839,7 @@ function isImportSpecifier(node) {
 function isSideEffectImport(importNode, sourceCode) {
   return (
     importNode.specifiers.length === 0 &&
-    !importNode.importKind &&
+    (!importNode.importKind || importNode.importKind === "value") &&
     !isPunctuator(sourceCode.getFirstToken(importNode, { skip: 1 }), "{")
   );
 }
@@ -887,9 +887,9 @@ function getSource(importNode) {
 }
 
 function getImportKind(importNode) {
-  // Flow `type` and `typeof` imports. Default to "\uffff" to make regular
-  // imports come after the type imports.
-  return importNode.importKind || "\uffff";
+  // `type` and `typeof` imports. Default to "value" (like TypeScript) to make
+  // regular imports come after the type imports.
+  return importNode.importKind || "value";
 }
 
 // Like `Array.prototype.findIndex`, but searches from the end.

@@ -295,7 +295,7 @@ import h from "./constants";
 import i from "./styles";
 // Regardless of group, imported items are sorted like this:
 import {
-  // First, Flow type imports.
+  // First, type imports.
   type x,
   typeof y,
   // Numbers are sorted by their numeric value:

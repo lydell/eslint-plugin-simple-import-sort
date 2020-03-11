@@ -1814,13 +1814,16 @@ const typescriptTests = {
       code: input`
           |import React from "react";
           |import Button from "../Button";
+          |import type {target, type as tipe, Button} from "../Button";
           |
           |import styles from "./styles.css";
           |import { getUser } from "../../api";
           |
           |import PropTypes from "prop-types";
+          |import { /* X */ } from "prop-types";
           |import classnames from "classnames";
           |import { truncate, formatNumber } from "../../utils";
+          |import type X from "../Button";
           |
           |function pluck<T, K extends keyof T>(o: T, names: K[]): T[K][] {
           |  return names.map(n => o[n]);
@@ -1830,10 +1833,13 @@ const typescriptTests = {
         expect(actual).toMatchInlineSnapshot(`
           |import classnames from "classnames";
           |import PropTypes from "prop-types";
+          |import { /* X */ } from "prop-types";
           |import React from "react";
           |
           |import { getUser } from "../../api";
           |import { formatNumber,truncate } from "../../utils";
+          |import type {Button,target, type as tipe} from "../Button";
+          |import type X from "../Button";
           |import Button from "../Button";
           |import styles from "./styles.css";
           |
