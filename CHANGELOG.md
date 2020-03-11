@@ -1,3 +1,8 @@
+### Version 5.0.2 (2020-03-11)
+
+- Fixed: The plugin now works with TypeScript 3.8 type imports. Thanks to Liwen
+  Guo (@Livven) and Brandon Chinn (@brandon-leapyear)!
+
 ### Version 5.0.1 (2020-01-24)
 
 - Fixed: Side effect imports now correctly keep their original order in Node.js
