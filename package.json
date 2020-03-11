@@ -32,20 +32,20 @@
     "prepublishOnly": "npm test"
   },
   "devDependencies": {
-    "@typescript-eslint/parser": "2.19.2",
-    "babel-eslint": "10.0.3",
+    "@typescript-eslint/parser": "2.23.0",
+    "babel-eslint": "10.1.0",
     "cross-spawn": "7.0.1",
     "doctoc": "1.4.0",
     "eslint": "6.8.0",
     "eslint-config-lydell": "14.0.0",
     "eslint-plugin-import": "2.20.1",
-    "eslint-plugin-jest": "23.7.0",
-    "eslint-plugin-markdown": "1.0.1",
+    "eslint-plugin-jest": "23.8.2",
+    "eslint-plugin-markdown": "1.0.2",
     "eslint-plugin-prettier": "3.1.2",
-    "eslint-plugin-vue": "6.1.2",
+    "eslint-plugin-vue": "6.2.2",
     "jest": "25.1.0",
     "prettier": "1.19.1",
-    "typescript": "3.7.5"
+    "typescript": "3.8.3"
   },
   "peerDependencies": {
     "eslint": ">=5.0.0"
