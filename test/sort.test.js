@@ -29,8 +29,8 @@ assert.strictEqual = (actual, expected, message) => {
 // Before: `"\\"string\\""`
 // After: `"string"`
 expect.addSnapshotSerializer({
-  test: value => typeof value === "string",
-  print: value => value,
+  test: (value) => typeof value === "string",
+  print: (value) => value,
 });
 
 // Make multiline inputs easier to read. Every line must start with 10 spaces
@@ -84,7 +84,7 @@ function ifSupported(regexString, fallbackRegexString) {
   }
 }
 
-const baseTests = expect => ({
+const baseTests = (expect) => ({
   valid: [
     // Simple cases.
     `import "a"`,
@@ -155,7 +155,7 @@ const baseTests = expect => ({
           |import x2 from "b"
           |import x1 from "a";
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import x1 from "a";
           |import x2 from "b"
@@ -172,7 +172,7 @@ const baseTests = expect => ({
           |
           |;[].forEach()
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import x1 from "a"
           |import x2 from "b"
@@ -193,7 +193,7 @@ const baseTests = expect => ({
           |  await foo()
           |})()
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import a from "a"
           |import { foo } from "bar"
@@ -217,7 +217,7 @@ const baseTests = expect => ({
           |import x4 from "d" ; import x3 from "c"
           |import x1 from "a" ; [].forEach()
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import x1 from "a" ; 
           |import x2 from "b"
@@ -240,7 +240,7 @@ const baseTests = expect => ({
           |
           |;/* comment */[].forEach()
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import x1 from "a" // a
           |import x2 from "b"
@@ -259,7 +259,7 @@ const baseTests = expect => ({
           |
           |;
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import x1 from "a"
           |;
@@ -272,7 +272,7 @@ const baseTests = expect => ({
     // Sorting specifiers.
     {
       code: `import { e, b, a as c } from "specifiers"`,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
           `import { a as c,b, e } from "specifiers"`
         );
@@ -283,7 +283,7 @@ const baseTests = expect => ({
     // Sorting specifiers with default import.
     {
       code: `import d, { e, b, a as c } from "specifiers-default"`,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
           `import d, { a as c,b, e } from "specifiers-default"`
         );
@@ -294,7 +294,7 @@ const baseTests = expect => ({
     // Sorting specifiers with trailing comma.
     {
       code: `import d, { e, b, a as c, } from "specifiers-trailing-comma"`,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
           `import d, { a as c,b, e,  } from "specifiers-trailing-comma"`
         );
@@ -305,7 +305,7 @@ const baseTests = expect => ({
     // Sorting specifiers with renames.
     {
       code: `import { a as c, a as b2, b, a } from "specifiers-renames"`,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
           `import { a,a as b2, a as c, b } from "specifiers-renames"`
         );
@@ -339,7 +339,7 @@ const baseTests = expect => ({
           |  img10_black,
           |} from "specifiers-human-sort"
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import {
           |  A,
@@ -371,7 +371,7 @@ const baseTests = expect => ({
     // Keyword-like specifiers.
     {
       code: `import { aaNotKeyword, zzNotKeyword, abstract, as, asserts, any, async, /*await,*/ boolean, constructor, declare, get, infer, is, keyof, module, namespace, never, readonly, require, number, object, set, string, symbol, type, undefined, unique, unknown, from, global, bigint, of } from 'keyword-identifiers';`,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
           `import { aaNotKeyword, abstract, any, as, asserts, async, /*await,*/ bigint, boolean, constructor, declare, from, get, global, infer, is, keyof, module, namespace, never, number, object, of,readonly, require, set, string, symbol, type, undefined, unique, unknown, zzNotKeyword } from 'keyword-identifiers';`
         );
@@ -382,7 +382,7 @@ const baseTests = expect => ({
     // No spaces in specifiers.
     {
       code: `import {e,b,a as c} from "specifiers-no-spaces"`,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
           `import {a as c,b,e} from "specifiers-no-spaces"`
         );
@@ -393,7 +393,7 @@ const baseTests = expect => ({
     // Space before specifiers.
     {
       code: `import { b,a} from "specifiers-no-space-before"`,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
           `import { a,b} from "specifiers-no-space-before"`
         );
@@ -404,7 +404,7 @@ const baseTests = expect => ({
     // Space after specifiers.
     {
       code: `import {b,a } from "specifiers-no-space-after"`,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
           `import {a,b } from "specifiers-no-space-after"`
         );
@@ -415,7 +415,7 @@ const baseTests = expect => ({
     // Space after specifiers.
     {
       code: `import {b,a, } from "specifiers-no-space-after-trailing"`,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
           `import {a,b, } from "specifiers-no-space-after-trailing"`
         );
@@ -434,7 +434,7 @@ const baseTests = expect => ({
           |  // last
           |} from "specifiers-comments"
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import {
           |  a,
@@ -458,7 +458,7 @@ const baseTests = expect => ({
           |  // last
           |} from "specifiers-comments-last"
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import {
           |  a,
@@ -475,7 +475,7 @@ const baseTests = expect => ({
     // Sorting specifiers with comment between.
     {
       code: `import { b /* b */, a } from "specifiers-comment-between"`,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
           `import { a,b /* b */ } from "specifiers-comment-between"`
         );
@@ -493,7 +493,7 @@ const baseTests = expect => ({
           |  // y
           |} from "specifiers-trailing"
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import {
           |  a,
@@ -517,7 +517,7 @@ const baseTests = expect => ({
           |  // y
           |} from "specifiers-multiline-comments"
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import {
           |/*a1
@@ -541,7 +541,7 @@ const baseTests = expect => ({
           |  after */
           |} from "specifiers-multiline-end-comment"
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import {
           |  a,   b/*
@@ -562,7 +562,7 @@ const baseTests = expect => ({
           |  after */
           |} from "specifiers-multiline-end-comment-after-newline"
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import {
           |  a, /*a*/
@@ -582,7 +582,7 @@ const baseTests = expect => ({
           |  a /*
           |  after */ } from "specifiers-multiline-end-comment-no-newline"
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import {
           |  a,   b/*
@@ -595,7 +595,7 @@ const baseTests = expect => ({
     // Sorting specifiers with lots of comments.
     {
       code: `/*1*//*2*/import/*3*/def,/*4*/{/*{*/e/*e1*/,/*e2*//*e3*/b/*b1*/,/*b2*/a/*a1*/as/*a2*/c/*a3*/,/*a4*/}/*5*/from/*6*/"specifiers-lots-of-comments"/*7*//*8*/`,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
           `/*1*//*2*/import/*3*/def,/*4*/{/*{*/a/*a1*/as/*a2*/c/*a3*/,/*a4*/b/*b1*/,/*b2*/e/*e1*/,/*e2*//*e3*/}/*5*/from/*6*/"specifiers-lots-of-comments"/*7*//*8*/`
         );
@@ -621,7 +621,7 @@ const baseTests = expect => ({
           |  */ // comment at end after trailing comma
           |} from "specifiers-lots-of-comments-multiline-2";
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import { // start
           |/* a1
@@ -652,7 +652,7 @@ const baseTests = expect => ({
           |  a
           |} from "specifiers-blank";
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import {
           |  a,
@@ -677,7 +677,7 @@ const baseTests = expect => ({
           |    s
           |} from "specifiers-inline-multiline"
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import {    s,
           |t /*t*/, // t
@@ -700,7 +700,7 @@ const baseTests = expect => ({
           |a,
           |} from "specifiers-indent-0"
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import {
           |a,
@@ -719,7 +719,7 @@ const baseTests = expect => ({
           |    a,
           |} from "specifiers-indent-4"
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import {
           |    a,
@@ -738,7 +738,7 @@ const baseTests = expect => ({
           |\ta,
           |} from "specifiers-indent-tab"
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import {
           |→a,
@@ -760,7 +760,7 @@ const baseTests = expect => ({
           |    c,
           |} from "specifiers-indent-mixed"
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import {
           |  a,
@@ -794,7 +794,7 @@ const baseTests = expect => ({
           |
           |require("c"); import x7 from "b"; import x8 from "a"; require("c")
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |require("c");
           |
@@ -826,7 +826,7 @@ const baseTests = expect => ({
           |import a1 from "a"
           |import {a2} from "a"
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import a1 from "a"
           |import {a2} from "a"
@@ -843,7 +843,7 @@ const baseTests = expect => ({
           |import {a2} from "a"
           |import a1 from "a"
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import {a2} from "a"
           |import a1 from "a"
@@ -907,7 +907,7 @@ const baseTests = expect => ({
           |import img10 from "./img10";
           |import img1 from "./img1";
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import {} from "@storybook/react";
           |import {} from "@storybook/react/something";
@@ -981,7 +981,7 @@ const baseTests = expect => ({
           |*/ /*c1*/ /*c2*/import c from 'c' ; /*c3*/ import a from "a" /*a*/ /*
           |   x1 */ /* x2 */
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |// before
           |
@@ -1006,7 +1006,7 @@ const baseTests = expect => ({
           |import b from "b"; // b
           |import a from "a"; code();
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import a from "a"; 
           |import b from "b"; // b
@@ -1023,7 +1023,7 @@ const baseTests = expect => ({
           |import a from "a"; /*
           |after */
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import a from "a"; 
           |import b from "b"; // b
@@ -1040,7 +1040,7 @@ const baseTests = expect => ({
           |import b from "b"; // b
           |import a from "a"; /* a */
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import a from "a"; /* a */
           |import b from "b"; // b
@@ -1058,7 +1058,7 @@ const baseTests = expect => ({
           |import a from "a"; /*a*/ /* comment
           |after */ // after
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |// before
           |/* also
@@ -1090,7 +1090,7 @@ const baseTests = expect => ({
           |
           |import a from "a"
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |// a
           |import a from "a"
@@ -1116,7 +1116,7 @@ const baseTests = expect => ({
           |import a from "a"\r
           |after();\r
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |// a<CR>
           |import a from "a"<CR>
@@ -1189,7 +1189,7 @@ const baseTests = expect => ({
           |
           |;
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import
           |// import
@@ -1232,7 +1232,7 @@ const baseTests = expect => ({
           |
           |    } from "specifiers-empty"
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import {
           |    } from "specifiers-empty"
@@ -1250,7 +1250,7 @@ const baseTests = expect => ({
           |  b // b
           |  ,a} from "specifiers-line-comment"
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import {
           |a,  b // b
@@ -1274,7 +1274,7 @@ const baseTests = expect => ({
           |    // d
           |    import d from "d"
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |  /* a */ import a from "a"; 
           |  // b
@@ -1307,7 +1307,7 @@ const baseTests = expect => ({
           |    import d from "d"\r
           |
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |      <CR>
           |  /* a */ import a from "a"; <CR>
@@ -1337,7 +1337,7 @@ const baseTests = expect => ({
           |import e from "e"; /* multiline
           |comment 2 */ import f from "f";
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |/* multiline
           |comment */  
@@ -1369,7 +1369,7 @@ const baseTests = expect => ({
           |import Modal from 'src/components/Modal'
           |import ExportDataModal from 'src/components/ExportDataModal'
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import { buttonPrimary, linkButton, Select, spinnerOverlay } from 'src/components/common'
           |import DataTable from 'src/components/DataTable'
@@ -1407,7 +1407,7 @@ const baseTests = expect => ({
           |import { store } from '../store';
           |import { push } from 'react-router-redux';
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import React from 'react';
           |import { connect } from 'react-redux';
@@ -1447,7 +1447,7 @@ const baseTests = expect => ({
           |  UPDATE_FIELD_EDITOR
           |} from '../constants/actionTypes';
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import React from 'react';
           |import { connect } from 'react-redux';
@@ -1475,7 +1475,7 @@ const baseTests = expect => ({
           |import b from '.';
           |import a from 'ä';
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import a from 'ä';
           |
@@ -1494,7 +1494,7 @@ const baseTests = expect => ({
           |import a from 'a';
           |import d from '@/a';
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import a from 'a';
           |
@@ -1515,7 +1515,7 @@ const baseTests = expect => ({
           |import b from 'bx';
           |import a from 'a';
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import a from 'a';
           |
@@ -1539,7 +1539,7 @@ const baseTests = expect => ({
           |import 'a';
           |import {} from 'a';
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import a from 'a';
           |import {} from 'a';
@@ -1567,7 +1567,7 @@ const baseTests = expect => ({
           |import '.';
           |import x from './x';
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import 'c';
           |import 'a';
@@ -1590,7 +1590,7 @@ const baseTests = expect => ({
           |import Select from 'react-select';
           |import App from './App';
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import a from 'a';
           |import webpack from "webpack"
@@ -1654,7 +1654,7 @@ const flowTests = {
           |import typeof A from "A";
           |import typeof D from "./D";
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import './global.css';
           |
@@ -1738,7 +1738,7 @@ const flowTests = {
           |  FragmentDefinitionNode,
           |} from '../language/ast';
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import { forEach, isCollection } from 'iterall';
           |
@@ -1829,7 +1829,7 @@ const typescriptTests = {
           |  return names.map(n => o[n]);
           |}
       `,
-      output: actual => {
+      output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import classnames from "classnames";
           |import PropTypes from "prop-types";
@@ -1870,7 +1870,7 @@ const typescriptRuleTester = new RuleTester({
 // the first one, because Jest can’t update the snapshots otherwise.
 const expect2 = (...args) => {
   const ret = expect(...args);
-  ret.toMatchInlineSnapshot = string =>
+  ret.toMatchInlineSnapshot = (string) =>
     ret.toBe(strip(string, { keepPipes: true }));
   return ret;
 };

@@ -205,7 +205,6 @@ End text.
 `;
 
 exports[`examples prettier-comments.js 1`] = `
-/* eslint prettier/prettier: "error" */
 // This is just a test to make sure that this plugin plays well with Prettier.
 
 import def, { // start
@@ -255,7 +254,7 @@ import {/* comment at start */ f, /* f */g/* g */ } from "wherever3";
 
 `;
 
-exports[`examples readme-example.js 1`] = `
+exports[`examples readme-example.prettier.js 1`] = `
 import classnames from "classnames";
 import PropTypes from "prop-types";
 import React from "react";
@@ -268,7 +267,7 @@ import styles from "./styles.css";
 
 `;
 
-exports[`examples readme-order.js 1`] = `
+exports[`examples readme-order.prettier.js 1`] = `
 // Side effect imports. (These are not sorted internally.)
 import "./setup";
 import "some-polyfill";
@@ -322,7 +321,7 @@ import { formatNumber,truncate } from "../../utils";
 import Button from "../Button";
 import styles from "./styles.css";
 
-// The above is the same as readme-example.js. The below function is here to
+// The above is the same as readme-example.prettier.js. The below function is here to
 // make sure that this file isn’t both valid JS and valid TS, forcing the need
 // for \`@typescript-eslint/parser\`.
 function pluck<T, K extends keyof T>(o: T, names: K[]): T[K][] {

@@ -3,13 +3,14 @@
 const path = require("path");
 
 const spawn = require("cross-spawn");
+const prettier = require("prettier");
 
 // Make snapshots easier to read.
 // Before: `"\\"string\\""`
 // After: `"string"`
 expect.addSnapshotSerializer({
-  test: value => typeof value === "string",
-  print: value => value,
+  test: (value) => typeof value === "string",
+  print: (value) => value,
 });
 
 describe("examples", () => {
@@ -29,7 +30,10 @@ describe("examples", () => {
         fixableErrorCount: 0,
         fixableWarningCount: 0,
       });
-      expect(item.output).toMatchSnapshot();
+      const code = name.includes("prettier")
+        ? prettier.format(item.output, { parser: "babel" })
+        : item.output;
+      expect(code).toMatchSnapshot();
     });
   }
 });

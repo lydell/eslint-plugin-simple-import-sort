@@ -39,10 +39,7 @@ module.exports = {
       // Alternatively, use Prettier (https://prettier.io/) to fix formatting.
       // This is the much easier and recommended approach.
       files: ["3.spaces.prettier.js"],
-      plugins: ["prettier"],
-      rules: {
-        "prettier/prettier": "error",
-      },
+      // This doesn’t need any extra ESLint config, only Prettier setup.
     },
     {
       // Use these rules from eslint-plugin-import
@@ -122,17 +119,6 @@ module.exports = {
       // These files are used in README.md.
       files: ["readme-*.js"],
       parser: "babel-eslint",
-      plugins: ["prettier"],
-      rules: {
-        "prettier/prettier": "error",
-      },
-    },
-    {
-      // These files are used in README.md.
-      files: ["readme-comments*.js"],
-      rules: {
-        "prettier/prettier": "off",
-      },
     },
     {
       // TypeScript.

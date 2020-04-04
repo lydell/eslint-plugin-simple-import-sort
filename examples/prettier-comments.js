@@ -1,4 +1,3 @@
-/* eslint prettier/prettier: "error" */
 // This is just a test to make sure that this plugin plays well with Prettier.
 
 import {/* start */ b /*b*/, a /*a*/} from "t"

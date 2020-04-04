@@ -43,13 +43,13 @@ module.exports = {
       sort: "Run autofix to sort these imports!",
     },
   },
-  create: context => {
+  create: (context) => {
     const { groups: rawGroups = defaultGroups } = context.options[0] || {};
-    const outerGroups = rawGroups.map(groups =>
-      groups.map(item => RegExp(item, "u"))
+    const outerGroups = rawGroups.map((groups) =>
+      groups.map((item) => RegExp(item, "u"))
     );
     return {
-      Program: node => {
+      Program: (node) => {
         for (const imports of extractImportChunks(node)) {
           maybeReportSorting(imports, context, outerGroups);
         }
@@ -96,14 +96,14 @@ function maybeReportSorting(imports, context, outerGroups) {
         start: sourceCode.getLocFromIndex(start),
         end: sourceCode.getLocFromIndex(end),
       },
-      fix: fixer => fixer.replaceTextRange([start, end], sorted),
+      fix: (fixer) => fixer.replaceTextRange([start, end], sorted),
     });
   }
 }
 
 function printSortedImports(importItems, sourceCode, outerGroups) {
-  const itemGroups = outerGroups.map(groups =>
-    groups.map(regex => ({ regex, items: [] }))
+  const itemGroups = outerGroups.map((groups) =>
+    groups.map((regex) => ({ regex, items: [] }))
   );
   const rest = [];
 
@@ -112,8 +112,8 @@ function printSortedImports(importItems, sourceCode, outerGroups) {
     const source = item.isSideEffectImport
       ? `\0${originalSource}`
       : originalSource;
-    const [matchedGroup] = flatMap(itemGroups, groups =>
-      groups.map(group => [group, group.regex.exec(source)])
+    const [matchedGroup] = flatMap(itemGroups, (groups) =>
+      groups.map((group) => [group, group.regex.exec(source)])
     ).reduce(
       ([group, longestMatch], [nextGroup, nextMatch]) =>
         nextMatch != null &&
@@ -131,16 +131,16 @@ function printSortedImports(importItems, sourceCode, outerGroups) {
 
   const sortedItems = itemGroups
     .concat([[{ regex: /^/, items: rest }]])
-    .map(groups => groups.filter(group => group.items.length > 0))
-    .filter(groups => groups.length > 0)
-    .map(groups => groups.map(group => sortImportItems(group.items)));
+    .map((groups) => groups.filter((group) => group.items.length > 0))
+    .filter((groups) => groups.length > 0)
+    .map((groups) => groups.map((group) => sortImportItems(group.items)));
 
   const newline = guessNewline(sourceCode);
 
   const sorted = sortedItems
-    .map(groups =>
+    .map((groups) =>
       groups
-        .map(groupItems => groupItems.map(item => item.code).join(newline))
+        .map((groupItems) => groupItems.map((item) => item.code).join(newline))
         .join(newline)
     )
     .join(newline + newline);
@@ -148,13 +148,13 @@ function printSortedImports(importItems, sourceCode, outerGroups) {
   // Edge case: If the last import (after sorting) ends with a line comment and
   // there’s code (or a multiline block comment) on the same line, add a newline
   // so we don’t accidentally comment stuff out.
-  const flattened = flatMap(sortedItems, groups => [].concat(...groups));
+  const flattened = flatMap(sortedItems, (groups) => [].concat(...groups));
   const lastSortedItem = flattened[flattened.length - 1];
   const lastOriginalItem = importItems[importItems.length - 1];
   const nextToken = lastSortedItem.needsNewline
     ? sourceCode.getTokenAfter(lastOriginalItem.node, {
         includeComments: true,
-        filter: token =>
+        filter: (token) =>
           !isLineComment(token) &&
           !(
             isBlockComment(token) &&
@@ -192,7 +192,7 @@ function getImportItems(passedImports, sourceCode) {
     const commentsBefore = sourceCode
       .getCommentsBefore(importNode)
       .filter(
-        comment =>
+        (comment) =>
           comment.loc.start.line <= importNode.loc.start.line &&
           comment.loc.end.line > lastLine &&
           (importIndex > 0 || comment.loc.start.line > lastLine)
@@ -203,7 +203,7 @@ function getImportItems(passedImports, sourceCode) {
     // of the last import).
     const commentsAfter = sourceCode
       .getCommentsAfter(importNode)
-      .filter(comment => comment.loc.end.line === importNode.loc.end.line);
+      .filter((comment) => comment.loc.end.line === importNode.loc.end.line);
 
     const before = printCommentsBefore(importNode, commentsBefore, sourceCode);
     const after = printCommentsAfter(importNode, commentsAfter, sourceCode);
@@ -300,13 +300,15 @@ function handleLastSemicolon(imports, sourceCode) {
 
 function printSortedSpecifiers(importNode, sourceCode) {
   const allTokens = getAllTokens(importNode, sourceCode);
-  const openBraceIndex = allTokens.findIndex(token => isPunctuator(token, "{"));
-  const closeBraceIndex = allTokens.findIndex(token =>
+  const openBraceIndex = allTokens.findIndex((token) =>
+    isPunctuator(token, "{")
+  );
+  const closeBraceIndex = allTokens.findIndex((token) =>
     isPunctuator(token, "}")
   );
 
   // Exclude "ImportDefaultSpecifier" – the "def" in `import def, {a, b}`.
-  const specifiers = importNode.specifiers.filter(node =>
+  const specifiers = importNode.specifiers.filter((node) =>
     isImportSpecifier(node)
   );
 
@@ -363,7 +365,7 @@ function printSortedSpecifiers(importNode, sourceCode) {
     }
 
     const nonBlankIndex = item.after.findIndex(
-      token => !isNewline(token) && !isSpaces(token)
+      (token) => !isNewline(token) && !isSpaces(token)
     );
 
     // Remove whitespace and newlines at the start of `.after` if the item had a
@@ -532,7 +534,7 @@ function getSpecifierItems(tokens) {
     // comments and whitespace that don’t belong to the specifier to
     // `result.after`.
     case "specifier": {
-      const lastIdentifierIndex = findLastIndex(current.specifier, token2 =>
+      const lastIdentifierIndex = findLastIndex(current.specifier, (token2) =>
         isIdentifier(token2)
       );
 
@@ -541,13 +543,13 @@ function getSpecifierItems(tokens) {
 
       // If there’s a newline, put everything up to and including (hence the `+
       // 1`) that newline in the specifiers’s `.after`.
-      const newlineIndexRaw = after.findIndex(token2 => isNewline(token2));
+      const newlineIndexRaw = after.findIndex((token2) => isNewline(token2));
       const newlineIndex = newlineIndexRaw === -1 ? -1 : newlineIndexRaw + 1;
 
       // If there’s a multiline block comment, put everything _befor_ that
       // comment in the specifiers’s `.after`.
       const multilineBlockCommentIndex = after.findIndex(
-        token2 => isBlockComment(token2) && hasNewline(token2.code)
+        (token2) => isBlockComment(token2) && hasNewline(token2.code)
       );
 
       const sliceIndex =
@@ -606,7 +608,7 @@ function makeEmptyItem() {
 // it needs a newline before that. Otherwise that comment can end up belonging
 // to the _previous_ import specifier after sorting.
 function needsStartingNewline(tokens) {
-  const before = tokens.filter(token => !isSpaces(token));
+  const before = tokens.filter((token) => !isSpaces(token));
 
   if (before.length === 0) {
     return false;
@@ -663,7 +665,7 @@ function parseWhitespace(whitespace) {
           : { type: "Newline", code: spacesOrNewline }
       )
       // Remove empty spaces since it makes debugging easier.
-      .filter(token => token.code !== "")
+      .filter((token) => token.code !== "")
   );
 }
 
@@ -711,7 +713,7 @@ function getAllTokens(node, sourceCode) {
 // Prints tokens that are enhanced with a `code` property – like those returned
 // by `getAllTokens` and `parseWhitespace`.
 function printTokens(tokens) {
-  return tokens.map(token => token.code).join("");
+  return tokens.map((token) => token.code).join("");
 }
 
 // `comments` is a list of comments that occur before `node`. Print those and
