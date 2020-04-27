@@ -14,7 +14,12 @@ Easy autofixable import sorting.
 
 This is for those who use `eslint --fix` (autofix) a lot and want to completely forget about sorting imports!
 
-## Contents
+[@typescript-eslint/parser]: https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/parser
+[babel-eslint]: https://github.com/babel/babel-eslint
+[eslint-plugin-import]: https://github.com/benmosher/eslint-plugin-import/
+[no-require]: https://github.com/lydell/eslint-plugin-simple-import-sort/#does-it-support-require
+[prettier]: https://prettier.io/
+[typescript]: https://www.typescriptlang.org/
 
 <!-- prettier-ignore-start -->
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
@@ -554,13 +559,10 @@ You need [Node.js] ~12 and npm 6.
 
 [MIT](LICENSE)
 
-[@typescript-eslint/parser]: https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/parser
-[babel-eslint]: https://github.com/babel/babel-eslint
 [comment-handling]: #comment-and-whitespace-handling
 [custom grouping]: #custom-grouping
 [doctoc]: https://github.com/thlorenz/doctoc/
 [eslint-fix]: https://eslint.org/docs/user-guide/command-line-interface#--fix
-[eslint-plugin-import]: https://github.com/benmosher/eslint-plugin-import/
 [eslint]: https://eslint.org/
 [example-ignore]: https://github.com/lydell/eslint-plugin-simple-import-sort/blob/master/examples/ignore.js
 [examples]: https://github.com/lydell/eslint-plugin-simple-import-sort/blob/master/examples/.eslintrc.js
@@ -575,13 +577,10 @@ You need [Node.js] ~12 and npm 6.
 [issue #31]: https://github.com/lydell/eslint-plugin-simple-import-sort/issues/31
 [jest]: https://jestjs.io/
 [lines-around-comment]: https://eslint.org/docs/rules/lines-around-comment
-[no-require]: #does-it-support-require
 [node.js]: https://nodejs.org/en/
 [npm]: https://www.npmjs.com/
 [odd-whitespace]: #the-sorting-autofix-causes-some-odd-whitespace
 [padding-line-between-statements]: https://eslint.org/docs/rules/padding-line-between-statements
-[prettier]: https://prettier.io/
 [sort order]: #sort-order
 [sort-from]: #why-sort-on-from
 [sort-imports]: https://eslint.org/docs/rules/sort-imports
-[typescript]: https://www.typescriptlang.org/

@@ -4,7 +4,7 @@ const assert = require("assert");
 
 const { RuleTester } = require("eslint");
 
-const plugin = require("../");
+const plugin = require("../src");
 
 // Hack to allow using `.toMatchInlineSnapshot` for `output` in `RuleTester`.
 // https://github.com/eslint/eslint/blob/7621f5d2aa7d87e798b75ca47d6889c280597e99/lib/rule-tester/rule-tester.js#L614
