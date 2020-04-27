@@ -1,3 +1,7 @@
+### Version 5.0.3 (2020-04-27)
+
+- Improved: Reduced package size by 50%.
+
 ### Version 5.0.2 (2020-03-11)
 
 - Fixed: The plugin now works with TypeScript 3.8 type imports. Thanks to Liwen Guo (@Livven) and Brandon Chinn (@brandon-leapyear)!
