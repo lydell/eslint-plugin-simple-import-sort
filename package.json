@@ -29,7 +29,7 @@
     "prepublishOnly": "npm test"
   },
   "devDependencies": {
-    "@typescript-eslint/parser": "2.26.0",
+    "@typescript-eslint/parser": "2.30.0",
     "babel-eslint": "10.1.0",
     "cross-spawn": "7.0.2",
     "doctoc": "1.4.0",
@@ -39,8 +39,8 @@
     "eslint-plugin-jest": "23.8.2",
     "eslint-plugin-markdown": "1.0.2",
     "eslint-plugin-vue": "6.2.2",
-    "jest": "25.2.7",
-    "prettier": "2.0.2",
+    "jest": "25.4.0",
+    "prettier": "2.0.5",
     "typescript": "3.8.3"
   },
   "peerDependencies": {
