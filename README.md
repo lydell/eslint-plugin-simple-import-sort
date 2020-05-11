@@ -17,6 +17,7 @@ This is for those who use `eslint --fix` (autofix) a lot and want to completely 
 [@typescript-eslint/parser]: https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/parser
 [babel-eslint]: https://github.com/babel/babel-eslint
 [eslint-plugin-import]: https://github.com/benmosher/eslint-plugin-import/
+[flow type imports]: https://flow.org/en/docs/types/modules/
 [no-require]: https://github.com/lydell/eslint-plugin-simple-import-sort/#does-it-support-require
 [prettier]: https://prettier.io/
 [typescript]: https://www.typescriptlang.org/
@@ -566,7 +567,6 @@ You need [Node.js] ~12 and npm 6.
 [eslint]: https://eslint.org/
 [example-ignore]: https://github.com/lydell/eslint-plugin-simple-import-sort/blob/master/examples/ignore.js
 [examples]: https://github.com/lydell/eslint-plugin-simple-import-sort/blob/master/examples/.eslintrc.js
-[flow type imports]: https://flow.org/en/docs/types/modules/
 [flow]: https://flow.org/
 [import/first]: https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/first.md
 [import/first]: https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/first.md
