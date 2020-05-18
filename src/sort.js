@@ -210,13 +210,11 @@ function printSortedItems(items, sourceCode, outerGroups) {
 // import. Most importantly there’s a `code` property that contains the import
 // node as a string, with comments (if any). Finding the corresponding comments
 // is the hard part.
-function getItems(passedImports, sourceCode) {
-  const imports = handleLastSemicolon(passedImports, sourceCode);
-  return imports.map((importNode, importIndex) => {
+function getItems(passedItems, sourceCode) {
+  const items = handleLastSemicolon(passedItems, sourceCode);
+  return items.map((node, index) => {
     const lastLine =
-      importIndex === 0
-        ? importNode.loc.start.line - 1
-        : imports[importIndex - 1].loc.end.line;
+      index === 0 ? node.loc.start.line - 1 : items[index - 1].loc.end.line;
 
     // Get all comments before the import, except:
     //
@@ -225,28 +223,28 @@ function getItems(passedImports, sourceCode) {
     //   comments that are on the same line as the previous import. But multiline
     //   block comments always belong to this import, not the previous.
     const commentsBefore = sourceCode
-      .getCommentsBefore(importNode)
+      .getCommentsBefore(node)
       .filter(
         (comment) =>
-          comment.loc.start.line <= importNode.loc.start.line &&
+          comment.loc.start.line <= node.loc.start.line &&
           comment.loc.end.line > lastLine &&
-          (importIndex > 0 || comment.loc.start.line > lastLine)
+          (index > 0 || comment.loc.start.line > lastLine)
       );
 
     // Get all comments after the import that are on the same line. Multiline
     // block comments belong to the _next_ import (or the following code in case
     // of the last import).
     const commentsAfter = sourceCode
-      .getCommentsAfter(importNode)
-      .filter((comment) => comment.loc.end.line === importNode.loc.end.line);
+      .getCommentsAfter(node)
+      .filter((comment) => comment.loc.end.line === node.loc.end.line);
 
-    const before = printCommentsBefore(importNode, commentsBefore, sourceCode);
-    const after = printCommentsAfter(importNode, commentsAfter, sourceCode);
+    const before = printCommentsBefore(node, commentsBefore, sourceCode);
+    const after = printCommentsAfter(node, commentsAfter, sourceCode);
 
     // Print the indentation before the import or its first comment, if any, to
     // support indentation in `<script>` tags.
     const indentation = getIndentation(
-      commentsBefore.length > 0 ? commentsBefore[0] : importNode,
+      commentsBefore.length > 0 ? commentsBefore[0] : node,
       sourceCode
     );
 
@@ -254,33 +252,31 @@ function getItems(passedImports, sourceCode) {
     // producing a sort error just because you accidentally added a few trailing
     // spaces among the imports.
     const trailingSpaces = getTrailingSpaces(
-      commentsAfter.length > 0
-        ? commentsAfter[commentsAfter.length - 1]
-        : importNode,
+      commentsAfter.length > 0 ? commentsAfter[commentsAfter.length - 1] : node,
       sourceCode
     );
 
     const code =
       indentation +
       before +
-      printSortedSpecifiers(importNode, sourceCode) +
+      printSortedSpecifiers(node, sourceCode) +
       after +
       trailingSpaces;
 
-    const all = [...commentsBefore, importNode, ...commentsAfter];
+    const all = [...commentsBefore, node, ...commentsAfter];
     const [start] = all[0].range;
     const [, end] = all[all.length - 1].range;
 
-    const source = getSource(importNode);
+    const source = getSource(node);
 
     return {
-      node: importNode,
+      node,
       code,
       start: start - indentation.length,
       end: end + trailingSpaces.length,
-      isSideEffectImport: isSideEffectImport(importNode, sourceCode),
+      isSideEffectImport: isSideEffectImport(node, sourceCode),
       source,
-      index: importIndex,
+      index,
       needsNewline:
         commentsAfter.length > 0 &&
         isLineComment(commentsAfter[commentsAfter.length - 1]),
