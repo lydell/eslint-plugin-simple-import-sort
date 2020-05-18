@@ -1866,24 +1866,25 @@ const baseExportTests = (expect) => ({
     `,
     'export {b, a} from "x"',
 
-    // Opt-out.
-    // {
-    //   options: [{ sortExports: true }],
-    //   code: input`
-    //       |// eslint-disable-next-line
-    //       |export x2 from "b"
-    //       |export x1 from "a";
-    //   `,
-    //   output: (actual) => {
-    //     // eslint-disable-next-line no-console
-    //     console.warn("actual:", actual);
-    //     expect(actual).toMatchInlineSnapshot(`
-    //       |// eslint-disable-next-line
-    //       |export x2 from "b"
-    //       |export x1 from "a";
-    //     `);
-    //   },
-    // },
+    // Opt-out - does not sort line
+    {
+      options: [{ sortExports: true }],
+      code: input`
+          |// eslint-disable-next-line
+          |export { c } from "c"
+          |export { b } from "b"
+          |export { a } from "a"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |// eslint-disable-next-line
+          |export { c } from "c"
+          |export { a } from "a"
+          |export { b } from "b"
+        `);
+      },
+      errors: 1,
+    },
   ],
   invalid: [
     // Sorts by source alphabetically
