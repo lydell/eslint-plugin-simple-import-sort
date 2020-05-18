@@ -1879,11 +1879,10 @@ const baseExportTests = (expect) => ({
         expect(actual).toMatchInlineSnapshot(`
           |// eslint-disable-next-line
           |export { c } from "c"
-          |export { a } from "a"
           |export { b } from "b"
+          |export { a } from "a"
         `);
       },
-      errors: 1,
     },
   ],
   invalid: [
