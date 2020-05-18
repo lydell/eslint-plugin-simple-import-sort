@@ -31,8 +31,10 @@ module.exports = {
               },
             },
           },
+          sortExports: {
+            type: "boolean",
+          },
         },
-        // TODO: toggle sort-export
         additionalProperties: false,
       },
     ],
@@ -46,31 +48,20 @@ module.exports = {
     },
   },
   create: (context) => {
-    const { groups: rawGroups = defaultGroups } = context.options[0] || {};
+    const { groups: rawGroups = defaultGroups, sortExports } =
+      context.options[0] || {};
     const outerGroups = rawGroups.map((groups) =>
       groups.map((item) => RegExp(item, "u"))
     );
     return {
       Program: (node) => {
         for (const imports of extractImportChunks(node)) {
-          maybeReportSorting(
-            imports,
-            context,
-            outerGroups,
-            getImportItems,
-            printSortedImports,
-            "sort"
-          );
+          maybeReportSorting(imports, context, outerGroups, "sort");
         }
-        for (const exports of extractExportChunks(node)) {
-          maybeReportSorting(
-            exports,
-            context,
-            outerGroups,
-            getExportItems,
-            printSortedExports,
-            "sortExports"
-          );
+        if (sortExports) {
+          for (const exports of extractExportChunks(node)) {
+            maybeReportSorting(exports, context, outerGroups, "sortExports");
+          }
         }
       },
     };
@@ -103,35 +94,28 @@ function extractImportChunks(programNode) {
 // whitespace between.
 function extractExportChunks(programNode) {
   let chunks = [];
-  let imports = [];
+  let exports = [];
   for (const item of programNode.body) {
     // Only process exports after all imports
     if (isImport(item)) {
       chunks = [];
-      imports = [];
-    } else if (isExport(item)) {
-      imports.push(item);
-    } else if (imports.length > 0) {
-      chunks.push(imports);
-      imports = [];
+      exports = [];
+    } else if (isExportWithSource(item)) {
+      exports.push(item);
+    } else if (exports.length > 0) {
+      chunks.push(exports);
+      exports = [];
     }
   }
 
-  if (imports.length > 0) {
-    chunks.push(imports);
+  if (exports.length > 0) {
+    chunks.push(exports);
   }
 
   return chunks;
 }
 
-function maybeReportSorting(
-  imports,
-  context,
-  outerGroups,
-  getItems,
-  printSortedItems,
-  messageId
-) {
+function maybeReportSorting(imports, context, outerGroups, messageId) {
   const sourceCode = context.getSourceCode();
   const items = getItems(imports, sourceCode);
   const sorted = printSortedItems(items, sourceCode, outerGroups);
@@ -152,78 +136,7 @@ function maybeReportSorting(
   }
 }
 
-function printSortedImports(importItems, sourceCode, outerGroups) {
-  const itemGroups = outerGroups.map((groups) =>
-    groups.map((regex) => ({ regex, items: [] }))
-  );
-  const rest = [];
-
-  for (const item of importItems) {
-    const { originalSource } = item.source;
-    const source = item.isSideEffectImport
-      ? `\0${originalSource}`
-      : originalSource;
-    const [matchedGroup] = flatMap(itemGroups, (groups) =>
-      groups.map((group) => [group, group.regex.exec(source)])
-    ).reduce(
-      ([group, longestMatch], [nextGroup, nextMatch]) =>
-        nextMatch != null &&
-        (longestMatch == null || nextMatch[0].length > longestMatch[0].length)
-          ? [nextGroup, nextMatch]
-          : [group, longestMatch],
-      [undefined, undefined]
-    );
-    if (matchedGroup == null) {
-      rest.push(item);
-    } else {
-      matchedGroup.items.push(item);
-    }
-  }
-
-  const sortedItems = itemGroups
-    .concat([[{ regex: /^/, items: rest }]])
-    .map((groups) => groups.filter((group) => group.items.length > 0))
-    .filter((groups) => groups.length > 0)
-    .map((groups) => groups.map((group) => sortImportItems(group.items)));
-
-  const newline = guessNewline(sourceCode);
-
-  const sorted = sortedItems
-    .map((groups) =>
-      groups
-        .map((groupItems) => groupItems.map((item) => item.code).join(newline))
-        .join(newline)
-    )
-    .join(newline + newline);
-
-  // Edge case: If the last import (after sorting) ends with a line comment and
-  // there’s code (or a multiline block comment) on the same line, add a newline
-  // so we don’t accidentally comment stuff out.
-  const flattened = flatMap(sortedItems, (groups) => [].concat(...groups));
-  const lastSortedItem = flattened[flattened.length - 1];
-  const lastOriginalItem = importItems[importItems.length - 1];
-  const nextToken = lastSortedItem.needsNewline
-    ? sourceCode.getTokenAfter(lastOriginalItem.node, {
-        includeComments: true,
-        filter: (token) =>
-          !isLineComment(token) &&
-          !(
-            isBlockComment(token) &&
-            token.loc.end.line === lastOriginalItem.node.loc.end.line
-          ),
-      })
-    : undefined;
-  const maybeNewline =
-    nextToken != null &&
-    nextToken.loc.start.line === lastOriginalItem.node.loc.end.line
-      ? newline
-      : "";
-
-  return sorted + maybeNewline;
-}
-
-function printSortedExports(importItems, sourceCode, outerGroups) {
-  // console.warn("TODO: printSortedExports - currently copy of printSortedImports");
+function printSortedItems(importItems, sourceCode, outerGroups) {
   const itemGroups = outerGroups.map((groups) =>
     groups.map((regex) => ({ regex, items: [] }))
   );
@@ -297,7 +210,7 @@ function printSortedExports(importItems, sourceCode, outerGroups) {
 // import. Most importantly there’s a `code` property that contains the import
 // node as a string, with comments (if any). Finding the corresponding comments
 // is the hard part.
-function getImportItems(passedImports, sourceCode) {
+function getItems(passedImports, sourceCode) {
   const imports = handleLastSemicolon(passedImports, sourceCode);
   return imports.map((importNode, importIndex) => {
     const lastLine =
@@ -366,88 +279,6 @@ function getImportItems(passedImports, sourceCode) {
       start: start - indentation.length,
       end: end + trailingSpaces.length,
       isSideEffectImport: isSideEffectImport(importNode, sourceCode),
-      source,
-      index: importIndex,
-      needsNewline:
-        commentsAfter.length > 0 &&
-        isLineComment(commentsAfter[commentsAfter.length - 1]),
-    };
-  });
-}
-
-// Wrap the import nodes in `passedImports` in objects with more data about the
-// import. Most importantly there’s a `code` property that contains the import
-// node as a string, with comments (if any). Finding the corresponding comments
-// is the hard part.
-function getExportItems(passedImports, sourceCode) {
-  // console.warn('TODO: getExportItems (currently copy of getImportItems)');
-  const imports = handleLastSemicolon(passedImports, sourceCode);
-  return imports.map((importNode, importIndex) => {
-    const lastLine =
-      importIndex === 0
-        ? importNode.loc.start.line - 1
-        : imports[importIndex - 1].loc.end.line;
-
-    // Get all comments before the import, except:
-    //
-    // - Comments on another line for the first import.
-    // - Comments that belong to the previous import (if any) – that is,
-    //   comments that are on the same line as the previous import. But multiline
-    //   block comments always belong to this import, not the previous.
-    const commentsBefore = sourceCode
-      .getCommentsBefore(importNode)
-      .filter(
-        (comment) =>
-          comment.loc.start.line <= importNode.loc.start.line &&
-          comment.loc.end.line > lastLine &&
-          (importIndex > 0 || comment.loc.start.line > lastLine)
-      );
-
-    // Get all comments after the import that are on the same line. Multiline
-    // block comments belong to the _next_ import (or the following code in case
-    // of the last import).
-    const commentsAfter = sourceCode
-      .getCommentsAfter(importNode)
-      .filter((comment) => comment.loc.end.line === importNode.loc.end.line);
-
-    const before = printCommentsBefore(importNode, commentsBefore, sourceCode);
-    const after = printCommentsAfter(importNode, commentsAfter, sourceCode);
-
-    // Print the indentation before the import or its first comment, if any, to
-    // support indentation in `<script>` tags.
-    const indentation = getIndentation(
-      commentsBefore.length > 0 ? commentsBefore[0] : importNode,
-      sourceCode
-    );
-
-    // Print spaces after the import or its last comment, if any, to avoid
-    // producing a sort error just because you accidentally added a few trailing
-    // spaces among the imports.
-    const trailingSpaces = getTrailingSpaces(
-      commentsAfter.length > 0
-        ? commentsAfter[commentsAfter.length - 1]
-        : importNode,
-      sourceCode
-    );
-
-    const code =
-      indentation +
-      before +
-      printSortedSpecifiers(importNode, sourceCode) +
-      after +
-      trailingSpaces;
-
-    const all = [...commentsBefore, importNode, ...commentsAfter];
-    const [start] = all[0].range;
-    const [, end] = all[all.length - 1].range;
-
-    const source = getSource(importNode);
-
-    return {
-      node: importNode,
-      code,
-      start: start - indentation.length,
-      end: end + trailingSpaces.length,
       source,
       index: importIndex,
       needsNewline:
@@ -1033,14 +864,18 @@ function isImport(node) {
   return node.type === "ImportDeclaration";
 }
 
-// export * from 'a'
-// export { x, y } from 'b'
-// NOT: export const x = 123
 function isExport(node) {
   return (
     node.type === "ExportAllDeclaration" ||
-    (node.type === "ExportNamedDeclaration" && node.source)
+    node.type === "ExportNamedDeclaration"
   );
+}
+
+// export * from 'a'
+// export { x, y } from 'b'
+// NOT: export const x = 123
+function isExportWithSource(node) {
+  return isExport(node) && node.source;
 }
 
 // import def, { a, b as c, type d } from "A"
@@ -1052,11 +887,12 @@ function isImportSpecifier(node) {
 // import "setup"
 // But not: import {} from "setup"
 // And not: import type {} from "setup"
-function isSideEffectImport(importNode, sourceCode) {
+function isSideEffectImport(node, sourceCode) {
   return (
-    importNode.specifiers.length === 0 &&
-    (!importNode.importKind || importNode.importKind === "value") &&
-    !isPunctuator(sourceCode.getFirstToken(importNode, { skip: 1 }), "{")
+    !isExport(node) &&
+    node.specifiers.length === 0 &&
+    (!node.importKind || node.importKind === "value") &&
+    !isPunctuator(sourceCode.getFirstToken(node, { skip: 1 }), "{")
   );
 }
 

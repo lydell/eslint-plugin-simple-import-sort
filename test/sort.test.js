@@ -1853,6 +1853,147 @@ const typescriptTests = {
   ],
 };
 
+const baseExportTests = (expect) => ({
+  valid: [
+    // with default configuration, exports are not sorted
+    input`
+          |export * from "b";
+          |export * from "a";
+    `,
+    input`
+          |export { b } from "b";
+          |export { a } from "a";
+    `,
+    'export {b, a} from "x"',
+
+    // Opt-out.
+    // {
+    //   options: [{ sortExports: true }],
+    //   code: input`
+    //       |// eslint-disable-next-line
+    //       |export x2 from "b"
+    //       |export x1 from "a";
+    //   `,
+    //   output: (actual) => {
+    //     // eslint-disable-next-line no-console
+    //     console.warn("actual:", actual);
+    //     expect(actual).toMatchInlineSnapshot(`
+    //       |// eslint-disable-next-line
+    //       |export x2 from "b"
+    //       |export x1 from "a";
+    //     `);
+    //   },
+    // },
+  ],
+  invalid: [
+    // Sorts by source alphabetically
+    {
+      options: [{ sortExports: true }],
+      code: input`
+          |export * from "b";
+          |export * from "a";
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export * from "a";
+          |export * from "b";
+        `);
+      },
+      errors: 1,
+    },
+
+    // Does not sort exports prior to imports
+    {
+      options: [{ sortExports: true }],
+      code: input`
+          |export { z } from "z";
+          |import { c } from "c";
+          |export { b } from "b";
+          |export { a } from "a";
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export { z } from "z";
+          |import { c } from "c";
+          |export { a } from "a";
+          |export { b } from "b";
+        `);
+      },
+      errors: 1,
+    },
+
+    // sorts within chunks (single line code between)
+    {
+      options: [{ sortExports: true }],
+      code: input`
+          |export { d } from "d";
+          |export { a } from "a";
+          |code();
+          |export { c } from "c";
+          |export { b } from "b";
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export { a } from "a";
+          |export { d } from "d";
+          |code();
+          |export { b } from "b";
+          |export { c } from "c";
+        `);
+      },
+      errors: 2,
+    },
+
+    // sorts within chunks (single line code between and after)
+    {
+      options: [{ sortExports: true }],
+      code: input`
+          |export { d } from "d";
+          |export { a } from "a";
+          |code();
+          |export { c } from "c";
+          |export { b } from "b";
+          |code();
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export { a } from "a";
+          |export { d } from "d";
+          |code();
+          |export { b } from "b";
+          |export { c } from "c";
+          |code();
+        `);
+      },
+      errors: 2,
+    },
+
+    // sorts within chunks (multi-line code between)
+    {
+      options: [{ sortExports: true }],
+      code: input`
+          |export { d } from "d";
+          |export { a } from "a";
+          |code();
+          |code();
+          |export { c } from "c";
+          |export { b } from "b";
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export { a } from "a";
+          |export { d } from "d";
+          |code();
+          |code();
+          |export { b } from "b";
+          |export { c } from "c";
+        `);
+      },
+      errors: 2,
+    },
+  ],
+});
+
 const javascriptRuleTester = new RuleTester({
   parserOptions: { ecmaVersion: 2015, sourceType: "module" },
 });
@@ -1866,7 +2007,7 @@ const typescriptRuleTester = new RuleTester({
   parserOptions: { sourceType: "module" },
 });
 
-// Run `baseTests` with all parsers, but only use `.toMatchInlineSnapshot` with
+// Run tests with all parsers, but only use `.toMatchInlineSnapshot` with
 // the first one, because Jest can’t update the snapshots otherwise.
 const expect2 = (...args) => {
   const ret = expect(...args);
@@ -1874,14 +2015,20 @@ const expect2 = (...args) => {
     ret.toBe(strip(string, { keepPipes: true }));
   return ret;
 };
-javascriptRuleTester.run("JavaScript", plugin.rules.sort, baseTests(expect));
-flowRuleTester.run("Flow", plugin.rules.sort, baseTests(expect2));
-typescriptRuleTester.run("TypeScript", plugin.rules.sort, baseTests(expect2));
 
-flowRuleTester.run("Flow-specific", plugin.rules.sort, flowTests);
+const runTests = (tests) => {
+  javascriptRuleTester.run("JavaScript", plugin.rules.sort, tests(expect));
+  flowRuleTester.run("Flow", plugin.rules.sort, tests(expect2));
+  typescriptRuleTester.run("TypeScript", plugin.rules.sort, tests(expect2));
 
-typescriptRuleTester.run(
-  "TypeScript-specific",
-  plugin.rules.sort,
-  typescriptTests
-);
+  flowRuleTester.run("Flow-specific", plugin.rules.sort, flowTests);
+
+  typescriptRuleTester.run(
+    "TypeScript-specific",
+    plugin.rules.sort,
+    typescriptTests
+  );
+};
+
+runTests(baseTests);
+runTests(baseExportTests);
