@@ -2015,6 +2015,74 @@ const baseExportTests = (expect) => ({
       },
       errors: 1,
     },
+
+    // Comments after export are moved with it (named exports)
+    {
+      options: [{ sortExports: true }],
+      code: input`
+          |export { b } from "b"; // b
+          |export { a } from "a"; /* a */
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export { a } from "a"; /* a */
+          |export { b } from "b"; // b
+        `);
+      },
+      errors: 1,
+    },
+
+    // Comments after export are moved with it (all exports)
+    {
+      options: [{ sortExports: true }],
+      code: input`
+          |export * from "b"; // b
+          |export * from "a"; /* a */
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export * from "a"; /* a */
+          |export * from "b"; // b
+        `);
+      },
+      errors: 1,
+    },
+
+    // Line comments before export are unchanged
+    {
+      options: [{ sortExports: true }],
+      code: input`
+          |// exports below
+          |export * from "b"; // b
+          |export * from "a"; /* a */
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |// exports below
+          |export * from "a"; /* a */
+          |export * from "b"; // b
+        `);
+      },
+      errors: 1,
+    },
+
+    // Block comments before export are unchanged
+    {
+      options: [{ sortExports: true }],
+      code: input`
+          |/* exports below */
+          |export * from "b"; // b
+          |export * from "a"; /* a */
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |/* exports below */
+          |export * from "a"; /* a */
+          |export * from "b"; // b
+        `);
+      },
+      errors: 1,
+    },
   ],
 });
 
