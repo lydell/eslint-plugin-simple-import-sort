@@ -1991,6 +1991,30 @@ const baseExportTests = (expect) => ({
       },
       errors: 2,
     },
+
+    // Sorts specifiers by name.
+    {
+      options: [{ sortExports: true }],
+      code: `export { c, b, a } from "specifiers"`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(
+          `export { a,b, c } from "specifiers"`
+        );
+      },
+      errors: 1,
+    },
+
+    // Sorts specifiers by name then alias.
+    {
+      options: [{ sortExports: true }],
+      code: `export { c, a, a as z, a as y } from "specifiers"`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(
+          `export { a, a as y,a as z, c } from "specifiers"`
+        );
+      },
+      errors: 1,
+    },
   ],
 });
 

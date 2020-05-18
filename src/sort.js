@@ -343,8 +343,8 @@ function printSortedSpecifiers(importNode, sourceCode) {
   );
 
   // Exclude "ImportDefaultSpecifier" – the "def" in `import def, {a, b}`.
-  const specifiers = (importNode.specifiers || []).filter((node) =>
-    isImportSpecifier(node)
+  const specifiers = (importNode.specifiers || []).filter(
+    (node) => isImportSpecifier(node) || isExportSpecifier(node)
   );
 
   if (
@@ -833,15 +833,37 @@ function sortImportItems(items) {
   );
 }
 
+// import { a as x } from 'a'
+//          ^
+// export { a as y } from 'b'
+//          ^
+function getSpecifierName(node) {
+  if (isImportSpecifier(node)) {
+    return node.imported.name;
+  }
+  return node.local.name;
+}
+
+// import { a as x } from 'a'
+//               ^
+// export { a as y } from 'b'
+//               ^
+function getSpecifierAlias(node) {
+  if (isImportSpecifier(node)) {
+    return node.local.name;
+  }
+  return node.exported.name;
+}
+
 function sortSpecifierItems(items) {
   return items.slice().sort(
     (itemA, itemB) =>
       // Put type imports before regular ones.
       compare(getImportKind(itemA.node), getImportKind(itemB.node)) ||
       // Then compare by name.
-      compare(itemA.node.imported.name, itemB.node.imported.name) ||
+      compare(getSpecifierName(itemA.node), getSpecifierName(itemB.node)) ||
       // Then compare by the `as` name.
-      compare(itemA.node.local.name, itemB.node.local.name) ||
+      compare(getSpecifierAlias(itemA.node), getSpecifierAlias(itemB.node)) ||
       // Keep the original order if the names are the same. It's not worth
       // trying to compare anything else, `import {a, a} from "mod"` is a syntax
       // error anyway (but babel-eslint kind of supports it).
@@ -882,6 +904,12 @@ function isExportWithSource(node) {
 //               ^  ^^^^^^  ^^^^^^
 function isImportSpecifier(node) {
   return node.type === "ImportSpecifier";
+}
+
+// export { a, b as c } from "A"
+//          ^  ^^^^^^
+function isExportSpecifier(node) {
+  return node.type === "ExportSpecifier";
 }
 
 // import "setup"
