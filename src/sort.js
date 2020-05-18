@@ -136,13 +136,13 @@ function maybeReportSorting(imports, context, outerGroups, messageId) {
   }
 }
 
-function printSortedItems(importItems, sourceCode, outerGroups) {
+function printSortedItems(items, sourceCode, outerGroups) {
   const itemGroups = outerGroups.map((groups) =>
     groups.map((regex) => ({ regex, items: [] }))
   );
   const rest = [];
 
-  for (const item of importItems) {
+  for (const item of items) {
     const { originalSource } = item.source;
     const source = item.isSideEffectImport
       ? `\0${originalSource}`
@@ -168,7 +168,7 @@ function printSortedItems(importItems, sourceCode, outerGroups) {
     .concat([[{ regex: /^/, items: rest }]])
     .map((groups) => groups.filter((group) => group.items.length > 0))
     .filter((groups) => groups.length > 0)
-    .map((groups) => groups.map((group) => sortImportItems(group.items)));
+    .map((groups) => groups.map((group) => sortItems(group.items)));
 
   const newline = guessNewline(sourceCode);
 
@@ -185,7 +185,7 @@ function printSortedItems(importItems, sourceCode, outerGroups) {
   // so we don’t accidentally comment stuff out.
   const flattened = flatMap(sortedItems, (groups) => [].concat(...groups));
   const lastSortedItem = flattened[flattened.length - 1];
-  const lastOriginalItem = importItems[importItems.length - 1];
+  const lastOriginalItem = items[items.length - 1];
   const nextToken = lastSortedItem.needsNewline
     ? sourceCode.getTokenAfter(lastOriginalItem.node, {
         includeComments: true,
@@ -809,7 +809,7 @@ function getTrailingSpaces(node, sourceCode) {
   return lines[0];
 }
 
-function sortImportItems(items) {
+function sortItems(items) {
   return items.slice().sort((itemA, itemB) =>
     // If both items are side effect imports, keep their original order.
     itemA.isSideEffectImport && itemB.isSideEffectImport
