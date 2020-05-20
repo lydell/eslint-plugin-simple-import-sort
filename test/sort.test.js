@@ -1988,6 +1988,59 @@ const baseExportTests = (expect) => ({
           |export { name1 as default, name2 }
       `,
     },
+    // Unsupported: module.exports style export (single-line)
+    {
+      options: [{ sortExports: true }],
+      code: `module.exports = { b: 2, a: 1 }`,
+    },
+    // Unsupported: module.exports style export (multi-line)
+    // derived example from https://github.com/puppeteer/puppeteer/blob/master/src/api.ts
+    {
+      options: [{ sortExports: true }],
+      code: input`
+          |module.exports = {
+          |Browser: require('./Browser').Browser,
+          |BrowserContext: require('./Browser').BrowserContext,
+          |Accessibility: require('./Accessibility').Accessibility,
+          |}
+      `,
+    },
+    // Unsupported: multiline export statements without a source.
+    // derived from https://github.com/facebook/react/blob/master/packages/react-dom/src/client/ReactDOM.js
+    {
+      options: [{ sortExports: true }],
+      code: input`
+          |let createPortal, batchedUpdates, flushSync, Internals, ReactVersion, findDOMNode, hydrate, 
+          |render, unmountComponentAtNode, createRoot, createBlockingRoot, flushControlled, scheduleHydration, 
+          |renderSubtreeIntoContainer, unstable_createPortal, createEventHandle;
+          |
+          |export {
+          |  createPortal,
+          |  batchedUpdates as unstable_batchedUpdates,
+          |  flushSync,
+          |  Internals as __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED,
+          |  ReactVersion as version,
+          |  // Disabled behind disableLegacyReactDOMAPIs
+          |  findDOMNode,
+          |  hydrate,
+          |  render,
+          |  unmountComponentAtNode,
+          |  // exposeConcurrentModeAPIs
+          |  createRoot,
+          |  createBlockingRoot,
+          |  flushControlled as unstable_flushControlled,
+          |  scheduleHydration as unstable_scheduleHydration,
+          |  // Disabled behind disableUnstableRenderSubtreeIntoContainer
+          |  renderSubtreeIntoContainer as unstable_renderSubtreeIntoContainer,
+          |  // Disabled behind disableUnstableCreatePortal
+          |  // Temporary alias since we already shipped React 16 RC with it.
+          |  // TODO: remove in React 17.
+          |  unstable_createPortal,
+          |  // enableCreateEventHandleAPI
+          |  createEventHandle as unstable_createEventHandle,
+          |};
+      `,
+    },
 
     // Opt-out - does not sort line
     {
@@ -2155,6 +2208,38 @@ const baseExportTests = (expect) => ({
       errors: 1,
     },
 
+    // Sorts specifiers by name then alias - handles multiline export statements.
+    {
+      options: [{ sortExports: true }],
+      code: input`
+          |export { 
+          |// comment first and above c
+          |c, 
+          |// comment1 above a
+          |// comment2 above a
+          |a, 
+          |a as z, 
+          |a as y 
+          |// comment last
+          |} from "specifiers"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export { 
+          |// comment1 above a
+          |// comment2 above a
+          |a, 
+          |a as y, 
+          |a as z, 
+          |// comment first and above c
+          |c
+          |// comment last
+          |} from "specifiers"
+        `);
+      },
+      errors: 1,
+    },
+
     // Comments after export are moved with it (named exports)
     {
       options: [{ sortExports: true }],
@@ -2188,18 +2273,25 @@ const baseExportTests = (expect) => ({
     },
 
     // Line comments before export are unchanged
+    // Derived from https://github.com/parcel-bundler/parcel/blob/v2/packages/utils/ts-utils/src/index.js
     {
       options: [{ sortExports: true }],
       code: input`
-          |// exports below
-          |export * from "b"; // b
-          |export * from "a"; /* a */
+          |// @flow
+          |export * from './FSHost';
+          |export * from './CompilerHost';
+          |export * from './ParseConfigHost';
+          |export * from './LanguageServiceHost';
+          |export * from './loadTSConfig';
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
-          |// exports below
-          |export * from "a"; /* a */
-          |export * from "b"; // b
+          |// @flow
+          |export * from './CompilerHost';
+          |export * from './FSHost';
+          |export * from './LanguageServiceHost';
+          |export * from './loadTSConfig';
+          |export * from './ParseConfigHost';
         `);
       },
       errors: 1,
