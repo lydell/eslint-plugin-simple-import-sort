@@ -31,9 +31,6 @@ module.exports = {
               },
             },
           },
-          sortExports: {
-            type: "boolean",
-          },
         },
         additionalProperties: false,
       },
@@ -48,7 +45,7 @@ module.exports = {
     },
   },
   create: (context) => {
-    const { groups: rawGroups = defaultGroups, sortExports } =
+    const { groups: rawGroups = defaultGroups } =
       context.options[0] || {};
     const outerGroups = rawGroups.map((groups) =>
       groups.map((item) => RegExp(item, "u"))
@@ -58,10 +55,8 @@ module.exports = {
         for (const imports of extractImportChunks(node)) {
           maybeReportSorting(imports, context, outerGroups, "sort");
         }
-        if (sortExports) {
-          for (const exports of extractExportChunks(node)) {
-            maybeReportSorting(exports, context, outerGroups, "sortExports");
-          }
+        for (const exports of extractExportChunks(node)) {
+          maybeReportSorting(exports, context, outerGroups, "sortExports");
         }
       },
     };
