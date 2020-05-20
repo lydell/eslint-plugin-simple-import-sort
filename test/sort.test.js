@@ -1850,6 +1850,24 @@ const typescriptTests = {
       },
       errors: 1,
     },
+    // Sorts exports by source alphabetically (handles aliased all export)
+    // Support for this syntax will be included in es2020, though the javascript parser
+    // does not yet support the alias syntax. Typescript 3.8 supports this however.
+    // https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-8.html#export-star-as-namespace-syntax
+    {
+      options: [{ sortExports: true }],
+      code: input`
+          |export * as q from 'q';
+          |export * as a from 'a';
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export * as a from 'a';
+          |export * as q from 'q';
+        `);
+      },
+      errors: 1,
+    },
   ],
 };
 
@@ -1865,6 +1883,111 @@ const baseExportTests = (expect) => ({
           |export { a } from "a";
     `,
     'export {b, a} from "x"',
+
+    // Supported exports: those with a source  i.e. "export ... from './source'"
+    // Unsupported exports are not sorted
+    // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export#Syntax
+
+    // Unsupported: unassigned local variable declarations
+    {
+      options: [{ sortExports: true }],
+      code: input`
+          |export var name4, name3;
+          |export let name2, name1;
+      `,
+    },
+    // Unsupported: assigned local variable declarations
+    {
+      options: [{ sortExports: true }],
+      code: input`
+          |export const name5 = 'Steve';
+          |export var name4 = 'Doe', name3 = 'Jane';
+          |export let name2 = 'John', name1 = 'Smith';
+      `,
+    },
+    // Unsupported: local functions
+    {
+      options: [{ sortExports: true }],
+      code: input`
+          |export function b() {}
+          |export function a() {}
+      `,
+    },
+    // Unsupported: local classes
+    {
+      options: [{ sortExports: true }],
+      code: input`
+          |export class b {}
+          |export class a {}
+      `,
+    },
+    // Unsupported: export list
+    {
+      options: [{ sortExports: true }],
+      code: input`
+          |const name2 = 'Smith', name1 = 'John';
+          |export { name2, name1 }
+      `,
+    },
+    // Unsupported: export list with renames
+    {
+      options: [{ sortExports: true }],
+      code: input`
+          |const name2 = 'Smith', name1 = 'John';
+          |export { name2 as b, name1 as a }
+      `,
+    },
+    // Unsupported: destructuring export with renames
+    {
+      options: [{ sortExports: true }],
+      code: input`
+          |const o = { name1: 'John', name2: 'Smith' };
+          |export const { name1, name2: bar } = o;
+      `,
+    },
+    // Unsupported: export default expression
+    {
+      options: [{ sortExports: true }],
+      code: `export default 1 === '1';`,
+    },
+    // Unsupported: export default function
+    {
+      options: [{ sortExports: true }],
+      code: `export default function () {}`,
+    },
+    // Unsupported: export default class
+    {
+      options: [{ sortExports: true }],
+      code: `export default class {}`,
+    },
+    // Unsupported: export default generator
+    {
+      options: [{ sortExports: true }],
+      code: `export default function* (i) { yield i; }`,
+    },
+    // Unsupported: export default named function
+    {
+      options: [{ sortExports: true }],
+      code: `export default function myFunction() {}`,
+    },
+    // Unsupported: export default named class
+    {
+      options: [{ sortExports: true }],
+      code: `export default class MyClass {}`,
+    },
+    // Unsupported: export default named generator
+    {
+      options: [{ sortExports: true }],
+      code: `export default function* myGenerator (i) { yield i; }`,
+    },
+    // Unsupported: export default in specifier list
+    {
+      options: [{ sortExports: true }],
+      code: input`
+          |const name2 = 'Smith', name1 = 'John';
+          |export { name1 as default, name2 }
+      `,
+    },
 
     // Opt-out - does not sort line
     {
@@ -1896,6 +2019,22 @@ const baseExportTests = (expect) => ({
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |export * from "a";
+          |export * from "b";
+        `);
+      },
+      errors: 1,
+    },
+
+    // Sorts by source alphabetically (handles default exports)
+    {
+      options: [{ sortExports: true }],
+      code: input`
+          |export * from "b";
+          |export { default } from "a";
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export { default } from "a";
           |export * from "b";
         `);
       },
@@ -2112,15 +2251,15 @@ const runTests = (tests) => {
   javascriptRuleTester.run("JavaScript", plugin.rules.sort, tests(expect));
   flowRuleTester.run("Flow", plugin.rules.sort, tests(expect2));
   typescriptRuleTester.run("TypeScript", plugin.rules.sort, tests(expect2));
-
-  flowRuleTester.run("Flow-specific", plugin.rules.sort, flowTests);
-
-  typescriptRuleTester.run(
-    "TypeScript-specific",
-    plugin.rules.sort,
-    typescriptTests
-  );
 };
 
 runTests(baseTests);
 runTests(baseExportTests);
+
+flowRuleTester.run("Flow-specific", plugin.rules.sort, flowTests);
+
+typescriptRuleTester.run(
+  "TypeScript-specific",
+  plugin.rules.sort,
+  typescriptTests
+);
