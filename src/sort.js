@@ -45,8 +45,7 @@ module.exports = {
     },
   },
   create: (context) => {
-    const { groups: rawGroups = defaultGroups } =
-      context.options[0] || {};
+    const { groups: rawGroups = defaultGroups } = context.options[0] || {};
     const outerGroups = rawGroups.map((groups) =>
       groups.map((item) => RegExp(item, "u"))
     );

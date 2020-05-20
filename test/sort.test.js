@@ -1855,7 +1855,6 @@ const typescriptTests = {
     // does not yet support the alias syntax. Typescript 3.8 supports this however.
     // https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-8.html#export-star-as-namespace-syntax
     {
-      options: [{ sortExports: true }],
       code: input`
           |export * as q from 'q';
           |export * as a from 'a';
@@ -1873,24 +1872,12 @@ const typescriptTests = {
 
 const baseExportTests = (expect) => ({
   valid: [
-    // with default configuration, exports are not sorted
-    input`
-          |export * from "b";
-          |export * from "a";
-    `,
-    input`
-          |export { b } from "b";
-          |export { a } from "a";
-    `,
-    'export {b, a} from "x"',
-
     // Supported exports: those with a source  i.e. "export ... from './source'"
     // Unsupported exports are not sorted
     // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export#Syntax
 
     // Unsupported: unassigned local variable declarations
     {
-      options: [{ sortExports: true }],
       code: input`
           |export var name4, name3;
           |export let name2, name1;
@@ -1898,7 +1885,6 @@ const baseExportTests = (expect) => ({
     },
     // Unsupported: assigned local variable declarations
     {
-      options: [{ sortExports: true }],
       code: input`
           |export const name5 = 'Steve';
           |export var name4 = 'Doe', name3 = 'Jane';
@@ -1907,7 +1893,6 @@ const baseExportTests = (expect) => ({
     },
     // Unsupported: local functions
     {
-      options: [{ sortExports: true }],
       code: input`
           |export function b() {}
           |export function a() {}
@@ -1915,7 +1900,6 @@ const baseExportTests = (expect) => ({
     },
     // Unsupported: local classes
     {
-      options: [{ sortExports: true }],
       code: input`
           |export class b {}
           |export class a {}
@@ -1923,7 +1907,6 @@ const baseExportTests = (expect) => ({
     },
     // Unsupported: export list
     {
-      options: [{ sortExports: true }],
       code: input`
           |const name2 = 'Smith', name1 = 'John';
           |export { name2, name1 }
@@ -1931,7 +1914,6 @@ const baseExportTests = (expect) => ({
     },
     // Unsupported: export list with renames
     {
-      options: [{ sortExports: true }],
       code: input`
           |const name2 = 'Smith', name1 = 'John';
           |export { name2 as b, name1 as a }
@@ -1939,7 +1921,6 @@ const baseExportTests = (expect) => ({
     },
     // Unsupported: destructuring export with renames
     {
-      options: [{ sortExports: true }],
       code: input`
           |const o = { name1: 'John', name2: 'Smith' };
           |export const { name1, name2: bar } = o;
@@ -1947,42 +1928,34 @@ const baseExportTests = (expect) => ({
     },
     // Unsupported: export default expression
     {
-      options: [{ sortExports: true }],
       code: `export default 1 === '1';`,
     },
     // Unsupported: export default function
     {
-      options: [{ sortExports: true }],
       code: `export default function () {}`,
     },
     // Unsupported: export default class
     {
-      options: [{ sortExports: true }],
       code: `export default class {}`,
     },
     // Unsupported: export default generator
     {
-      options: [{ sortExports: true }],
       code: `export default function* (i) { yield i; }`,
     },
     // Unsupported: export default named function
     {
-      options: [{ sortExports: true }],
       code: `export default function myFunction() {}`,
     },
     // Unsupported: export default named class
     {
-      options: [{ sortExports: true }],
       code: `export default class MyClass {}`,
     },
     // Unsupported: export default named generator
     {
-      options: [{ sortExports: true }],
       code: `export default function* myGenerator (i) { yield i; }`,
     },
     // Unsupported: export default in specifier list
     {
-      options: [{ sortExports: true }],
       code: input`
           |const name2 = 'Smith', name1 = 'John';
           |export { name1 as default, name2 }
@@ -1990,13 +1963,11 @@ const baseExportTests = (expect) => ({
     },
     // Unsupported: module.exports style export (single-line)
     {
-      options: [{ sortExports: true }],
       code: `module.exports = { b: 2, a: 1 }`,
     },
     // Unsupported: module.exports style export (multi-line)
     // derived example from https://github.com/puppeteer/puppeteer/blob/master/src/api.ts
     {
-      options: [{ sortExports: true }],
       code: input`
           |module.exports = {
           |Browser: require('./Browser').Browser,
@@ -2008,7 +1979,6 @@ const baseExportTests = (expect) => ({
     // Unsupported: multiline export statements without a source.
     // derived from https://github.com/facebook/react/blob/master/packages/react-dom/src/client/ReactDOM.js
     {
-      options: [{ sortExports: true }],
       code: input`
           |let createPortal, batchedUpdates, flushSync, Internals, ReactVersion, findDOMNode, hydrate, 
           |render, unmountComponentAtNode, createRoot, createBlockingRoot, flushControlled, scheduleHydration, 
@@ -2044,7 +2014,6 @@ const baseExportTests = (expect) => ({
 
     // Opt-out - does not sort line
     {
-      options: [{ sortExports: true }],
       code: input`
           |// eslint-disable-next-line
           |export { c } from "c"
@@ -2064,7 +2033,6 @@ const baseExportTests = (expect) => ({
   invalid: [
     // Sorts by source alphabetically
     {
-      options: [{ sortExports: true }],
       code: input`
           |export * from "b";
           |export * from "a";
@@ -2080,7 +2048,6 @@ const baseExportTests = (expect) => ({
 
     // Sorts by source alphabetically (handles default exports)
     {
-      options: [{ sortExports: true }],
       code: input`
           |export * from "b";
           |export { default } from "a";
@@ -2096,7 +2063,6 @@ const baseExportTests = (expect) => ({
 
     // Does not sort exports prior to imports
     {
-      options: [{ sortExports: true }],
       code: input`
           |export { z } from "z";
           |import { c } from "c";
@@ -2116,7 +2082,6 @@ const baseExportTests = (expect) => ({
 
     // sorts within chunks (single line code between)
     {
-      options: [{ sortExports: true }],
       code: input`
           |export { d } from "d";
           |export { a } from "a";
@@ -2138,7 +2103,6 @@ const baseExportTests = (expect) => ({
 
     // sorts within chunks (single line code between and after)
     {
-      options: [{ sortExports: true }],
       code: input`
           |export { d } from "d";
           |export { a } from "a";
@@ -2162,7 +2126,6 @@ const baseExportTests = (expect) => ({
 
     // sorts within chunks (multi-line code between)
     {
-      options: [{ sortExports: true }],
       code: input`
           |export { d } from "d";
           |export { a } from "a";
@@ -2186,7 +2149,6 @@ const baseExportTests = (expect) => ({
 
     // Sorts specifiers by name.
     {
-      options: [{ sortExports: true }],
       code: `export { c, b, a } from "specifiers"`,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
@@ -2198,7 +2160,6 @@ const baseExportTests = (expect) => ({
 
     // Sorts specifiers by name then alias.
     {
-      options: [{ sortExports: true }],
       code: `export { c, a, a as z, a as y } from "specifiers"`,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
@@ -2210,7 +2171,6 @@ const baseExportTests = (expect) => ({
 
     // Sorts specifiers by name then alias - handles multiline export statements.
     {
-      options: [{ sortExports: true }],
       code: input`
           |export { 
           |// comment first and above c
@@ -2242,7 +2202,6 @@ const baseExportTests = (expect) => ({
 
     // Comments after export are moved with it (named exports)
     {
-      options: [{ sortExports: true }],
       code: input`
           |export { b } from "b"; // b
           |export { a } from "a"; /* a */
@@ -2258,7 +2217,6 @@ const baseExportTests = (expect) => ({
 
     // Comments after export are moved with it (all exports)
     {
-      options: [{ sortExports: true }],
       code: input`
           |export * from "b"; // b
           |export * from "a"; /* a */
@@ -2275,7 +2233,6 @@ const baseExportTests = (expect) => ({
     // Line comments before export are unchanged
     // Derived from https://github.com/parcel-bundler/parcel/blob/v2/packages/utils/ts-utils/src/index.js
     {
-      options: [{ sortExports: true }],
       code: input`
           |// @flow
           |export * from './FSHost';
@@ -2299,7 +2256,6 @@ const baseExportTests = (expect) => ({
 
     // Block comments before export are unchanged
     {
-      options: [{ sortExports: true }],
       code: input`
           |/* exports below */
           |export * from "b"; // b
