@@ -41,7 +41,6 @@ module.exports = {
     },
     messages: {
       sort: "Run autofix to sort these imports!",
-      sortExports: "Run autofix to sort these exports!",
     },
   },
   create: (context) => {
@@ -51,65 +50,37 @@ module.exports = {
     );
     return {
       Program: (node) => {
-        for (const imports of extractImportChunks(node)) {
-          maybeReportSorting(imports, context, outerGroups, "sort");
-        }
-        for (const exports of extractExportChunks(node)) {
-          maybeReportSorting(exports, context, outerGroups, "sortExports");
+        for (const imports of extractChunks(node)) {
+          maybeReportSorting(imports, context, outerGroups);
         }
       },
     };
   },
 };
 
-// A “chunk” is a sequence of import statements with only comments and
+// A “chunk” is a sequence of import or export statements with only comments and
 // whitespace between.
-function extractImportChunks(programNode) {
+function extractChunks(programNode) {
   const chunks = [];
-  let imports = [];
+  let chunk = [];
 
   for (const item of programNode.body) {
-    if (isImport(item)) {
-      imports.push(item);
-    } else if (imports.length > 0) {
-      chunks.push(imports);
-      imports = [];
+    if (isImport(item) || isExport(item)) {
+      chunk.push(item);
+    } else if (chunk.length > 0 || exports.length > 0) {
+      chunks.push(chunk);
+      chunk = [];
     }
   }
 
-  if (imports.length > 0) {
-    chunks.push(imports);
+  if (chunk.length > 0) {
+    chunks.push(chunk);
   }
 
   return chunks;
 }
 
-// A “chunk” is a sequence of export statements with only comments and
-// whitespace between.
-function extractExportChunks(programNode) {
-  let chunks = [];
-  let exports = [];
-  for (const item of programNode.body) {
-    // Only process exports after all imports
-    if (isImport(item)) {
-      chunks = [];
-      exports = [];
-    } else if (isExportWithSource(item)) {
-      exports.push(item);
-    } else if (exports.length > 0) {
-      chunks.push(exports);
-      exports = [];
-    }
-  }
-
-  if (exports.length > 0) {
-    chunks.push(exports);
-  }
-
-  return chunks;
-}
-
-function maybeReportSorting(imports, context, outerGroups, messageId) {
+function maybeReportSorting(imports, context, outerGroups) {
   const sourceCode = context.getSourceCode();
   const items = getItems(imports, sourceCode);
   const sorted = printSortedItems(items, sourceCode, outerGroups);
@@ -120,7 +91,7 @@ function maybeReportSorting(imports, context, outerGroups, messageId) {
 
   if (original !== sorted) {
     context.report({
-      messageId,
+      messageId: "sort",
       loc: {
         start: sourceCode.getLocFromIndex(start),
         end: sourceCode.getLocFromIndex(end),
@@ -166,6 +137,43 @@ function printSortedItems(items, sourceCode, outerGroups) {
 
   const newline = guessNewline(sourceCode);
 
+  const flattenedSortedItems = flatMap(sortedItems, (groups) =>
+    [].concat(...groups)
+  );
+
+  const flattenedSortedItemsReversed = flattenedSortedItems.slice().reverse();
+
+  const lastSideEffectImport = flattenedSortedItemsReversed.find(
+    (item) => item.isSideEffectImport
+  );
+  const lastImport = flattenedSortedItemsReversed.find((item) =>
+    isImport(item.node)
+  );
+  const lastExport = flattenedSortedItemsReversed.find((item) =>
+    isExportWithSource(item.node)
+  );
+  const lastSourcelessExport = flattenedSortedItemsReversed.find((item) =>
+    isExportWithoutSource(item.node)
+  );
+
+  // add newlines between import, export, and sourceless exports:
+  // add newline to last side effect import if required
+  if (
+    lastSideEffectImport &&
+    !lastImport &&
+    (lastExport || lastSourcelessExport)
+  ) {
+    lastSideEffectImport.code += newline;
+  }
+  // add newline to last import if required
+  if (lastImport && (lastExport || lastSourcelessExport)) {
+    lastImport.code += newline;
+  }
+  // add newline to last export if required
+  if (lastExport && lastSourcelessExport) {
+    lastExport.code += newline;
+  }
+
   const sorted = sortedItems
     .map((groups) =>
       groups
@@ -177,8 +185,7 @@ function printSortedItems(items, sourceCode, outerGroups) {
   // Edge case: If the last import (after sorting) ends with a line comment and
   // there’s code (or a multiline block comment) on the same line, add a newline
   // so we don’t accidentally comment stuff out.
-  const flattened = flatMap(sortedItems, (groups) => [].concat(...groups));
-  const lastSortedItem = flattened[flattened.length - 1];
+  const lastSortedItem = flattenedSortedItems[flattenedSortedItems.length - 1];
   const lastOriginalItem = items[items.length - 1];
   const nextToken = lastSortedItem.needsNewline
     ? sourceCode.getTokenAfter(lastOriginalItem.node, {
@@ -809,7 +816,9 @@ function sortItems(items) {
       ? -1
       : itemB.isSideEffectImport
       ? 1
-      : // Compare the `from` part.
+      : // sort by node type (side effect import > import > export with source > sourceless export)
+        compareByNodeType(itemA, itemB) ||
+        // Compare the `from` part.
         compare(itemA.source.source, itemB.source.source) ||
         // The `.source` has been slightly tweaked. To stay fully deterministic,
         // also sort on the original value.
@@ -871,6 +880,49 @@ function compare(a, b) {
   return collator.compare(a, b) || (a < b ? -1 : a > b ? 1 : 0);
 }
 
+function compareByNodeType(a, b) {
+  const compareByNodeTypeInternal = (aIsOfType, bIsOfType) => {
+    if (aIsOfType === bIsOfType) {
+      return 0;
+    }
+    return aIsOfType ? -1 : 1;
+  };
+  // Side-effect imports first
+  const sideEffectCompare = compareByNodeTypeInternal(
+    a.isSideEffectImport,
+    b.isSideEffectImport
+  );
+  if (sideEffectCompare !== 0) {
+    return sideEffectCompare;
+  }
+  // Then imports
+  const importCompare = compareByNodeTypeInternal(
+    isImport(a.node),
+    isImport(b.node)
+  );
+  if (importCompare !== 0) {
+    return importCompare;
+  }
+  // Then exports with source
+  const exportWithSourceCompare = compareByNodeTypeInternal(
+    isExportWithSource(a.node),
+    isExportWithSource(b.node)
+  );
+  if (exportWithSourceCompare !== 0) {
+    return exportWithSourceCompare;
+  }
+  // Then sourceless exports
+  const sourcelessExportCompare = compareByNodeTypeInternal(
+    isExport(a.node),
+    isExport(b.node)
+  );
+  if (sourcelessExportCompare !== 0) {
+    return sourcelessExportCompare;
+  }
+
+  return 0;
+}
+
 // Full import statement.
 function isImport(node) {
   return node.type === "ImportDeclaration";
@@ -887,7 +939,11 @@ function isExport(node) {
 // export { x, y } from 'b'
 // NOT: export const x = 123
 function isExportWithSource(node) {
-  return isExport(node) && node.source;
+  return isExport(node) && Boolean(node.source);
+}
+
+function isExportWithoutSource(node) {
+  return isExport(node) && !node.source;
 }
 
 // import def, { a, b as c, type d } from "A"
@@ -939,7 +995,7 @@ function isNewline(node) {
 }
 
 function getSource(importNode) {
-  const source = importNode.source.value;
+  const source = importNode.source ? importNode.source.value : undefined;
 
   return {
     source:

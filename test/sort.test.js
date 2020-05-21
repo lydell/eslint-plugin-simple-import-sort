@@ -2071,10 +2071,37 @@ const baseExportTests = (expect) => ({
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
-          |export { z } from "z";
           |import { c } from "c";
+          |
           |export { a } from "a";
           |export { b } from "b";
+          |export { z } from "z";
+        `);
+      },
+      errors: 1,
+    },
+
+    // Sourceless exports sort after exports within a chunk, but retain their
+    // original order relative to other sourceless exports
+    {
+      code: input`
+          |export { w } from "w";
+          |import { z } from "z";
+          |export const b = 5;
+          |export const a = b;
+          |export { y } from "y";
+          |export { x } from "x";
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import { z } from "z";
+          |
+          |export { w } from "w";
+          |export { x } from "x";
+          |export { y } from "y";
+          |
+          |export const b = 5;
+          |export const a = b;
         `);
       },
       errors: 1,
