@@ -1905,20 +1905,6 @@ const baseExportTests = (expect) => ({
           |export class a {}
       `,
     },
-    // Unsupported: export list
-    {
-      code: input`
-          |const name2 = 'Smith', name1 = 'John';
-          |export { name2, name1 }
-      `,
-    },
-    // Unsupported: export list with renames
-    {
-      code: input`
-          |const name2 = 'Smith', name1 = 'John';
-          |export { name2 as b, name1 as a }
-      `,
-    },
     // Unsupported: destructuring export with renames
     {
       code: input`
@@ -1976,41 +1962,6 @@ const baseExportTests = (expect) => ({
           |}
       `,
     },
-    // Unsupported: multiline export statements without a source.
-    // derived from https://github.com/facebook/react/blob/master/packages/react-dom/src/client/ReactDOM.js
-    {
-      code: input`
-          |let createPortal, batchedUpdates, flushSync, Internals, ReactVersion, findDOMNode, hydrate, 
-          |render, unmountComponentAtNode, createRoot, createBlockingRoot, flushControlled, scheduleHydration, 
-          |renderSubtreeIntoContainer, unstable_createPortal, createEventHandle;
-          |
-          |export {
-          |  createPortal,
-          |  batchedUpdates as unstable_batchedUpdates,
-          |  flushSync,
-          |  Internals as __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED,
-          |  ReactVersion as version,
-          |  // Disabled behind disableLegacyReactDOMAPIs
-          |  findDOMNode,
-          |  hydrate,
-          |  render,
-          |  unmountComponentAtNode,
-          |  // exposeConcurrentModeAPIs
-          |  createRoot,
-          |  createBlockingRoot,
-          |  flushControlled as unstable_flushControlled,
-          |  scheduleHydration as unstable_scheduleHydration,
-          |  // Disabled behind disableUnstableRenderSubtreeIntoContainer
-          |  renderSubtreeIntoContainer as unstable_renderSubtreeIntoContainer,
-          |  // Disabled behind disableUnstableCreatePortal
-          |  // Temporary alias since we already shipped React 16 RC with it.
-          |  // TODO: remove in React 17.
-          |  unstable_createPortal,
-          |  // enableCreateEventHandleAPI
-          |  createEventHandle as unstable_createEventHandle,
-          |};
-      `,
-    },
 
     // Opt-out - does not sort line
     {
@@ -2061,7 +2012,7 @@ const baseExportTests = (expect) => ({
       errors: 1,
     },
 
-    // Does not sort exports prior to imports
+    // Exports sort after imports within a chunk
     {
       code: input`
           |export { z } from "z";
@@ -2095,6 +2046,77 @@ const baseExportTests = (expect) => ({
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import { z } from "z";
+          |
+          |export { w } from "w";
+          |export { x } from "x";
+          |export { y } from "y";
+          |
+          |export const b = 5;
+          |export const a = b;
+        `);
+      },
+      errors: 1,
+    },
+
+    // sourceless exports are sorted after imports when there are no exports with source
+    {
+      code: input`
+          |import { z } from "z";
+          |export const b = 5;
+          |export const a = b;
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import { z } from "z";
+          |
+          |export const b = 5;
+          |export const a = b;
+        `);
+      },
+      errors: 1,
+    },
+
+    // side-effect imports without normal imports still leave a newline between imports and exports
+    {
+      code: input`
+          |export { w } from "w";
+          |import "z";
+          |export const b = 5;
+          |export const a = b;
+          |export { y } from "y";
+          |export { x } from "x";
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import "z";
+          |
+          |export { w } from "w";
+          |export { x } from "x";
+          |export { y } from "y";
+          |
+          |export const b = 5;
+          |export const a = b;
+        `);
+      },
+      errors: 1,
+    },
+
+    // side-effect imports with normal imports still leave a newline between imports and exports
+    {
+      code: input`
+          |export { w } from "w";
+          |import "z";
+          |import { f } from "f";
+          |export const b = 5;
+          |export const a = b;
+          |export { y } from "y";
+          |export { x } from "x";
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import "z";
+          |
+          |import { f } from "f";
           |
           |export { w } from "w";
           |export { x } from "x";
@@ -2223,6 +2245,106 @@ const baseExportTests = (expect) => ({
           |// comment last
           |} from "specifiers"
         `);
+      },
+      errors: 1,
+    },
+
+    // sorts sourceless export specifiers
+    // derived from https://github.com/facebook/react/blob/master/packages/react-dom/src/client/ReactDOM.js
+    {
+      code: input`
+          |let createPortal, batchedUpdates, flushSync, Internals, ReactVersion, findDOMNode, hydrate, 
+          |render, unmountComponentAtNode, createRoot, createBlockingRoot, flushControlled, scheduleHydration, 
+          |renderSubtreeIntoContainer, unstable_createPortal, createEventHandle;
+          |
+          |export {
+          |  createPortal,
+          |  batchedUpdates as unstable_batchedUpdates,
+          |  flushSync,
+          |  Internals as __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED,
+          |  ReactVersion as version,
+          |  // Disabled behind disableLegacyReactDOMAPIs
+          |  findDOMNode,
+          |  hydrate,
+          |  render,
+          |  unmountComponentAtNode,
+          |  // exposeConcurrentModeAPIs
+          |  createRoot,
+          |  createBlockingRoot,
+          |  flushControlled as unstable_flushControlled,
+          |  scheduleHydration as unstable_scheduleHydration,
+          |  // Disabled behind disableUnstableRenderSubtreeIntoContainer
+          |  renderSubtreeIntoContainer as unstable_renderSubtreeIntoContainer,
+          |  // Disabled behind disableUnstableCreatePortal
+          |  // Temporary alias since we already shipped React 16 RC with it.
+          |  // TODO: remove in React 17.
+          |  unstable_createPortal,
+          |  // enableCreateEventHandleAPI
+          |  createEventHandle as unstable_createEventHandle,
+          |};
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |let createPortal, batchedUpdates, flushSync, Internals, ReactVersion, findDOMNode, hydrate, 
+          |render, unmountComponentAtNode, createRoot, createBlockingRoot, flushControlled, scheduleHydration, 
+          |renderSubtreeIntoContainer, unstable_createPortal, createEventHandle;
+          |
+          |export {
+          |  batchedUpdates as unstable_batchedUpdates,
+          |  createBlockingRoot,
+          |  // enableCreateEventHandleAPI
+          |  createEventHandle as unstable_createEventHandle,
+          |  createPortal,
+          |  // exposeConcurrentModeAPIs
+          |  createRoot,
+          |  // Disabled behind disableLegacyReactDOMAPIs
+          |  findDOMNode,
+          |  flushControlled as unstable_flushControlled,
+          |  flushSync,
+          |  hydrate,
+          |  Internals as __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED,
+          |  ReactVersion as version,
+          |  render,
+          |  // Disabled behind disableUnstableRenderSubtreeIntoContainer
+          |  renderSubtreeIntoContainer as unstable_renderSubtreeIntoContainer,
+          |  scheduleHydration as unstable_scheduleHydration,
+          |  unmountComponentAtNode,
+          |  // Disabled behind disableUnstableCreatePortal
+          |  // Temporary alias since we already shipped React 16 RC with it.
+          |  // TODO: remove in React 17.
+          |  unstable_createPortal,
+          |};
+        `);
+      },
+      errors: 1,
+    },
+
+    // single-line export identifiers are sorted
+    {
+      code: input`
+          |const name2 = 'Smith', name1 = 'John';
+          |export { name2, name1 }
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |const name2 = 'Smith', name1 = 'John';
+          |export { name1,name2 }
+      `);
+      },
+      errors: 1,
+    },
+
+    // Export list with renames - specifiers are sorted
+    {
+      code: input`
+          |const name2 = 'Smith', name1 = 'John';
+          |export { name2 as b, name1 as a }
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |const name2 = 'Smith', name1 = 'John';
+          |export { name1 as a,name2 as b }
+      `);
       },
       errors: 1,
     },

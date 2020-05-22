@@ -142,35 +142,26 @@ function printSortedItems(items, sourceCode, outerGroups) {
   );
 
   const flattenedSortedItemsReversed = flattenedSortedItems.slice().reverse();
+  const lastSortedItem = flattenedSortedItems[flattenedSortedItems.length - 1];
 
-  const lastSideEffectImport = flattenedSortedItemsReversed.find(
-    (item) => item.isSideEffectImport
-  );
   const lastImport = flattenedSortedItemsReversed.find((item) =>
     isImport(item.node)
   );
   const lastExport = flattenedSortedItemsReversed.find((item) =>
     isExportWithSource(item.node)
   );
-  const lastSourcelessExport = flattenedSortedItemsReversed.find((item) =>
-    isExportWithoutSource(item.node)
-  );
 
   // add newlines between import, export, and sourceless exports:
-  // add newline to last side effect import if required
-  if (
-    lastSideEffectImport &&
-    !lastImport &&
-    (lastExport || lastSourcelessExport)
-  ) {
-    lastSideEffectImport.code += newline;
-  }
   // add newline to last import if required
-  if (lastImport && (lastExport || lastSourcelessExport)) {
+  if (
+    lastImport &&
+    !lastImport.isSideEffectImport &&
+    lastImport !== lastSortedItem
+  ) {
     lastImport.code += newline;
   }
   // add newline to last export if required
-  if (lastExport && lastSourcelessExport) {
+  if (lastExport && lastExport !== lastSortedItem) {
     lastExport.code += newline;
   }
 
@@ -185,7 +176,6 @@ function printSortedItems(items, sourceCode, outerGroups) {
   // Edge case: If the last import (after sorting) ends with a line comment and
   // there’s code (or a multiline block comment) on the same line, add a newline
   // so we don’t accidentally comment stuff out.
-  const lastSortedItem = flattenedSortedItems[flattenedSortedItems.length - 1];
   const lastOriginalItem = items[items.length - 1];
   const nextToken = lastSortedItem.needsNewline
     ? sourceCode.getTokenAfter(lastOriginalItem.node, {
@@ -887,15 +877,7 @@ function compareByNodeType(a, b) {
     }
     return aIsOfType ? -1 : 1;
   };
-  // Side-effect imports first
-  const sideEffectCompare = compareByNodeTypeInternal(
-    a.isSideEffectImport,
-    b.isSideEffectImport
-  );
-  if (sideEffectCompare !== 0) {
-    return sideEffectCompare;
-  }
-  // Then imports
+  // First imports
   const importCompare = compareByNodeTypeInternal(
     isImport(a.node),
     isImport(b.node)
@@ -911,15 +893,7 @@ function compareByNodeType(a, b) {
   if (exportWithSourceCompare !== 0) {
     return exportWithSourceCompare;
   }
-  // Then sourceless exports
-  const sourcelessExportCompare = compareByNodeTypeInternal(
-    isExport(a.node),
-    isExport(b.node)
-  );
-  if (sourcelessExportCompare !== 0) {
-    return sourcelessExportCompare;
-  }
-
+  // Then sourceless exports + anything else
   return 0;
 }
 
@@ -940,10 +914,6 @@ function isExport(node) {
 // NOT: export const x = 123
 function isExportWithSource(node) {
   return isExport(node) && Boolean(node.source);
-}
-
-function isExportWithoutSource(node) {
-  return isExport(node) && !node.source;
 }
 
 // import def, { a, b as c, type d } from "A"
