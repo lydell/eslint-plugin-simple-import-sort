@@ -22,18 +22,20 @@ describe("examples", () => {
 
   for (const item of output) {
     const name = path.basename(item.filePath);
-    test(name, () => {
-      expect(item).toMatchObject({
-        messages: [],
-        errorCount: 0,
-        warningCount: 0,
-        fixableErrorCount: 0,
-        fixableWarningCount: 0,
+    if (!name.startsWith(".")) {
+      test(name, () => {
+        expect(item).toMatchObject({
+          messages: [],
+          errorCount: 0,
+          warningCount: 0,
+          fixableErrorCount: 0,
+          fixableWarningCount: 0,
+        });
+        const code = name.includes("prettier")
+          ? prettier.format(item.output, { parser: "babel" })
+          : item.output;
+        expect(code).toMatchSnapshot();
       });
-      const code = name.includes("prettier")
-        ? prettier.format(item.output, { parser: "babel" })
-        : item.output;
-      expect(code).toMatchSnapshot();
-    });
+    }
   }
 });
