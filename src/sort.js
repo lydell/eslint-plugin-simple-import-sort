@@ -1,15 +1,15 @@
 "use strict";
 
 const defaultGroups = [
-  // Side effect imports.
+  // Side effect imports. (Exports don’t have this concept.)
   ["^\\u0000"],
   // Packages.
   // Things that start with a letter (or digit or underscore), or `@` followed by a letter.
   ["^@?\\w"],
-  // Absolute imports and other imports such as Vue-style `@/foo`.
+  // Absolute and other imports/exports such as Vue-style `@/foo`.
   // Anything that does not start with a dot.
   ["^[^.]"],
-  // Relative imports.
+  // Relative imports/exports.
   // Anything that starts with a dot.
   ["^\\."],
 ];

@@ -3,6 +3,7 @@
 Easy autofixable import sorting.
 
 - ✔️ Runs via `eslint --fix` – no new tooling
+- ✔️ Also sorts exports where possible
 - ✔️ Handles comments
 - ✔️ Handles [Flow type imports] \(via [babel-eslint])
 - ✔️ [TypeScript] friendly \(via [@typescript-eslint/parser])
@@ -37,10 +38,11 @@ This is for those who use `eslint --fix` (autofix) a lot and want to completely 
 - [FAQ](#faq)
   - [Does it support `require`?](#does-it-support-require)
   - [Why sort on `from`?](#why-sort-on-from)
-  - [Is sorting imports safe?](#is-sorting-imports-safe)
+  - [Is sorting imports/exports safe?](#is-sorting-importsexports-safe)
   - [The sorting autofix causes some odd whitespace!](#the-sorting-autofix-causes-some-odd-whitespace)
   - [Can I use this without autofix?](#can-i-use-this-without-autofix)
   - [How do I use eslint-ignore for this rule?](#how-do-i-use-eslint-ignore-for-this-rule)
+  - [The plugin is called simple-<em>import</em>-sort – why does it deal with exports as well?](#the-plugin-is-called-simple-emimportem-sort--why-does-it-deal-with-exports-as-well)
 - [Development](#development)
   - [npm scripts](#npm-scripts)
   - [Directories](#directories)
@@ -106,7 +108,7 @@ Add `simple-import-sort` to the plugins section of your `.eslintrc` configuratio
 }
 ```
 
-Then add the import sort rule:
+Then add the rule:
 
 ```json
 {
@@ -193,11 +195,17 @@ This section is for learning how the sorting works, not for how to manually fix 
 
 **TL;DR:** First group, then sort alphabetically.
 
-First, the plugin finds all _chunks_ of imports. A “chunk” is a sequence of import statements with only comments and whitespace between. Each chunk is sorted separately. Use [import/first] if you want to make sure that all imports end up in the same chunk.
+First, the plugin finds all _chunks_ of imports and exports. A “chunk” is a sequence of import and export statements with only comments and whitespace between. Each chunk is sorted separately. Use [import/first] if you want to make sure that all imports end up in the same chunk. There is a similar rule [import/exports-last] that groups all exports at the end of the file.
 
-Then, each chunk is _grouped_ into sections with a blank line between each.
+Each chunk is split into sections with a blank line between each.
 
-1. `import "./setup"`: Side effect imports. (These are not sorted internally.)
+1. Imports (for example `import a from "a"`).
+2. Re-exports (for example `export { a } from "a"`).
+3. Other exports (for example `export const a = 5`). These are not sorted internally (because they have no `from` string and can have side-effects).
+
+Then, each section is _grouped_ into sub-sections with a blank line between each.
+
+1. `import "./setup"`: Side effect imports. These are not sorted internally. (Exports don’t have this concept.)
 2. `import react from "react"`: Packages (npm packages and Node.js builtins).
 3. `import a from "/a"`: Absolute imports and other imports such as Vue-style `@/foo`.
 4. `import a from "./a"`: Relative imports.
@@ -217,15 +225,14 @@ function compare(a, b) {
 }
 ```
 
-In other words, the imports within groups are sorted alphabetically, case-insensitively and treating numbers like a human would, falling back to good old character code sorting in case of ties. See [Intl.Collator] for more information.
+In other words, the imports/exports within groups are sorted alphabetically, case-insensitively and treating numbers like a human would, falling back to good old character code sorting in case of ties. See [Intl.Collator] for more information.
 
-Since “.” sorts before “/”, relative imports of files higher up in the directory structure come before closer ones – `"../../utils"` comes before `"../utils"`. Perhaps surprisingly though, `".."` would come before `"../../utils"` (since shorter substrings sort before longer strings). For that reason there’s one addition to the alphabetical rule: `"."` and `".."` are treated as `"./"` and `"../"`.
+Since “.” sorts before “/”, relative imports/exports of files higher up in the directory structure come before closer ones – `"../../utils"` comes before `"../utils"`. Perhaps surprisingly though, `".."` would come before `"../../utils"` (since shorter substrings sort before longer strings). For that reason there’s one addition to the alphabetical rule: `"."` and `".."` are treated as `"./"` and `"../"`.
 
 If both `import type` _and_ regular imports are used for the same source, the type imports come first.
 
 Example:
 
-<!-- prettier-ignore -->
 ```js
 // Side effect imports. (These are not sorted internally.)
 import "./setup";
@@ -252,9 +259,40 @@ import g from ".";
 import h from "./constants";
 import i from "./styles";
 
-// Regardless of group, imported items are sorted like this:
+// Package re-exports.
+export * from "an-npm-package";
+export { readFile } from "fs";
+export * as ns from "https://example.com/script.js";
+
+// Absolute and other re-exports.
+export { Error } from "@/components/error.vue";
+export { c } from "/";
+export { d } from "/home/user/foo";
+
+// Relative re-exports.
+export { e } from "../..";
+export { f } from "../../Utils"; // Case insensitive.
+export { g } from ".";
+export { h } from "./constants";
+export { i } from "./styles";
+
+// Other exports. (These are not sorted internally.)
+export var one = 1;
+export let two = 2;
+export const three = 3;
+export function f() {}
+export class C {}
+export type T = string;
+export { a, b as c };
+export type { T, U as V };
+export default whatever;
+```
+
+Regardless of group, imported/exported items are sorted like this:
+
+```js
 import {
-  // First, type imports.
+  // First, type imports (`export { type x, typeof y }` is a syntax error).
   type x,
   typeof y,
   // Numbers are sorted by their numeric value:
@@ -270,17 +308,24 @@ import {
 } from "./x";
 ```
 
-<!--
-Workaround to make the next section to appear in the table of contents.
+Exported items are sorted even for exports _without_ `from` (even though the whole export statement itself isn’t sorted in relation to other exports):
+
 ```js
+export {
+  k,
+  L, // Case insensitive.
+  m as anotherName, // Sorted by the original name “m”, not “anotherName”.
+  m as tie, // But do use the \`as\` name in case of a tie.
+  n,
+};
+export type { A, B, C as Aa };
 ```
--->
 
 ## Custom grouping
 
 For a long time, this plugin used to have no options, which helped keeping it simple.
 
-While the human alphabetical sorting and comment handling seems to work for a lot of people, grouping of imports is more difficult. Projects differ too much to have a one-size-fits-all grouping.
+While the human alphabetical sorting and comment handling seems to work for a lot of people, grouping of imports/exports is more difficult. Projects differ too much to have a one-size-fits-all grouping.
 
 However, the default grouping is fine for many use cases! Don’t bother learning how custom grouping works unless you _really_ need it.
 
@@ -295,7 +340,7 @@ There is **one** option (and I would really like it to stay that way!) called `g
 - Remove blank lines between groups.
 - Make a separate group for Node.js builtins.
 - Make a separate group for style imports.
-- Separate `./` and `../` imports.
+- Separate `./` and `../` imports/exports.
 - Not use groups at all and only sort alphabetically.
 
 `groups` is an array of arrays of strings:
@@ -312,11 +357,11 @@ Each `import` is matched against _all_ regexes on the `from` string. The import 
 
 > If an import ends up in the wrong group – try making the desired group regex match more of the `from` string, or use negative lookahead (`(?!x)`) to exclude things from other groups.
 
-Imports that don’t match any regex are grouped together last.
+Imports/exports that don’t match any regex are grouped together last.
 
 Side effect imports have `\u0000` prepended to their `from` string. You can match them with `"^\\u0000"`.
 
-The inner arrays are joined with one newline; the outer arrays are joined with two (creating a blank line).
+The inner arrays are joined with one newline; the outer arrays are joined with two (creating a blank line). There’s _always_ a blank line between imports, re-exports and other exports.
 
 Every group is sorted internally as mentioned in [Sort order]. Side effect imports are always placed first in the group and keep their internal order. It’s recommended to keep side effect imports in their own group.
 
@@ -324,27 +369,27 @@ These are the default groups:
 
 ```js
 [
-  // Side effect imports.
+  // Side effect imports. (Exports don’t have this concept.)
   ["^\\u0000"],
   // Packages.
   // Things that start with a letter (or digit or underscore), or `@` followed by a letter.
   ["^@?\\w"],
-  // Absolute imports and other imports such as Vue-style `@/foo`.
+  // Absolute and other imports/exports such as Vue-style `@/foo`.
   // Anything that does not start with a dot.
   ["^[^.]"],
-  // Relative imports.
+  // Relative imports/exports.
   // Anything that starts with a dot.
   ["^\\."],
 ];
 ```
 
-The astute reader might notice that the above regexes match more than their comments say. For example, `"@config"` and `"_internal"` are matched as packages, but none of them are valid npm package names. `".foo"` is matched as a relative import, but what does `".foo"` even mean? There’s little gain in having more specific rules, though. So keep it simple!
+The astute reader might notice that the above regexes match more than their comments say. For example, `"@config"` and `"_internal"` are matched as packages, but none of them are valid npm package names. `".foo"` is matched as relative, but what does `".foo"` even mean? There’s little gain in having more specific rules, though. So keep it simple!
 
 See the [examples] for inspiration.
 
 ## Comment and whitespace handling
 
-When an import is moved through sorting, it’s comments are moved with it. Comments can be placed above an import (except the first one – more on that later), or at the start or end of its line.
+When an import/export is moved through sorting, its comments are moved with it. Comments can be placed above an import/export (except the first one – more on that later), or at the start or end of its line.
 
 Example:
 
@@ -394,9 +439,9 @@ import a from "a";
 
 The `// @flow` comment is supposed to be at the top of the file (it enables [Flow] type checking for the file), and isn’t related to the `"b"` import. On the other hand, the `// eslint-disable-next-line` comment _is_ related to the `"b"` import. Even a documentation comment could be either for the whole file, or the first import. So this plugin can’t know if it should move comments above the first import or not (but it knows that the `//a` comment belongs to the `"a"` import).
 
-For this reason, comments above and below chunks of imports are never moved. You need to do so yourself, if needed.
+For this reason, comments above and below chunks of imports/exports are never moved. You need to do so yourself, if needed.
 
-Comments around imported items follow similar rules – they can be placed above an item, or at the start or end of its line. Comments before the first item or newline stay at the start, and comments after the last item stay at the end.
+Comments around imported/exported items follow similar rules – they can be placed above an item, or at the start or end of its line. Comments before the first item or newline stay at the start, and comments after the last item stay at the end.
 
 <!-- prettier-ignore -->
 ```js
@@ -441,11 +486,11 @@ import {/* comment at start */ f, /* f */g/* g */ } from "wherever3";
 
 If you wonder what’s up with the strange whitespace – see [“The sorting autofix causes some odd whitespace!”][odd-whitespace]
 
-Speaking of whitespace – what about blank lines? Just like comments, it’s difficult to know where blank lines should go after sorting. This plugin went with a simple approach – all blank lines in chunks of imports are removed, except in `/**/` comments and the blank lines added between the groups mentioned in [Sort order].
+Speaking of whitespace – what about blank lines? Just like comments, it’s difficult to know where blank lines should go after sorting. This plugin went with a simple approach – all blank lines in chunks of imports/exports are removed, except in `/**/` comments and the blank lines added between the groups mentioned in [Sort order].
 
 (Since blank lines are removed, you might get slight incompatibilities with the [lines-around-comment] and [padding-line-between-statements] rules – I don’t use those myself, but I think there should be workarounds.)
 
-The final whitespace rule is that this plugin puts one import per line. I’ve never seen real projects that intentionally puts several imports on the same line.
+The final whitespace rule is that this plugin puts one import/export per line. I’ve never seen real projects that intentionally puts several imports on the same line.
 
 ## FAQ
 
@@ -478,13 +523,13 @@ import { arraySplit, truncate } from "./utils";
 import { productType } from "./constants";
 ```
 
-On the other hand, if sorting based on the `from` string (like this plugin does), the imports stay in the same order. This prevents the imports from jumping around as you add and remove things, keeping your git history clean and reducing the risk of merge conflicts.
+On the other hand, if sorting based on the `from` string (like this plugin does), the imports stay in the same order. This prevents the imports/exports from jumping around as you add and remove things, keeping your git history clean and reducing the risk of merge conflicts.
 
-### Is sorting imports safe?
+### Is sorting imports/exports safe?
 
 Mostly.
 
-Imports can have side effects in JavaScript, so changing the order of the imports can change the order that those side effects execute in. It is best practice to _either_ import a module for its side effects _or_ for the things it exports.
+Imports and re-exports can have side effects in JavaScript, so changing the order of them can change the order that those side effects execute in. It is best practice to _either_ import a module for its side effects _or_ for the things it exports (and _never_ rely on side effects from re-exports).
 
 ```js
 // An `import` that runs side effects:
@@ -505,7 +550,7 @@ Imports that _both_ export stuff _and_ run side effects are rare. If you run int
 
 Another small caveat is that you sometimes need to move comments manually – see [Comment and whitespace handling][comment-handling].
 
-For completeness, sorting the imported _items_ of an import is always safe:
+For completeness, sorting the imported/exported _items_ of an import/export is always safe:
 
 ```js
 import { c, b, a } from "wherever";
@@ -524,7 +569,7 @@ You might end up with slightly weird spacing, for example a missing space after 
 import {bar, baz,foo} from "example";
 ```
 
-Sorting is the easy part of this plugin. Handling whitespace and comments is the hard part. The autofix might end up with a little odd spacing around an import sometimes. Rather than fixing those spaces by hand, I recommend using [Prettier] or enabling other autofixable ESLint whitespace rules. See [examples] for more information.
+Sorting is the easy part of this plugin. Handling whitespace and comments is the hard part. The autofix might end up with a little odd spacing around an import/export sometimes. Rather than fixing those spaces by hand, I recommend using [Prettier] or enabling other autofixable ESLint whitespace rules. See [examples] for more information.
 
 The reason the whitespace can end up weird is because this plugin re-uses and moves around already existing whitespace rather than removing and adding new whitespace. This is to stay compatible with other ESLint rules that deal with whitespace.
 
@@ -535,6 +580,12 @@ Not really. The error message for this rule is literally “Run autofix to sort 
 ### How do I use eslint-ignore for this rule?
 
 Looking for `/* eslint-disable */` for this rule? Read all about **[ignoring (parts of) sorting][example-ignore].**
+
+### The plugin is called simple-<em>import</em>-sort – why does it deal with exports as well?
+
+Imports wouldn’t be much of a feature without exports. `import { A } from "a"` and `export { A } from "a"` are super similar. If you like sorting one of them, why wouldn’t you want to sort the other?
+
+By sorting exports in the same plugin, we can re-use the advanced comment handling. And you only need to configure the “groups” option once.
 
 ## Development
 
@@ -568,6 +619,7 @@ You need [Node.js] ~12 and npm 6.
 [example-ignore]: https://github.com/lydell/eslint-plugin-simple-import-sort/blob/master/examples/ignore.js
 [examples]: https://github.com/lydell/eslint-plugin-simple-import-sort/blob/master/examples/.eslintrc.js
 [flow]: https://flow.org/
+[import/exports-last]: https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/exports-last.md
 [import/first]: https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/first.md
 [import/first]: https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/first.md
 [import/newline-after-import]: https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/newline-after-import.md
