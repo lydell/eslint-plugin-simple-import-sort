@@ -1555,6 +1555,166 @@ const baseTests = (expect) => ({
       errors: 1,
     },
 
+    // https://github.com/facebook/react/blob/4c7036e807fa18a3e21a5182983c7c0f05c5936e/packages/react-dom/src/client/ReactDOM.js#L193-L217
+    {
+      code: input`
+          |export {
+          |  createPortal,
+          |  batchedUpdates as unstable_batchedUpdates,
+          |  flushSync,
+          |  Internals as __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED,
+          |  ReactVersion as version,
+          |  // Disabled behind disableLegacyReactDOMAPIs
+          |  findDOMNode,
+          |  hydrate,
+          |  render,
+          |  unmountComponentAtNode,
+          |  // exposeConcurrentModeAPIs
+          |  createRoot,
+          |  createBlockingRoot,
+          |  flushControlled as unstable_flushControlled,
+          |  scheduleHydration as unstable_scheduleHydration,
+          |  // Disabled behind disableUnstableRenderSubtreeIntoContainer
+          |  renderSubtreeIntoContainer as unstable_renderSubtreeIntoContainer,
+          |  // Disabled behind disableUnstableCreatePortal
+          |  // Temporary alias since we already shipped React 16 RC with it.
+          |  // TODO: remove in React 18.
+          |  unstable_createPortal,
+          |  // enableCreateEventHandleAPI
+          |  createEventHandle as unstable_createEventHandle,
+          |};
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {
+          |  batchedUpdates as unstable_batchedUpdates,
+          |  createBlockingRoot,
+          |  // enableCreateEventHandleAPI
+          |  createEventHandle as unstable_createEventHandle,
+          |  createPortal,
+          |  // exposeConcurrentModeAPIs
+          |  createRoot,
+          |  // Disabled behind disableLegacyReactDOMAPIs
+          |  findDOMNode,
+          |  flushControlled as unstable_flushControlled,
+          |  flushSync,
+          |  hydrate,
+          |  Internals as __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED,
+          |  ReactVersion as version,
+          |  render,
+          |  // Disabled behind disableUnstableRenderSubtreeIntoContainer
+          |  renderSubtreeIntoContainer as unstable_renderSubtreeIntoContainer,
+          |  scheduleHydration as unstable_scheduleHydration,
+          |  unmountComponentAtNode,
+          |  // Disabled behind disableUnstableCreatePortal
+          |  // Temporary alias since we already shipped React 16 RC with it.
+          |  // TODO: remove in React 17.
+          |  unstable_createPortal,
+          |};
+        `);
+      },
+      errors: 1,
+    },
+
+    // https://github.com/apollographql/apollo-client/blob/39942881567ff9825a0f17bbf114ec441590f8bb/src/core/index.ts#L1-L98
+    {
+      code: input`
+          |export {
+          |/* Core */
+          |
+          |export {
+          |  ApolloClient,
+          |  ApolloClientOptions,
+          |  DefaultOptions
+          |} from '../ApolloClient';
+          |export {
+          |  ObservableQuery,
+          |  FetchMoreOptions,
+          |  UpdateQueryOptions,
+          |  ApolloCurrentQueryResult,
+          |} from '../core/ObservableQuery';
+          |export {
+          |  QueryBaseOptions,
+          |  QueryOptions,
+          |  WatchQueryOptions,
+          |  MutationOptions,
+          |  SubscriptionOptions,
+          |  FetchPolicy,
+          |  WatchQueryFetchPolicy,
+          |  ErrorPolicy,
+          |  FetchMoreQueryOptions,
+          |  SubscribeToMoreOptions,
+          |  MutationUpdaterFn,
+          |} from '../core/watchQueryOptions';
+          |export { NetworkStatus } from '../core/networkStatus';
+          |export * from '../core/types';
+          |export {
+          |  Resolver,
+          |  FragmentMatcher as LocalStateFragmentMatcher,
+          |} from '../core/LocalState';
+          |export { isApolloError, ApolloError } from '../errors/ApolloError';
+          |
+          |/* Cache */
+          |
+          |export * from '../cache';
+          |
+          |/* Link */
+          |
+          |export { empty } from '../link/core/empty';
+          |export { from } from '../link/core/from';
+          |export { split } from '../link/core/split';
+          |export { concat } from '../link/core/concat';
+          |export { execute } from '../link/core/execute';
+          |export { ApolloLink } from '../link/core/ApolloLink';
+          |export * from '../link/core/types';
+          |export {
+          |  parseAndCheckHttpResponse,
+          |  ServerParseError
+          |} from '../link/http/parseAndCheckHttpResponse';
+          |export {
+          |  serializeFetchParameter,
+          |  ClientParseError
+          |} from '../link/http/serializeFetchParameter';
+          |export {
+          |  HttpOptions,
+          |  fallbackHttpConfig,
+          |  selectHttpOptionsAndBody,
+          |  UriFunction
+          |} from '../link/http/selectHttpOptionsAndBody';
+          |export { checkFetcher } from '../link/http/checkFetcher';
+          |export { createSignalIfSupported } from '../link/http/createSignalIfSupported';
+          |export { selectURI } from '../link/http/selectURI';
+          |export { createHttpLink } from '../link/http/createHttpLink';
+          |export { HttpLink } from '../link/http/HttpLink';
+          |export { fromError } from '../link/utils/fromError';
+          |export { toPromise } from '../link/utils/toPromise';
+          |export { fromPromise } from '../link/utils/fromPromise';
+          |export { ServerError, throwServerError } from '../link/utils/throwServerError';
+          |export {
+          |  Observable,
+          |  Observer,
+          |  ObservableSubscription
+          |} from '../utilities/observables/Observable';
+          |
+          |/* Supporting */
+          |
+          |// Note that importing \`gql\` by itself, then destructuring
+          |// additional properties separately before exporting, is intentional...
+          |import gql from 'graphql-tag';
+          |export const {
+          |  resetCaches,
+          |  disableFragmentWarnings,
+          |  enableExperimentalFragmentVariables,
+          |  disableExperimentalFragmentVariables
+          |} = gql;
+          |export { gql };
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot();
+      },
+      errors: 1,
+    },
+
     // `groups` – `u` flag.
     {
       options: [{ groups: [["^\\p{L}"], ["^\\."]] }],
@@ -1906,6 +2066,132 @@ const flowTests = {
       },
       errors: 1,
     },
+
+    // https://github.com/graphql/graphql-js/blob/f7061fdcf461a2e4b3c78077afaebefc2226c8e3/src/utilities/index.js#L1-L115
+    {
+      code: input`
+          |import { forEach, isCollection } from 'iterall';
+          |// @flow strict
+          |
+          |// Produce the GraphQL query recommended for a full schema introspection.
+          |// Accepts optional IntrospectionOptions.
+          |export { getIntrospectionQuery } from './getIntrospectionQuery';
+          |
+          |export type {
+          |  IntrospectionOptions,
+          |  IntrospectionQuery,
+          |  IntrospectionSchema,
+          |  IntrospectionType,
+          |  IntrospectionInputType,
+          |  IntrospectionOutputType,
+          |  IntrospectionScalarType,
+          |  IntrospectionObjectType,
+          |  IntrospectionInterfaceType,
+          |  IntrospectionUnionType,
+          |  IntrospectionEnumType,
+          |  IntrospectionInputObjectType,
+          |  IntrospectionTypeRef,
+          |  IntrospectionInputTypeRef,
+          |  IntrospectionOutputTypeRef,
+          |  IntrospectionNamedTypeRef,
+          |  IntrospectionListTypeRef,
+          |  IntrospectionNonNullTypeRef,
+          |  IntrospectionField,
+          |  IntrospectionInputValue,
+          |  IntrospectionEnumValue,
+          |  IntrospectionDirective,
+          |} from './getIntrospectionQuery';
+          |
+          |// Gets the target Operation from a Document.
+          |export { getOperationAST } from './getOperationAST';
+          |
+          |// Gets the Type for the target Operation AST.
+          |export { getOperationRootType } from './getOperationRootType';
+          |
+          |// Convert a GraphQLSchema to an IntrospectionQuery.
+          |export { introspectionFromSchema } from './introspectionFromSchema';
+          |
+          |// Build a GraphQLSchema from an introspection result.
+          |export { buildClientSchema } from './buildClientSchema';
+          |
+          |// Build a GraphQLSchema from GraphQL Schema language.
+          |export { buildASTSchema, buildSchema } from './buildASTSchema';
+          |export type { BuildSchemaOptions } from './buildASTSchema';
+          |
+          |// Extends an existing GraphQLSchema from a parsed GraphQL Schema language AST.
+          |export {
+          |  extendSchema,
+          |  // @deprecated: Get the description from a schema AST node and supports legacy
+          |  // syntax for specifying descriptions - will be removed in v16.
+          |  getDescription,
+          |} from './extendSchema';
+          |
+          |// Sort a GraphQLSchema.
+          |export { lexicographicSortSchema } from './lexicographicSortSchema';
+          |
+          |// Print a GraphQLSchema to GraphQL Schema language.
+          |export {
+          |  printSchema,
+          |  printType,
+          |  printIntrospectionSchema,
+          |} from './printSchema';
+          |
+          |// Create a GraphQLType from a GraphQL language AST.
+          |export { typeFromAST } from './typeFromAST';
+          |
+          |// Create a JavaScript value from a GraphQL language AST with a type.
+          |export { valueFromAST } from './valueFromAST';
+          |
+          |// Create a JavaScript value from a GraphQL language AST without a type.
+          |export { valueFromASTUntyped } from './valueFromASTUntyped';
+          |
+          |// Create a GraphQL language AST from a JavaScript value.
+          |export { astFromValue } from './astFromValue';
+          |
+          |// A helper to use within recursive-descent visitors which need to be aware of
+          |// the GraphQL type system.
+          |export { TypeInfo, visitWithTypeInfo } from './TypeInfo';
+          |
+          |// Coerces a JavaScript value to a GraphQL type, or produces errors.
+          |export { coerceInputValue } from './coerceInputValue';
+          |
+          |// Concatenates multiple AST together.
+          |export { concatAST } from './concatAST';
+          |
+          |// Separates an AST into an AST per Operation.
+          |export { separateOperations } from './separateOperations';
+          |
+          |// Strips characters that are not significant to the validity or execution
+          |// of a GraphQL document.
+          |export { stripIgnoredCharacters } from './stripIgnoredCharacters';
+          |
+          |// Comparators for types
+          |export {
+          |  isEqualType,
+          |  isTypeSubTypeOf,
+          |  doTypesOverlap,
+          |} from './typeComparators';
+          |
+          |// Asserts that a string is a valid GraphQL name
+          |export { assertValidName, isValidNameError } from './assertValidName';
+          |
+          |// Compares two GraphQLSchemas and detects breaking changes.
+          |export {
+          |  BreakingChangeType,
+          |  DangerousChangeType,
+          |  findBreakingChanges,
+          |  findDangerousChanges,
+          |} from './findBreakingChanges';
+          |export type { BreakingChange, DangerousChange } from './findBreakingChanges';
+          |
+          |// Report all deprecated usage within a GraphQL document.
+          |export { findDeprecatedUsages } from './findDeprecatedUsages';
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot();
+      },
+      errors: 1,
+    },
   ],
 };
 
@@ -1937,6 +2223,7 @@ const typescriptTests = {
     `,
   ],
   invalid: [
+    // Type imports.
     {
       code: input`
           |import React from "react";
@@ -1974,6 +2261,47 @@ const typescriptTests = {
           |  return names.map(n => o[n]);
           |}
         `);
+      },
+      errors: 1,
+    },
+
+    // https://github.com/apollographql/apollo-client/blob/39942881567ff9825a0f17bbf114ec441590f8bb/src/core/QueryInfo.ts#L1-L39
+    {
+      code: input`
+          |import React from "react";
+          |import { DocumentNode, GraphQLError } from 'graphql';
+          |import { equal } from "@wry/equality";
+          |
+          |import { Cache } from '../cache/core/types/Cache';
+          |import { ApolloCache } from '../cache/core/cache';
+          |import { WatchQueryOptions } from './watchQueryOptions';
+          |import { ObservableQuery } from './ObservableQuery';
+          |import { QueryListener } from './types';
+          |import { FetchResult } from '../link/core/types';
+          |import { ObservableSubscription } from '../utilities/observables/Observable';
+          |import { isNonEmptyArray } from '../utilities/common/arrays';
+          |import { graphQLResultHasError } from '../utilities/common/errorHandling';
+          |import {
+          |  NetworkStatus,
+          |  isNetworkRequestInFlight,
+          |} from './networkStatus';
+          |import { ApolloError } from '../errors/ApolloError';
+          |
+          |export type QueryStoreValue = Pick<QueryInfo,
+          |  | "variables"
+          |  | "networkStatus"
+          |  | "networkError"
+          |  | "graphQLErrors"
+          |  >;
+          |
+          |// A QueryInfo object represents a single query managed by the
+          |// QueryManager, which tracks all QueryInfo objects by queryId in its...
+          |export class QueryInfo {
+          |  listeners = new Set<QueryListener>();
+          |}
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot();
       },
       errors: 1,
     },
