@@ -75,15 +75,6 @@ function getLoc(depth = 1) {
   return match != null ? match[0] : "?";
 }
 
-function ifSupported(regexString, fallbackRegexString) {
-  try {
-    RegExp(regexString, "u");
-    return regexString;
-  } catch (_error) {
-    return fallbackRegexString;
-  }
-}
-
 const baseTests = (expect) => ({
   valid: [
     // Simple cases.
@@ -91,8 +82,22 @@ const baseTests = (expect) => ({
     `import a from "a"`,
     `import {a} from "a"`,
     `import a, {b} from "a"`,
+    `import {a,b} from "a"`,
     `import {} from "a"`,
     `import {    } from "a"`,
+    `import * as a from "a"`,
+    `export {a} from "a"`,
+    `export {a,b} from "a"`,
+    `export {} from "a"`,
+    `export {    } from "a"`,
+    `export * as a from "a"`,
+    `export var one = 1;`,
+    `export let two = 2;`,
+    `export const three = 3;`,
+    `export function f() {}`,
+    `export class C {}`,
+    `export { a, b as c };`,
+    `export default whatever;`,
 
     // Side-effect only imports are kept in the original order.
     input`
@@ -100,7 +105,7 @@ const baseTests = (expect) => ({
           |import "a"
     `,
 
-    // Side-effect only imports use a stable sort (issure #34).
+    // Side-effect only imports use a stable sort (issue #34).
     input`
           |import "codemirror/addon/fold/brace-fold"
           |import "codemirror/addon/edit/closebrackets"
@@ -120,12 +125,25 @@ const baseTests = (expect) => ({
           |import x1 from "a";
           |import x2 from "b"
     `,
+    input`
+          |export {x1} from "a";
+          |export {x2} from "b"
+    `,
+    input`
+          |import x1 from "a";
+          |import x2 from "b"
+          |
+          |export {x3} from "a";
+          |export {x4} from "b"
+    `,
 
     // Opt-out.
     input`
           |// eslint-disable-next-line
           |import x2 from "b"
           |import x1 from "a";
+          |export {x4} from "b"
+          |export {x3} from "a";
     `,
 
     // Whitespace before comment at last specifier should stay.
@@ -139,12 +157,27 @@ const baseTests = (expect) => ({
           |  d, // d
           |} from "specifiers-comment-space-2"
     `,
+    input`
+          |export {
+          |  a, // a
+          |  b // b
+          |} from "specifiers-comment-space"
+          |export {
+          |  c, // c
+          |  d, // d
+          |} from "specifiers-comment-space-2"
+    `,
 
     // Accidental trailing spaces doesn’t produce a sorting error.
     input`
           |import a from "a"    
           |import b from "b";    
           |import c from "c";  /* comment */  
+    `,
+    input`
+          |export {a} from "a"    
+          |export {b} from "b";    
+          |export {c} from "c";  /* comment */  
     `,
   ],
 
@@ -1069,7 +1102,62 @@ const baseTests = (expect) => ({
       },
       errors: [
         {
-          messageId: "sort",
+          messageId: "imports",
+          line: 3,
+          column: 11,
+          endLine: 4,
+          endColumn: 26,
+        },
+      ],
+    },
+    {
+      code: input`
+          |// before
+          |/* also
+          |before */ export {b} from "b";
+          |export {a} from "a"; /*a*/ /* comment
+          |after */ // after
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |// before
+          |/* also
+          |before */ export {a} from "a"; /*a*/ 
+          |export {b} from "b";/* comment
+          |after */ // after
+        `);
+      },
+      errors: [
+        {
+          messageId: "exports",
+          line: 3,
+          column: 11,
+          endLine: 4,
+          endColumn: 26,
+        },
+      ],
+    },
+    {
+      code: input`
+          |// before
+          |/* also
+          |before */  {b} from "b";
+          |import a from "a"; /*a*/ /* comment
+          |after */ // after
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |// before
+          |/* also
+          |before */ import a from "a"; /*a*/ 
+          |
+          |export {b} from "b";/* comment
+          |after */ // after
+        `);
+      },
+      errors: [
+        {
+          messageId: "both",
           line: 3,
           column: 11,
           endLine: 4,
@@ -1468,9 +1556,8 @@ const baseTests = (expect) => ({
     },
 
     // `groups` – `u` flag.
-    // Node.js 8 supports `u` but not `\p{L}`.
     {
-      options: [{ groups: [[ifSupported("^\\p{L}", "^[^.]")], ["^\\."]] }],
+      options: [{ groups: [["^\\p{L}"], ["^\\."]] }],
       code: input`
           |import b from '.';
           |import a from 'ä';
@@ -1613,6 +1700,8 @@ const flowTests = {
     `import type a, {b} from "a"`,
     `import type {} from "a"`,
     `import type {    } from "a"`,
+    `export type T = string;`,
+    `export type { T, U as V };`,
 
     // typeof
     `import typeof a from "a"`,
@@ -1636,6 +1725,19 @@ const flowTests = {
           |import typeof x2 from "b"
           |import typeof x3 from "c";
           |import type x4 from "d"
+    `,
+    input`
+          |export type {x1} from "a";
+          |export type {x2} from "b"
+    `,
+    input`
+          |import type x1 from "a";
+          |import typeof x2 from "b"
+          |import typeof x3 from "c";
+          |import type x4 from "d"
+          |
+          |export type {x5} from "a";
+          |export type {x6} from "b"
     `,
   ],
 
@@ -1808,7 +1910,32 @@ const flowTests = {
 };
 
 const typescriptTests = {
-  valid: [],
+  valid: [
+    // Simple cases.
+    `import type a from "a"`,
+    `import type {a} from "a"`,
+    `import type {} from "a"`,
+    `import type {    } from "a"`,
+    `export type T = string;`,
+    `export type { T, U as V };`,
+
+    // Sorted alphabetically.
+    input`
+          |import type x1 from "a";
+          |import type x2 from "b"
+    `,
+    input`
+          |export type {x1} from "a";
+          |export type {x2} from "b"
+    `,
+    input`
+          |import type x1 from "a";
+          |import type x2 from "b"
+          |
+          |export type {x3} from "a";
+          |export type {x4} from "b"
+    `,
+  ],
   invalid: [
     {
       code: input`

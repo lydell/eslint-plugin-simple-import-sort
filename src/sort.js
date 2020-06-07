@@ -40,7 +40,9 @@ module.exports = {
         "https://github.com/lydell/eslint-plugin-simple-import-sort#sort-order",
     },
     messages: {
-      sort: "Run autofix to sort these imports!",
+      imports: "Run autofix to sort these imports!",
+      exports: "Run autofix to sort these exports!",
+      both: "Run autofix to sort these imports and exports!",
     },
   },
   create: (context) => {
