@@ -196,6 +196,19 @@ const baseTests = (expect) => ({
       },
       errors: 1,
     },
+    {
+      code: input`
+          |export {x2} from "b"
+          |export {x1} from "a";
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {x1} from "a";
+          |export {x2} from "b"
+        `);
+      },
+      errors: 1,
+    },
 
     // Semicolon-free code style, with start-of-line guarding semicolon.
     {
@@ -209,6 +222,23 @@ const baseTests = (expect) => ({
         expect(actual).toMatchInlineSnapshot(`
           |import x1 from "a"
           |import x2 from "b"
+          |
+          |;[].forEach()
+        `);
+      },
+      errors: 1,
+    },
+    {
+      code: input`
+          |export {x2} from "b"
+          |export {x1} from "a"
+          |
+          |;[].forEach()
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {x1} from "a"
+          |export {x2} from "b"
           |
           |;[].forEach()
         `);
@@ -230,6 +260,28 @@ const baseTests = (expect) => ({
         expect(actual).toMatchInlineSnapshot(`
           |import a from "a"
           |import { foo } from "bar"
+          |
+          |;(async function() {
+          |  await foo()
+          |})()
+        `);
+      },
+      errors: 1,
+      parserOptions: { ecmaVersion: 2018 },
+    },
+    {
+      code: input`
+          |export { foo } from "bar"
+          |export {a} from "a"
+          |
+          |;(async function() {
+          |  await foo()
+          |})()
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {a} from "a"
+          |export { foo } from "bar"
           |
           |;(async function() {
           |  await foo()
@@ -264,6 +316,29 @@ const baseTests = (expect) => ({
       },
       errors: 1,
     },
+    {
+      code: input`
+          |export {x2} from "b"
+          |export {x7} from "g";
+          |export {x6} from "f"
+          |;export {x5} from "e"
+          |export {x4} from "d" ; export {x3} from "c"
+          |export {x1} from "a" ; [].forEach()
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {x1} from "a" ; 
+          |export {x2} from "b"
+          |export {x3} from "c"
+          |export {x4} from "d" ; 
+          |export {x5} from "e"
+          |export {x6} from "f"
+          |;
+          |export {x7} from "g";[].forEach()
+        `);
+      },
+      errors: 1,
+    },
 
     // Comments around start-of-line guarding semicolon.
     {
@@ -277,6 +352,23 @@ const baseTests = (expect) => ({
         expect(actual).toMatchInlineSnapshot(`
           |import x1 from "a" // a
           |import x2 from "b"
+          |
+          |;/* comment */[].forEach()
+        `);
+      },
+      errors: 1,
+    },
+    {
+      code: input`
+          |export {x2} from "b"
+          |export {x1} from "a" // a
+          |
+          |;/* comment */[].forEach()
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {x1} from "a" // a
+          |export {x2} from "b"
           |
           |;/* comment */[].forEach()
         `);
@@ -301,6 +393,22 @@ const baseTests = (expect) => ({
       },
       errors: 1,
     },
+    {
+      code: input`
+          |export {x2} from "b"
+          |export {x1} from "a"
+          |
+          |;
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {x1} from "a"
+          |;
+          |export {x2} from "b"
+        `);
+      },
+      errors: 1,
+    },
 
     // Sorting specifiers.
     {
@@ -309,6 +417,22 @@ const baseTests = (expect) => ({
         expect(actual).toMatchInlineSnapshot(
           `import { a as c,b, e } from "specifiers"`
         );
+      },
+      errors: 1,
+    },
+    {
+      code: `export { e, b, a as c } from "specifiers"`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(
+          `export { a as c,b, e } from "specifiers"`
+        );
+      },
+      errors: 1,
+    },
+    {
+      code: `export { e, b, a as c }`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`export { a as c,b, e }`);
       },
       errors: 1,
     },
@@ -334,6 +458,15 @@ const baseTests = (expect) => ({
       },
       errors: 1,
     },
+    {
+      code: `export { e, b, a as c, } from "specifiers-trailing-comma"`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(
+          `export { a as c,b, e,  } from "specifiers-trailing-comma"`
+        );
+      },
+      errors: 1,
+    },
 
     // Sorting specifiers with renames.
     {
@@ -341,6 +474,15 @@ const baseTests = (expect) => ({
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
           `import { a,a as b2, a as c, b } from "specifiers-renames"`
+        );
+      },
+      errors: 1,
+    },
+    {
+      code: `export { a as c, a as b2, b, a } from "specifiers-renames"`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(
+          `export { a,a as b2, a as c, b } from "specifiers-renames"`
         );
       },
       errors: 1,
@@ -400,6 +542,59 @@ const baseTests = (expect) => ({
       },
       errors: 1,
     },
+    {
+      code: input`
+          |export {
+          |  B,
+          |  a,
+          |  A,
+          |  b,
+          |  B2,
+          |  bb,
+          |  BB,
+          |  bB,
+          |  Bb,
+          |  ab,
+          |  ba,
+          |  Ba,
+          |  BA,
+          |  bA,
+          |  x as d,
+          |  x as C,
+          |  img10,
+          |  img2,
+          |  img1,
+          |  img10_black,
+          |} from "specifiers-human-sort"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {
+          |  A,
+          |  a,
+          |  ab,
+          |  B,
+          |  b,
+          |  B2,
+          |  BA,
+          |  Ba,
+          |  bA,
+          |  ba,
+          |  BB,
+          |  Bb,
+          |  bB,
+          |  bb,
+          |  img1,
+          |  img2,
+          |  img10,
+          |  img10_black,
+          |  x as C,
+          |  x as d,
+          |} from "specifiers-human-sort"
+        `);
+      },
+      errors: 1,
+    },
 
     // Keyword-like specifiers.
     {
@@ -407,6 +602,15 @@ const baseTests = (expect) => ({
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
           `import { aaNotKeyword, abstract, any, as, asserts, async, /*await,*/ bigint, boolean, constructor, declare, from, get, global, infer, is, keyof, module, namespace, never, number, object, of,readonly, require, set, string, symbol, type, undefined, unique, unknown, zzNotKeyword } from 'keyword-identifiers';`
+        );
+      },
+      errors: 1,
+    },
+    {
+      code: `export { aaNotKeyword, zzNotKeyword, abstract, as, asserts, any, async, /*await,*/ boolean, constructor, declare, get, infer, is, keyof, module, namespace, never, readonly, require, number, object, set, string, symbol, type, undefined, unique, unknown, from, global, bigint, of } from 'keyword-identifiers';`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(
+          `export { aaNotKeyword, abstract, any, as, asserts, async, /*await,*/ bigint, boolean, constructor, declare, from, get, global, infer, is, keyof, module, namespace, never, number, object, of,readonly, require, set, string, symbol, type, undefined, unique, unknown, zzNotKeyword } from 'keyword-identifiers';`
         );
       },
       errors: 1,
@@ -422,6 +626,15 @@ const baseTests = (expect) => ({
       },
       errors: 1,
     },
+    {
+      code: `export {e,b,a as c} from "specifiers-no-spaces"`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(
+          `export {a as c,b,e} from "specifiers-no-spaces"`
+        );
+      },
+      errors: 1,
+    },
 
     // Space before specifiers.
     {
@@ -429,6 +642,15 @@ const baseTests = (expect) => ({
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
           `import { a,b} from "specifiers-no-space-before"`
+        );
+      },
+      errors: 1,
+    },
+    {
+      code: `export { b,a} from "specifiers-no-space-before"`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(
+          `export { a,b} from "specifiers-no-space-before"`
         );
       },
       errors: 1,
@@ -444,6 +666,15 @@ const baseTests = (expect) => ({
       },
       errors: 1,
     },
+    {
+      code: `export {b,a } from "specifiers-no-space-after"`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(
+          `export {a,b } from "specifiers-no-space-after"`
+        );
+      },
+      errors: 1,
+    },
 
     // Space after specifiers.
     {
@@ -451,6 +682,15 @@ const baseTests = (expect) => ({
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
           `import {a,b, } from "specifiers-no-space-after-trailing"`
+        );
+      },
+      errors: 1,
+    },
+    {
+      code: `export {b,a, } from "specifiers-no-space-after-trailing"`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(
+          `export {a,b, } from "specifiers-no-space-after-trailing"`
         );
       },
       errors: 1,
@@ -470,6 +710,29 @@ const baseTests = (expect) => ({
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import {
+          |  a,
+          |  b, // b
+          |  // c
+          |  c
+          |  // last
+          |} from "specifiers-comments"
+        `);
+      },
+      errors: 1,
+    },
+    {
+      code: input`
+          |export {
+          |  // c
+          |  c,
+          |  b, // b
+          |  a
+          |  // last
+          |} from "specifiers-comments"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {
           |  a,
           |  b, // b
           |  // c
@@ -504,6 +767,28 @@ const baseTests = (expect) => ({
       },
       errors: 1,
     },
+    {
+      code: input`
+          |export {
+          |  // c
+          |  c,b, // b
+          |  a
+          |  // last
+          |} from "specifiers-comments-last"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {
+          |  a,
+          |b, // b
+          |  // c
+          |  c
+          |  // last
+          |} from "specifiers-comments-last"
+        `);
+      },
+      errors: 1,
+    },
 
     // Sorting specifiers with comment between.
     {
@@ -511,6 +796,15 @@ const baseTests = (expect) => ({
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
           `import { a,b /* b */ } from "specifiers-comment-between"`
+        );
+      },
+      errors: 1,
+    },
+    {
+      code: `export { b /* b */, a } from "specifiers-comment-between"`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(
+          `export { a,b /* b */ } from "specifiers-comment-between"`
         );
       },
       errors: 1,
@@ -529,6 +823,27 @@ const baseTests = (expect) => ({
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import {
+          |  a,
+          |  c,
+          |  // x
+          |  // y
+          |} from "specifiers-trailing"
+        `);
+      },
+      errors: 1,
+    },
+    {
+      code: input`
+          |export {
+          |  c,
+          |  a,
+          |  // x
+          |  // y
+          |} from "specifiers-trailing"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {
           |  a,
           |  c,
           |  // x
@@ -564,6 +879,30 @@ const baseTests = (expect) => ({
       },
       errors: 1,
     },
+    {
+      code: input`
+          |export {
+          |  /*c1*/ c, /*c2*/ /*a1
+          |  */a, /*a2*/ /*
+          |  after */
+          |  // x
+          |  // y
+          |} from "specifiers-multiline-comments"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {
+          |/*a1
+          |  */a, /*a2*/ 
+          |  /*c1*/ c, /*c2*/ /*
+          |  after */
+          |  // x
+          |  // y
+          |} from "specifiers-multiline-comments"
+        `);
+      },
+      errors: 1,
+    },
 
     // Sorting specifiers with multiline end comment.
     {
@@ -577,6 +916,24 @@ const baseTests = (expect) => ({
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import {
+          |  a,   b/*
+          |  after */
+          |} from "specifiers-multiline-end-comment"
+        `);
+      },
+      errors: 1,
+    },
+    {
+      code: input`
+          |export {
+          |  b,
+          |  a /*
+          |  after */
+          |} from "specifiers-multiline-end-comment"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {
           |  a,   b/*
           |  after */
           |} from "specifiers-multiline-end-comment"
@@ -606,6 +963,26 @@ const baseTests = (expect) => ({
       },
       errors: 1,
     },
+    {
+      code: input`
+          |export {
+          |  b,
+          |  a /*a*/
+          |  /*
+          |  after */
+          |} from "specifiers-multiline-end-comment-after-newline"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {
+          |  a, /*a*/
+          |  b  /*
+          |  after */
+          |} from "specifiers-multiline-end-comment-after-newline"
+        `);
+      },
+      errors: 1,
+    },
 
     // Sorting specifiers with multiline end comment and no newline.
     {
@@ -624,6 +1001,22 @@ const baseTests = (expect) => ({
       },
       errors: 1,
     },
+    {
+      code: input`
+          |export {
+          |  b,
+          |  a /*
+          |  after */ } from "specifiers-multiline-end-comment-no-newline"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {
+          |  a,   b/*
+          |  after */ } from "specifiers-multiline-end-comment-no-newline"
+        `);
+      },
+      errors: 1,
+    },
 
     // Sorting specifiers with lots of comments.
     {
@@ -631,6 +1024,15 @@ const baseTests = (expect) => ({
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
           `/*1*//*2*/import/*3*/def,/*4*/{/*{*/a/*a1*/as/*a2*/c/*a3*/,/*a4*/b/*b1*/,/*b2*/e/*e1*/,/*e2*//*e3*/}/*5*/from/*6*/"specifiers-lots-of-comments"/*7*//*8*/`
+        );
+      },
+      errors: 1,
+    },
+    {
+      code: `/*1*//*2*/export/*3*//*4*/{/*{*/e/*e1*/,/*e2*//*e3*/b/*b1*/,/*b2*/a/*a1*/as/*a2*/c/*a3*/,/*a4*/}/*5*/from/*6*/"specifiers-lots-of-comments"/*7*//*8*/`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(
+          `/*1*//*2*/export/*3*//*4*/{/*{*/a/*a1*/as/*a2*/c/*a3*/,/*a4*/b/*b1*/,/*b2*/e/*e1*/,/*e2*//*e3*/}/*5*/from/*6*/"specifiers-lots-of-comments"/*7*//*8*/`
         );
       },
       errors: 1,
@@ -675,6 +1077,44 @@ const baseTests = (expect) => ({
       },
       errors: 1,
     },
+    {
+      code: input`
+          |export { // start
+          |  /* c1 */ c /* c2 */, // c3
+          |  // b1
+          |
+          |  b as /* b2 */ renamed
+          |  , /* b3 */ /* a1
+          |  */ a /* not-a
+          |  */ // comment at end
+          |} from "specifiers-lots-of-comments-multiline";
+          |export {
+          |  e,
+          |  d, /* d */ /* not-d
+          |  */ // comment at end after trailing comma
+          |} from "specifiers-lots-of-comments-multiline-2";
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export { // start
+          |/* a1
+          |  */ a, 
+          |  // b1
+          |  b as /* b2 */ renamed
+          |  , /* b3 */ 
+          |  /* c1 */ c /* c2 */// c3
+          |/* not-a
+          |  */ // comment at end
+          |} from "specifiers-lots-of-comments-multiline";
+          |export {
+          |  d, /* d */   e,
+          |/* not-d
+          |  */ // comment at end after trailing comma
+          |} from "specifiers-lots-of-comments-multiline-2";
+        `);
+      },
+      errors: 1,
+    },
 
     // No empty line after last specifier due to newline before comma.
     {
@@ -688,6 +1128,24 @@ const baseTests = (expect) => ({
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import {
+          |  a,
+          |  b/*b*/
+          |  } from "specifiers-blank";
+        `);
+      },
+      errors: 1,
+    },
+    {
+      code: input`
+          |export {
+          |  b/*b*/
+          |  ,
+          |  a
+          |} from "specifiers-blank";
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {
           |  a,
           |  b/*b*/
           |  } from "specifiers-blank";
@@ -724,6 +1182,33 @@ const baseTests = (expect) => ({
       },
       errors: 1,
     },
+    {
+      code: input`
+          |export {z, y,
+          |  x,
+          |
+          |w,
+          |    v
+          |  as /*v*/
+          |
+          |    u , t /*t*/, // t
+          |    s
+          |} from "specifiers-inline-multiline"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {    s,
+          |t /*t*/, // t
+          |    v
+          |  as /*v*/
+          |    u , w,
+          |  x,
+          |y,
+          |z} from "specifiers-inline-multiline"
+        `);
+      },
+      errors: 1,
+    },
 
     // Indent: 0.
     {
@@ -736,6 +1221,23 @@ const baseTests = (expect) => ({
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import {
+          |a,
+          |b,
+          |} from "specifiers-indent-0"
+        `);
+      },
+      errors: 1,
+    },
+    {
+      code: input`
+          |export {
+          |b,
+          |a,
+          |} from "specifiers-indent-0"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {
           |a,
           |b,
           |} from "specifiers-indent-0"
@@ -762,6 +1264,23 @@ const baseTests = (expect) => ({
       },
       errors: 1,
     },
+    {
+      code: input`
+          |export {
+          |    b,
+          |    a,
+          |} from "specifiers-indent-4"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {
+          |    a,
+          |    b,
+          |} from "specifiers-indent-4"
+        `);
+      },
+      errors: 1,
+    },
 
     // Indent: tab.
     {
@@ -774,6 +1293,23 @@ const baseTests = (expect) => ({
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import {
+          |→a,
+          |→b,
+          |} from "specifiers-indent-tab"
+        `);
+      },
+      errors: 1,
+    },
+    {
+      code: input`
+          |export {
+          |\tb,
+          |\ta,
+          |} from "specifiers-indent-tab"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {
           |→a,
           |→b,
           |} from "specifiers-indent-tab"
@@ -805,17 +1341,43 @@ const baseTests = (expect) => ({
       },
       errors: 1,
     },
+    {
+      code: input`
+          |export {
+          | //
+          |\tb,
+          |  a,
+          |
+          |    c,
+          |} from "specifiers-indent-mixed"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {
+          |  a,
+          | //
+          |→b,
+          |    c,
+          |} from "specifiers-indent-mixed"
+        `);
+      },
+      errors: 1,
+    },
 
     // Several chunks.
     {
       code: input`
           |require("c");
           |
+          |export {x3} from "a"
           |import x1 from "b"
           |import x2 from "a"
+          |export {x4} from "c"
           |require("c");
           |
           |import x3 from "b"
+          |export default 5
+          |export const answer = 42
           |import x4 from "a" // x4
           |
           |// c1
@@ -825,7 +1387,7 @@ const baseTests = (expect) => ({
           |import x6 from "a" /* after
           |*/
           |
-          |require("c"); import x7 from "b"; import x8 from "a"; require("c")
+          |require("c"); import x7 from "b"; import x8 from "a"; export {x9}; require("c")
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
@@ -833,10 +1395,16 @@ const baseTests = (expect) => ({
           |
           |import x2 from "a"
           |import x1 from "b"
+          |
+          |export {x3} from "a"
+          |export {x4} from "c"
           |require("c");
           |
           |import x4 from "a" // x4
           |import x3 from "b"
+          |
+          |export default 5
+          |export const answer = 42
           |
           |// c1
           |require("c");
@@ -846,13 +1414,14 @@ const baseTests = (expect) => ({
           |*/
           |
           |require("c"); import x8 from "a"; 
-          |import x7 from "b"; require("c")
+          |import x7 from "b";
+          |export {x8}; require("c")
         `);
       },
       errors: 4,
     },
 
-    // Original order is preserved for duplicate imports.
+    // Original order is preserved for duplicate imports/exports.
     {
       code: input`
           |import b from "b"
@@ -868,8 +1437,23 @@ const baseTests = (expect) => ({
       },
       errors: 1,
     },
+    {
+      code: input`
+          |export {b} from "b"
+          |export {a1} from "a"
+          |export {a2} from "a"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {a1} from "a"
+          |export {a2} from "a"
+          |export {b} from "b"
+        `);
+      },
+      errors: 1,
+    },
 
-    // Original order is preserved for duplicate imports (reversed example).
+    // Original order is preserved for duplicate imports/exports (reversed example).
     {
       code: input`
           |import b from "b"
@@ -881,6 +1465,21 @@ const baseTests = (expect) => ({
           |import {a2} from "a"
           |import a1 from "a"
           |import b from "b"
+        `);
+      },
+      errors: 1,
+    },
+    {
+      code: input`
+          |export {b} from "b"
+          |export {a2} from "a"
+          |export {a1} from "a"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {a2} from "a"
+          |export {a1} from "a"
+          |export {b} from "b"
         `);
       },
       errors: 1,
@@ -1032,6 +1631,37 @@ const baseTests = (expect) => ({
       },
       errors: 1,
     },
+    {
+      code: input`
+          |// before
+          |
+          |/* also
+          |before */ /* b */ export {b} from "b" // b
+          |// above d
+          |  export {d} /*d1*/ from   "d" ; /* d2 */ /* before
+          |  c0 */ // before c1
+          |  /* c0
+          |*/ /*c1*/ /*c2*/export {c} from 'c' ; /*c3*/ export {a} from "a" /*a*/ /*
+          |   x1 */ /* x2 */
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |// before
+          |
+          |/* also
+          |before */ export {a} from "a" /*a*/ 
+          |/* b */ export {b} from "b" // b
+          |/* before
+          |  c0 */ // before c1
+          |  /* c0
+          |*/ /*c1*/ /*c2*/export {c} from 'c' ; /*c3*/ 
+          |// above d
+          |  export {d} /*d1*/ from   "d" ; /* d2 */ /*
+          |   x1 */ /* x2 */
+        `);
+      },
+      errors: 1,
+    },
 
     // Line comment and code after.
     {
@@ -1043,6 +1673,20 @@ const baseTests = (expect) => ({
         expect(actual).toMatchInlineSnapshot(`
           |import a from "a"; 
           |import b from "b"; // b
+          |code();
+        `);
+      },
+      errors: 1,
+    },
+    {
+      code: input`
+          |export {b} from "b"; // b
+          |export {a} from "a"; code();
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {a} from "a"; 
+          |export {b} from "b"; // b
           |code();
         `);
       },
@@ -1066,6 +1710,22 @@ const baseTests = (expect) => ({
       },
       errors: 1,
     },
+    {
+      code: input`
+          |export {b} from "b"; // b
+          |export {a} from "a"; /*
+          |after */
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {a} from "a"; 
+          |export {b} from "b"; // b
+          |/*
+          |after */
+        `);
+      },
+      errors: 1,
+    },
 
     // Line comment but _singleline_ block comment after.
     {
@@ -1077,6 +1737,19 @@ const baseTests = (expect) => ({
         expect(actual).toMatchInlineSnapshot(`
           |import a from "a"; /* a */
           |import b from "b"; // b
+        `);
+      },
+      errors: 1,
+    },
+    {
+      code: input`
+          |export {b} from "b"; // b
+          |export {a} from "a"; /* a */
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {a} from "a"; /* a */
+          |export {b} from "b"; // b
         `);
       },
       errors: 1,
@@ -1190,6 +1863,29 @@ const baseTests = (expect) => ({
       },
       errors: 1,
     },
+    {
+      code: input`
+          |export {c} from "c"
+          |// b1
+          |
+          |// b2
+          |export {b} from "b"
+          |// a
+          |
+          |export {a} from "a"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |// a
+          |export {a} from "a"
+          |// b1
+          |// b2
+          |export {b} from "b"
+          |export {c} from "c"
+        `);
+      },
+      errors: 1,
+    },
 
     // Collapse blank lines between comments – CR.
     {
@@ -1217,8 +1913,33 @@ const baseTests = (expect) => ({
       },
       errors: 1,
     },
+    {
+      code: input`
+          |export {c} from "c"\r
+          |// b1\r
+          |\r
+          |// b2\r
+          |export {b} from "b"\r
+          |// a\r
+          |\r
+          |export {a} from "a"\r
+          |after();\r
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |// a<CR>
+          |export {a} from "a"<CR>
+          |// b1<CR>
+          |// b2<CR>
+          |export {b} from "b"<CR>
+          |export {c} from "c"<CR>
+          |after();<CR>
+        `);
+      },
+      errors: 1,
+    },
 
-    // Collapse blank lines inside import statements.
+    // Collapse blank lines inside import/export statements.
     {
       code: input`
           |import
@@ -1283,6 +2004,98 @@ const baseTests = (expect) => ({
           |// import
           |def /* default */
           |,
+          |// default
+          | {
+          |  // a1
+          |  // a2
+          |  a
+          |  // a3
+          |  as
+          |  // a4
+          |  d
+          |  // a5
+          |  , // a6
+          |  /* b
+          |   */
+          |  b // b
+          |  ,
+          |  // c
+          |  c /*c*/,
+          |  // last
+          |}
+          |// from1
+          |from
+          |// from2
+          |"c"
+          |// final
+          |;
+        `);
+      },
+      errors: 1,
+    },
+    {
+      code: input`
+          |export
+          |
+          |// export
+          |
+          |/* default */
+          |
+          |
+          |
+          |// default
+          |
+          | {
+          |
+          |  // c
+          |
+          |  c /*c*/,
+          |
+          |  /* b
+          |   */
+          |
+          |  b // b
+          |  ,
+          |
+          |  // a1
+          |
+          |  // a2
+          |
+          |  a
+          |
+          |  // a3
+          |
+          |  as
+          |
+          |  // a4
+          |
+          |  d
+          |
+          |  // a5
+          |
+          |  , // a6
+          |
+          |  // last
+          |
+          |}
+          |
+          |// from1
+          |
+          |from
+          |
+          |// from2
+          |
+          |"c"
+          |
+          |// final
+          |
+          |;
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export
+          |// export
+          |/* default */
           |// default
           | {
           |  // a1
@@ -1328,6 +2141,46 @@ const baseTests = (expect) => ({
       },
       errors: 1,
     },
+    {
+      code: input`
+          |export {
+          |
+          |    } from "specifiers-empty"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {
+          |    } from "specifiers-empty"
+        `);
+      },
+      errors: 1,
+    },
+
+    // Do not collapse empty lines inside export code.
+    {
+      code: input`
+          |export const options = {
+          |
+          |    a: 1,
+          |
+          |    b: 2
+          |    }"specifiers-empty"
+          |export {a} from "a"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {a} from "a"
+          |
+          |export const options = {
+          |
+          |    a: 1,
+          |
+          |    b: 2
+          |    }"specifiers-empty"
+        `);
+      },
+      errors: 1,
+    },
 
     // Single-line comment at the end of the last specifier should not comment
     // out the `from` part.
@@ -1341,6 +2194,22 @@ const baseTests = (expect) => ({
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import {
+          |a,  b // b
+          |  } from "specifiers-line-comment"
+        `);
+      },
+      errors: 1,
+    },
+    {
+      code: input`
+          |export {
+          |
+          |  b // b
+          |  ,a} from "specifiers-line-comment"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {
           |a,  b // b
           |  } from "specifiers-line-comment"
         `);
@@ -1374,6 +2243,35 @@ const baseTests = (expect) => ({
           |    // d
           |    import d from "d"
           |  import e from "e"
+        `);
+      },
+      errors: 1,
+    },
+    {
+      code: input`
+          |  export {e} from "e"
+          |  // b
+          |  export {
+          |    b4, b3,
+          |    b2
+          |  } from "b";
+          |  /* a */ export {a} from "a"; export {c} from "c"
+          |  
+          |    // d
+          |    export {d} from "d"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |  /* a */ export {a} from "a"; 
+          |  // b
+          |  export {
+          |    b2,
+          |b3,
+          |    b4  } from "b";
+          |export {c} from "c"
+          |    // d
+          |    export {d} from "d"
+          |  export {e} from "e"
         `);
       },
       errors: 1,
@@ -1413,6 +2311,39 @@ const baseTests = (expect) => ({
       },
       errors: 1,
     },
+    {
+      code: input`
+          |      \r
+          |  export {e} from "e"\r
+          |  // b\r
+          |  export {\r
+          |    b4, b3,\r
+          |    b2\r
+          |  } from "b";\r
+          |  /* a */ export {a} from "a"; export {c} from "c"\r
+          | \r
+          |    // d\r
+          |    export {d} from "d"\r
+          |
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |      <CR>
+          |  /* a */ export {a} from "a"; <CR>
+          |  // b<CR>
+          |  export {<CR>
+          |    b2,<CR>
+          |b3,<CR>
+          |    b4  } from "b";<CR>
+          |export {c} from "c"<CR>
+          |    // d<CR>
+          |    export {d} from "d"<CR>
+          |  export {e} from "e"<CR>
+          |
+        `);
+      },
+      errors: 1,
+    },
 
     // Trailing spaces.
     {
@@ -1436,6 +2367,32 @@ const baseTests = (expect) => ({
           |import e from "e"; 
           |/* multiline
           |comment 2 */ import f from "f";
+        `);
+      },
+      errors: 1,
+    },
+    {
+      code: input`
+          |export {c} from "c";  /* comment */  
+          |export {b} from "b";    
+          |export {d} from "d";  /* multiline
+          |comment */  
+          |export {a} from "a"    
+          |export {e}; /* multiline
+          |comment 2 */ export {f} from "f";
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |/* multiline
+          |comment */  
+          |export {a} from "a"    
+          |export {b} from "b";    
+          |export {c} from "c";  /* comment */  
+          |export {d} from "d";  
+          |
+          |export {e}; 
+          |/* multiline
+          |comment 2 */ export {f} from "f";
         `);
       },
       errors: 1,
@@ -1731,6 +2688,21 @@ const baseTests = (expect) => ({
       },
       errors: 1,
     },
+    {
+      options: [{ groups: [["^\\p{L}"], ["^\\."]] }],
+      code: input`
+          |export {b} from '.';
+          |export {a} from 'ä';
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {a} from 'ä';
+          |
+          |export {b} from '.';
+        `);
+      },
+      errors: 1,
+    },
 
     // `groups` – non-matching imports end up last.
     {
@@ -1753,6 +2725,29 @@ const baseTests = (expect) => ({
       },
       errors: 1,
     },
+    {
+      options: [{ groups: [["^\\w"], ["^\\."]] }],
+      code: input`
+          |export {c} from '';
+          |export {e}
+          |export {b} from '.';
+          |export {a} from 'a';
+          |export {d} from '@/a';
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {a} from 'a';
+          |
+          |export {b} from '.';
+          |
+          |export {c} from '';
+          |export {d} from '@/a';
+          |
+          |export {e}
+        `);
+      },
+      errors: 1,
+    },
 
     // `groups` – first longest match wins.
     {
@@ -1769,6 +2764,24 @@ const baseTests = (expect) => ({
           |import b from 'bx';
           |
           |import c from './';
+        `);
+      },
+      errors: 1,
+    },
+    {
+      options: [{ groups: [["^\\w"], ["^\\w{2}"], ["^.{2}"]] }],
+      code: input`
+          |export {c} from './';
+          |export {b} from 'bx';
+          |export {a} from 'a';
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {a} from 'a';
+          |
+          |export {b} from 'bx';
+          |
+          |export {c} from './';
         `);
       },
       errors: 1,
@@ -1931,6 +2944,32 @@ const flowTests = {
           |import type B from "./B";
           |import typeof D from "./D";
           |import {type Y, typeof T, pluralize,truncate} from "./utils"
+        `);
+      },
+      errors: 1,
+    },
+
+    // Type exports.
+    {
+      code: input`
+          |export type {Z} from "Z";
+          |export type Y = 5;
+          |export type {X} from "X";
+          |export type {B} from "./B";
+          |export type {C} from "/B";
+          |export type {E} from "@/B";
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export type {X} from "X";
+          |export type {Z} from "Z";
+          |
+          |export type {E} from "@/B";
+          |export type {C} from "/B";
+          |
+          |export type {B} from "./B";
+          |
+          |export type Y = 5;
         `);
       },
       errors: 1,
@@ -2260,6 +3299,32 @@ const typescriptTests = {
           |function pluck<T, K extends keyof T>(o: T, names: K[]): T[K][] {
           |  return names.map(n => o[n]);
           |}
+        `);
+      },
+      errors: 1,
+    },
+
+    // Type exports.
+    {
+      code: input`
+          |export type {Z} from "Z";
+          |export type Y = 5;
+          |export type {X} from "X";
+          |export type {B} from "./B";
+          |export type {C} from "/B";
+          |export type {E} from "@/B";
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export type {X} from "X";
+          |export type {Z} from "Z";
+          |
+          |export type {E} from "@/B";
+          |export type {C} from "/B";
+          |
+          |export type {B} from "./B";
+          |
+          |export type Y = 5;
         `);
       },
       errors: 1,
