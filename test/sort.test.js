@@ -3282,6 +3282,42 @@ const baseTests = (expect) => ({
       },
       errors: 1,
     },
+
+    // Mix of imports and different kinds of exports
+    {
+      code: input`
+          |import x1 from 'b';
+          |export * as x2 from 'b'
+          |export {c,b, a as d } from 'a';
+          |export {c1,b1, a as d1 };
+          |
+          |export default function add(a, b) {
+          |  // adds a and b
+          |  return a + b;
+          |
+          |} /* TODO */ import x3 from "./a"
+          |export function useless(a, b) { a, b }
+          |export class C /*C*/ extends Parent {
+          |  constructor(value) {
+          |    this.value = value;
+          |  }
+          |}
+          |export var v1 = 1
+          |export let v2 = 2, v2_2 = 22
+          |export const v3 = 3
+          |export const { name1, name2: renamed } = someObject
+          |import x0 from "a"
+          |import "style.css";
+          |export/**/const v4 = // v4
+          |
+          |  4
+          |;[].forEach()
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot();
+      },
+      errors: 1,
+    },
   ],
 });
 
