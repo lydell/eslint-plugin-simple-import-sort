@@ -9,7 +9,16 @@ import {
   // Then everything else, alphabetically:
   k,
   L, // Case insensitive.
-  m as anotherName, // Sorted by the original name “m”, not “anotherName”.
-  m as tie, // But do use the \`as\` name in case of a tie.
+  m as anotherName, // Sorted by the “external interface” name “m”, not “anotherName”.
+  m as tie, // But do use the file-local name in case of a tie.
   n,
 } from "./x";
+
+export {
+  k,
+  L, // Case insensitive.
+  anotherName as m, // Sorted by the “external interface” name “m”, not “anotherName”.
+  tie as m, // But do use the file-local name in case of a tie.
+  n,
+};
+export type { A, B, A as C };

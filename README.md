@@ -302,8 +302,8 @@ import {
   // Then everything else, alphabetically:
   k,
   L, // Case insensitive.
-  m as anotherName, // Sorted by the original name “m”, not “anotherName”.
-  m as tie, // But do use the \`as\` name in case of a tie.
+  m as anotherName, // Sorted by the “external interface” name “m”, not “anotherName”.
+  m as tie, // But do use the file-local name in case of a tie.
   n,
 } from "./x";
 ```
@@ -314,12 +314,14 @@ Exported items are sorted even for exports _without_ `from` (even though the who
 export {
   k,
   L, // Case insensitive.
-  m as anotherName, // Sorted by the original name “m”, not “anotherName”.
-  m as tie, // But do use the \`as\` name in case of a tie.
+  anotherName as m, // Sorted by the “external interface” name “m”, not “anotherName”.
+  tie as m, // But do use the file-local name in case of a tie.
   n,
 };
-export type { A, B, C as Aa };
+export type { A, B, A as C };
 ```
+
+At first it might sound counter-intuitive that `a as b` is sorted by `a` for imports, but by `b` for exports. The reason for doing it this way is to pick the most “stable” name. In `import { a as b } from "./some-file.js"`, the `as b` part is there to avoid a name collision in the file without having to change `some-file.js`. In `export { b as a }`, the `b as` part is there to aviod a name collison in the file without having to change the exported interface of the file.
 
 ## Custom grouping
 

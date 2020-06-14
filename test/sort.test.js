@@ -3303,8 +3303,12 @@ const baseTests = (expect) => ({
           |  }
           |}
           |export var v1 = 1
+          |
           |export let v2 = 2, v2_2 = 22
-          |export const v3 = 3
+          |
+          |
+          |  // Three!
+          |export const v3 = 3; /*middle*/ export const v3_2 = 33
           |export const { name1, name2: renamed } = someObject
           |import x0 from "a"
           |import "style.css";
