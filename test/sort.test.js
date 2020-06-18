@@ -3105,7 +3105,106 @@ const baseTests = (expect) => ({
           |export { gql };
       `,
       output: (actual) => {
-        expect(actual).toMatchInlineSnapshot();
+        expect(actual).toMatchInlineSnapshot(`
+          |/* Core */
+          |
+          |/* Supporting */
+          |// Note that importing \`gql\` by itself, then destructuring
+          |// additional properties separately before exporting, is intentional...
+          |import gql from 'graphql-tag';
+          |
+          |export {
+          |  ApolloClient,
+          |  ApolloClientOptions,
+          |  DefaultOptions
+          |} from '../ApolloClient';
+          |
+          |/* Cache */
+          |export * from '../cache';
+          |
+          |export {
+          |  FragmentMatcher as LocalStateFragmentMatcher,
+          |  Resolver,
+          |} from '../core/LocalState';
+          |
+          |export { NetworkStatus } from '../core/networkStatus';
+          |
+          |export {
+          |  ApolloCurrentQueryResult,
+          |  FetchMoreOptions,
+          |  ObservableQuery,
+          |  UpdateQueryOptions,
+          |} from '../core/ObservableQuery';
+          |
+          |export * from '../core/types';
+          |
+          |export {
+          |  ErrorPolicy,
+          |  FetchMoreQueryOptions,
+          |  FetchPolicy,
+          |  MutationOptions,
+          |  MutationUpdaterFn,
+          |  QueryBaseOptions,
+          |  QueryOptions,
+          |  SubscribeToMoreOptions,
+          |  SubscriptionOptions,
+          |  WatchQueryFetchPolicy,
+          |  WatchQueryOptions,
+          |} from '../core/watchQueryOptions';
+          |
+          |export { ApolloError,isApolloError } from '../errors/ApolloError';
+          |export { ApolloLink } from '../link/core/ApolloLink';
+          |export { concat } from '../link/core/concat';
+          |
+          |/* Link */
+          |export { empty } from '../link/core/empty';
+          |
+          |export { execute } from '../link/core/execute';
+          |export { from } from '../link/core/from';
+          |export { split } from '../link/core/split';
+          |export * from '../link/core/types';
+          |export { checkFetcher } from '../link/http/checkFetcher';
+          |export { createHttpLink } from '../link/http/createHttpLink';
+          |export { createSignalIfSupported } from '../link/http/createSignalIfSupported';
+          |export { HttpLink } from '../link/http/HttpLink';
+          |
+          |export {
+          |  parseAndCheckHttpResponse,
+          |  ServerParseError
+          |} from '../link/http/parseAndCheckHttpResponse';
+          |
+          |export {
+          |  fallbackHttpConfig,
+          |  HttpOptions,
+          |  selectHttpOptionsAndBody,
+          |  UriFunction
+          |} from '../link/http/selectHttpOptionsAndBody';
+          |
+          |export { selectURI } from '../link/http/selectURI';
+          |
+          |export {
+          |  ClientParseError,
+          |  serializeFetchParameter} from '../link/http/serializeFetchParameter';
+          |
+          |export { fromError } from '../link/utils/fromError';
+          |export { fromPromise } from '../link/utils/fromPromise';
+          |export { ServerError, throwServerError } from '../link/utils/throwServerError';
+          |export { toPromise } from '../link/utils/toPromise';
+          |
+          |export {
+          |  Observable,
+          |  ObservableSubscription,
+          |  Observer} from '../utilities/observables/Observable';
+          |
+          |export const {
+          |  resetCaches,
+          |  disableFragmentWarnings,
+          |  enableExperimentalFragmentVariables,
+          |  disableExperimentalFragmentVariables
+          |} = gql;
+          |
+          |export { gql };
+        `);
       },
       errors: 1,
     },

@@ -411,7 +411,8 @@ function printWithSortedSpecifiers(importOrExportNode, sourceCode) {
   );
 
   // Exclude "ImportDefaultSpecifier" – the "def" in `import def, {a, b}`.
-  const specifiers = importOrExportNode.specifiers.filter(
+  // `export * from "a"` does not have `.specifiers`.
+  const specifiers = (importOrExportNode.specifiers || []).filter(
     (node) => isImportSpecifier(node) || isExportSpecifier(node)
   );
 
