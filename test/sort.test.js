@@ -424,7 +424,7 @@ const baseTests = (expect) => ({
       code: `export { e, b, a as c } from "specifiers"`,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
-          `export { a as c,b, e } from "specifiers"`
+          `export { b, a as c,e } from "specifiers"`
         );
       },
       errors: 1,
@@ -464,7 +464,7 @@ const baseTests = (expect) => ({
       code: `export { e, b, a as c, } from "specifiers-trailing-comma"`,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
-          `export { a as c,b, e,  } from "specifiers-trailing-comma"`
+          `export { b, a as c,e,  } from "specifiers-trailing-comma"`
         );
       },
       errors: 1,
@@ -493,7 +493,7 @@ const baseTests = (expect) => ({
       code: `export { a as c, a as b2, b, a } from "specifiers-renames"`,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
-          `export { a,a as b2, a as c, b } from "specifiers-renames"`
+          `export { a,b, a as b2, a as c } from "specifiers-renames"`
         );
       },
       errors: 1,
@@ -604,12 +604,12 @@ const baseTests = (expect) => ({
           |  Bb,
           |  bB,
           |  bb,
+          |  x as C,
+          |  x as d,
           |  img1,
           |  img2,
           |  img10,
           |  img10_black,
-          |  x as C,
-          |  x as d,
           |} from "specifiers-human-sort"
         `);
       },
@@ -703,7 +703,7 @@ const baseTests = (expect) => ({
       code: `export {e,b,a as c} from "specifiers-no-spaces"`,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
-          `export {a as c,b,e} from "specifiers-no-spaces"`
+          `export {b,a as c,e} from "specifiers-no-spaces"`
         );
       },
       errors: 1,
@@ -1288,16 +1288,7 @@ const baseTests = (expect) => ({
       code: `/*1*//*2*/export/*3*//*4*/{/*{*/e/*e1*/,/*e2*//*e3*/b/*b1*/,/*b2*/a/*a1*/as/*a2*/c/*a3*/,/*a4*/}/*5*/from/*6*/"specifiers-lots-of-comments"/*7*//*8*/`,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
-          `/*1*//*2*/export/*3*//*4*/{/*{*/a/*a1*/as/*a2*/c/*a3*/,/*a4*/b/*b1*/,/*b2*/e/*e1*/,/*e2*//*e3*/}/*5*/from/*6*/"specifiers-lots-of-comments"/*7*//*8*/`
-        );
-      },
-      errors: 1,
-    },
-    {
-      code: `/*1*//*2*/export/*3*//*4*/{/*{*/e/*e1*/,/*e2*//*e3*/b/*b1*/,/*b2*/a/*a1*/as/*a2*/c/*a3*/,/*a4*/}/*5*//*6*//*7*//*8*/`,
-      output: (actual) => {
-        expect(actual).toMatchInlineSnapshot(
-          `/*1*//*2*/export/*3*//*4*/{/*{*/a/*a1*/as/*a2*/c/*a3*/,/*a4*/b/*b1*/,/*b2*/e/*e1*/,/*e2*//*e3*/}/*5*//*6*//*7*//*8*/`
+          `/*1*//*2*/export/*3*//*4*/{/*{*/b/*b1*/,/*b2*/a/*a1*/as/*a2*/c/*a3*/,/*a4*/e/*e1*/,/*e2*//*e3*/}/*5*/from/*6*/"specifiers-lots-of-comments"/*7*//*8*/`
         );
       },
       errors: 1,
@@ -1364,11 +1355,10 @@ const baseTests = (expect) => ({
           |export { // start
           |/* a1
           |  */ a, 
+          |  /* c1 */ c /* c2 */, // c3
           |  // b1
           |  b as /* b2 */ renamed
-          |  , /* b3 */ 
-          |  /* c1 */ c /* c2 */// c3
-          |/* not-a
+          |  /* b3 */ /* not-a
           |  */ // comment at end
           |} from "specifiers-lots-of-comments-multiline";
           |export {
@@ -1396,6 +1386,7 @@ const baseTests = (expect) => ({
           |  d, /* d */ /* not-d
           |  */ // comment at end after trailing comma
           |};
+          |var c, b, a, e, d;
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
@@ -1414,6 +1405,7 @@ const baseTests = (expect) => ({
           |/* not-d
           |  */ // comment at end after trailing comma
           |};
+          |var c, b, a, e, d;
         `);
       },
       errors: 1,
@@ -2523,6 +2515,12 @@ const baseTests = (expect) => ({
           |/* default */
           |// default
           | {
+          |  /* b
+          |   */
+          |  b // b
+          |  ,
+          |  // c
+          |  c /*c*/,
           |  // a1
           |  // a2
           |  a
@@ -2532,12 +2530,6 @@ const baseTests = (expect) => ({
           |  d
           |  // a5
           |  , // a6
-          |  /* b
-          |   */
-          |  b // b
-          |  ,
-          |  // c
-          |  c /*c*/,
           |  // last
           |}
           |// from1
@@ -2815,10 +2807,10 @@ const baseTests = (expect) => ({
           |export {b} from "b";    
           |export {c} from "c";  /* comment */  
           |export {d} from "d";  
-          |
-          |export {e}; 
           |/* multiline
           |comment 2 */ export {f} from "f";
+          |
+          |export {e}; 
           |var e
         `);
       },
@@ -3577,7 +3569,6 @@ const flowTests = {
     // https://github.com/graphql/graphql-js/blob/f7061fdcf461a2e4b3c78077afaebefc2226c8e3/src/utilities/index.js#L1-L115
     {
       code: input`
-          |import { forEach, isCollection } from 'iterall';
           |// @flow strict
           |
           |// Produce the GraphQL query recommended for a full schema introspection.
@@ -3695,7 +3686,101 @@ const flowTests = {
           |export { findDeprecatedUsages } from './findDeprecatedUsages';
       `,
       output: (actual) => {
-        expect(actual).toMatchInlineSnapshot();
+        expect(actual).toMatchInlineSnapshot(`
+          |// @flow strict
+          |
+          |// Produce the GraphQL query recommended for a full schema introspection.
+          |// Accepts optional IntrospectionOptions.
+          |// Asserts that a string is a valid GraphQL name
+          |export { assertValidName, isValidNameError } from './assertValidName';
+          |// Create a GraphQL language AST from a JavaScript value.
+          |export { astFromValue } from './astFromValue';
+          |export type { BuildSchemaOptions } from './buildASTSchema';
+          |// Build a GraphQLSchema from GraphQL Schema language.
+          |export { buildASTSchema, buildSchema } from './buildASTSchema';
+          |// Build a GraphQLSchema from an introspection result.
+          |export { buildClientSchema } from './buildClientSchema';
+          |// Coerces a JavaScript value to a GraphQL type, or produces errors.
+          |export { coerceInputValue } from './coerceInputValue';
+          |// Concatenates multiple AST together.
+          |export { concatAST } from './concatAST';
+          |// Extends an existing GraphQLSchema from a parsed GraphQL Schema language AST.
+          |export {
+          |  extendSchema,
+          |  // @deprecated: Get the description from a schema AST node and supports legacy
+          |  // syntax for specifying descriptions - will be removed in v16.
+          |  getDescription,
+          |} from './extendSchema';
+          |export type { BreakingChange, DangerousChange } from './findBreakingChanges';
+          |// Compares two GraphQLSchemas and detects breaking changes.
+          |export {
+          |  BreakingChangeType,
+          |  DangerousChangeType,
+          |  findBreakingChanges,
+          |  findDangerousChanges,
+          |} from './findBreakingChanges';
+          |// Report all deprecated usage within a GraphQL document.
+          |export { findDeprecatedUsages } from './findDeprecatedUsages';
+          |export type {
+          |  IntrospectionDirective,
+          |  IntrospectionEnumType,
+          |  IntrospectionEnumValue,
+          |  IntrospectionField,
+          |  IntrospectionInputObjectType,
+          |  IntrospectionInputType,
+          |  IntrospectionInputTypeRef,
+          |  IntrospectionInputValue,
+          |  IntrospectionInterfaceType,
+          |  IntrospectionListTypeRef,
+          |  IntrospectionNamedTypeRef,
+          |  IntrospectionNonNullTypeRef,
+          |  IntrospectionObjectType,
+          |  IntrospectionOptions,
+          |  IntrospectionOutputType,
+          |  IntrospectionOutputTypeRef,
+          |  IntrospectionQuery,
+          |  IntrospectionScalarType,
+          |  IntrospectionSchema,
+          |  IntrospectionType,
+          |  IntrospectionTypeRef,
+          |  IntrospectionUnionType,
+          |} from './getIntrospectionQuery';
+          |export { getIntrospectionQuery } from './getIntrospectionQuery';
+          |// Gets the target Operation from a Document.
+          |export { getOperationAST } from './getOperationAST';
+          |// Gets the Type for the target Operation AST.
+          |export { getOperationRootType } from './getOperationRootType';
+          |// Convert a GraphQLSchema to an IntrospectionQuery.
+          |export { introspectionFromSchema } from './introspectionFromSchema';
+          |// Sort a GraphQLSchema.
+          |export { lexicographicSortSchema } from './lexicographicSortSchema';
+          |// Print a GraphQLSchema to GraphQL Schema language.
+          |export {
+          |  printIntrospectionSchema,
+          |  printSchema,
+          |  printType,
+          |} from './printSchema';
+          |// Separates an AST into an AST per Operation.
+          |export { separateOperations } from './separateOperations';
+          |// Strips characters that are not significant to the validity or execution
+          |// of a GraphQL document.
+          |export { stripIgnoredCharacters } from './stripIgnoredCharacters';
+          |// Comparators for types
+          |export {
+          |  doTypesOverlap,
+          |  isEqualType,
+          |  isTypeSubTypeOf,
+          |} from './typeComparators';
+          |// Create a GraphQLType from a GraphQL language AST.
+          |export { typeFromAST } from './typeFromAST';
+          |// A helper to use within recursive-descent visitors which need to be aware of
+          |// the GraphQL type system.
+          |export { TypeInfo, visitWithTypeInfo } from './TypeInfo';
+          |// Create a JavaScript value from a GraphQL language AST with a type.
+          |export { valueFromAST } from './valueFromAST';
+          |// Create a JavaScript value from a GraphQL language AST without a type.
+          |export { valueFromASTUntyped } from './valueFromASTUntyped';
+        `);
       },
       errors: 1,
     },
@@ -3834,7 +3919,38 @@ const typescriptTests = {
           |}
       `,
       output: (actual) => {
-        expect(actual).toMatchInlineSnapshot();
+        expect(actual).toMatchInlineSnapshot(`
+          |import { equal } from "@wry/equality";
+          |import { DocumentNode, GraphQLError } from 'graphql';
+          |import React from "react";
+          |
+          |import { ApolloCache } from '../cache/core/cache';
+          |import { Cache } from '../cache/core/types/Cache';
+          |import { ApolloError } from '../errors/ApolloError';
+          |import { FetchResult } from '../link/core/types';
+          |import { isNonEmptyArray } from '../utilities/common/arrays';
+          |import { graphQLResultHasError } from '../utilities/common/errorHandling';
+          |import { ObservableSubscription } from '../utilities/observables/Observable';
+          |import {
+          |  isNetworkRequestInFlight,
+          |  NetworkStatus,
+          |} from './networkStatus';
+          |import { ObservableQuery } from './ObservableQuery';
+          |import { QueryListener } from './types';
+          |import { WatchQueryOptions } from './watchQueryOptions';
+          |
+          |export type QueryStoreValue = Pick<QueryInfo,
+          |  | "variables"
+          |  | "networkStatus"
+          |  | "networkError"
+          |  | "graphQLErrors"
+          |  >;
+          |// A QueryInfo object represents a single query managed by the
+          |// QueryManager, which tracks all QueryInfo objects by queryId in its...
+          |export class QueryInfo {
+          |  listeners = new Set<QueryListener>();
+          |}
+        `);
       },
       errors: 1,
     },
