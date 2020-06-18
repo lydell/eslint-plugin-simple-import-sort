@@ -488,7 +488,7 @@ import {/* comment at start */ f, /* f */g/* g */ } from "wherever3";
 
 If you wonder what’s up with the strange whitespace – see [“The sorting autofix causes some odd whitespace!”][odd-whitespace]
 
-Speaking of whitespace – what about blank lines? Just like comments, it’s difficult to know where blank lines should go after sorting. This plugin went with a simple approach – all blank lines in chunks of imports/exports are removed, except in `/**/` comments and the blank lines added between the groups mentioned in [Sort order].
+Speaking of whitespace – what about blank lines? Just like comments, it’s difficult to know where blank lines should go after sorting. This plugin went with a simple approach – all blank lines in chunks of imports are removed, except in `/**/` comments and the blank lines added between the groups mentioned in [Sort order]. For exports, blank lines are handled similarly, with a two added rules. First, exports without `from` _always_ have a blank line betwwen them. Exports _with_ `from` are surrounded by blank lines if they are multline. (Comments belonging to the export can cause the export to be considered multiline.)
 
 (Since blank lines are removed, you might get slight incompatibilities with the [lines-around-comment] and [padding-line-between-statements] rules – I don’t use those myself, but I think there should be workarounds.)
 

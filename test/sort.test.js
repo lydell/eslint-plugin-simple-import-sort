@@ -332,8 +332,10 @@ const baseTests = (expect) => ({
           |export {x3} from "c"
           |export {x4} from "d" ; 
           |export {x5} from "e"
+          |
           |export {x6} from "f"
           |;
+          |
           |export {x7} from "g";[].forEach()
         `);
       },
@@ -404,6 +406,7 @@ const baseTests = (expect) => ({
         expect(actual).toMatchInlineSnapshot(`
           |export {x1} from "a"
           |;
+          |
           |export {x2} from "b"
         `);
       },
@@ -1361,6 +1364,7 @@ const baseTests = (expect) => ({
           |  /* b3 */ /* not-a
           |  */ // comment at end
           |} from "specifiers-lots-of-comments-multiline";
+          |
           |export {
           |  d, /* d */   e,
           |/* not-d
@@ -1391,18 +1395,18 @@ const baseTests = (expect) => ({
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |export { // start
-          |/* a1
-          |  */ a, 
+          |  /* c1 */ c /* c2 */, // c3
           |  // b1
+          |
           |  b as /* b2 */ renamed
-          |  , /* b3 */ 
-          |  /* c1 */ c /* c2 */// c3
-          |/* not-a
+          |  , /* b3 */ /* a1
+          |  */ a /* not-a
           |  */ // comment at end
           |};
+          |
           |export {
-          |  d, /* d */   e,
-          |/* not-d
+          |  e,
+          |  d, /* d */ /* not-d
           |  */ // comment at end after trailing comma
           |};
           |var c, b, a, e, d;
@@ -2067,10 +2071,12 @@ const baseTests = (expect) => ({
           |/* also
           |before */ export {a} from "a" /*a*/ 
           |/* b */ export {b} from "b" // b
+          |
           |/* before
           |  c0 */ // before c1
           |  /* c0
           |*/ /*c1*/ /*c2*/export {c} from 'c' ; /*c3*/ 
+          |
           |// above d
           |  export {d} /*d1*/ from   "d" ; /* d2 */ /*
           |   x1 */ /* x2 */
@@ -2295,9 +2301,11 @@ const baseTests = (expect) => ({
         expect(actual).toMatchInlineSnapshot(`
           |// a
           |export {a} from "a"
+          |
           |// b1
           |// b2
           |export {b} from "b"
+          |
           |export {c} from "c"
         `);
       },
@@ -2346,9 +2354,11 @@ const baseTests = (expect) => ({
         expect(actual).toMatchInlineSnapshot(`
           |// a<CR>
           |export {a} from "a"<CR>
+          |<CR>
           |// b1<CR>
           |// b2<CR>
           |export {b} from "b"<CR>
+          |<CR>
           |export {c} from "c"<CR>
           |after();<CR>
         `);
@@ -2680,14 +2690,18 @@ const baseTests = (expect) => ({
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |  /* a */ export {a} from "a"; 
+          |
           |  // b
           |  export {
           |    b2,
           |b3,
           |    b4  } from "b";
+          |
           |export {c} from "c"
+          |
           |    // d
           |    export {d} from "d"
+          |
           |  export {e} from "e"
         `);
       },
@@ -2747,14 +2761,18 @@ const baseTests = (expect) => ({
         expect(actual).toMatchInlineSnapshot(`
           |      <CR>
           |  /* a */ export {a} from "a"; <CR>
+          |<CR>
           |  // b<CR>
           |  export {<CR>
           |    b2,<CR>
           |b3,<CR>
           |    b4  } from "b";<CR>
+          |<CR>
           |export {c} from "c"<CR>
+          |<CR>
           |    // d<CR>
           |    export {d} from "d"<CR>
+          |<CR>
           |  export {e} from "e"<CR>
           |
         `);
@@ -2804,9 +2822,11 @@ const baseTests = (expect) => ({
           |/* multiline
           |comment */  
           |export {a} from "a"    
+          |
           |export {b} from "b";    
           |export {c} from "c";  /* comment */  
           |export {d} from "d";  
+          |
           |/* multiline
           |comment 2 */ export {f} from "f";
           |
@@ -2995,7 +3015,6 @@ const baseTests = (expect) => ({
     // https://github.com/apollographql/apollo-client/blob/39942881567ff9825a0f17bbf114ec441590f8bb/src/core/index.ts#L1-L98
     {
       code: input`
-          |export {
           |/* Core */
           |
           |export {
@@ -3693,17 +3712,24 @@ const flowTests = {
           |// Accepts optional IntrospectionOptions.
           |// Asserts that a string is a valid GraphQL name
           |export { assertValidName, isValidNameError } from './assertValidName';
+          |
           |// Create a GraphQL language AST from a JavaScript value.
           |export { astFromValue } from './astFromValue';
+          |
           |export type { BuildSchemaOptions } from './buildASTSchema';
+          |
           |// Build a GraphQLSchema from GraphQL Schema language.
           |export { buildASTSchema, buildSchema } from './buildASTSchema';
+          |
           |// Build a GraphQLSchema from an introspection result.
           |export { buildClientSchema } from './buildClientSchema';
+          |
           |// Coerces a JavaScript value to a GraphQL type, or produces errors.
           |export { coerceInputValue } from './coerceInputValue';
+          |
           |// Concatenates multiple AST together.
           |export { concatAST } from './concatAST';
+          |
           |// Extends an existing GraphQLSchema from a parsed GraphQL Schema language AST.
           |export {
           |  extendSchema,
@@ -3711,7 +3737,9 @@ const flowTests = {
           |  // syntax for specifying descriptions - will be removed in v16.
           |  getDescription,
           |} from './extendSchema';
+          |
           |export type { BreakingChange, DangerousChange } from './findBreakingChanges';
+          |
           |// Compares two GraphQLSchemas and detects breaking changes.
           |export {
           |  BreakingChangeType,
@@ -3719,8 +3747,10 @@ const flowTests = {
           |  findBreakingChanges,
           |  findDangerousChanges,
           |} from './findBreakingChanges';
+          |
           |// Report all deprecated usage within a GraphQL document.
           |export { findDeprecatedUsages } from './findDeprecatedUsages';
+          |
           |export type {
           |  IntrospectionDirective,
           |  IntrospectionEnumType,
@@ -3745,39 +3775,52 @@ const flowTests = {
           |  IntrospectionTypeRef,
           |  IntrospectionUnionType,
           |} from './getIntrospectionQuery';
+          |
           |export { getIntrospectionQuery } from './getIntrospectionQuery';
+          |
           |// Gets the target Operation from a Document.
           |export { getOperationAST } from './getOperationAST';
+          |
           |// Gets the Type for the target Operation AST.
           |export { getOperationRootType } from './getOperationRootType';
+          |
           |// Convert a GraphQLSchema to an IntrospectionQuery.
           |export { introspectionFromSchema } from './introspectionFromSchema';
+          |
           |// Sort a GraphQLSchema.
           |export { lexicographicSortSchema } from './lexicographicSortSchema';
+          |
           |// Print a GraphQLSchema to GraphQL Schema language.
           |export {
           |  printIntrospectionSchema,
           |  printSchema,
           |  printType,
           |} from './printSchema';
+          |
           |// Separates an AST into an AST per Operation.
           |export { separateOperations } from './separateOperations';
+          |
           |// Strips characters that are not significant to the validity or execution
           |// of a GraphQL document.
           |export { stripIgnoredCharacters } from './stripIgnoredCharacters';
+          |
           |// Comparators for types
           |export {
           |  doTypesOverlap,
           |  isEqualType,
           |  isTypeSubTypeOf,
           |} from './typeComparators';
+          |
           |// Create a GraphQLType from a GraphQL language AST.
           |export { typeFromAST } from './typeFromAST';
+          |
           |// A helper to use within recursive-descent visitors which need to be aware of
           |// the GraphQL type system.
           |export { TypeInfo, visitWithTypeInfo } from './TypeInfo';
+          |
           |// Create a JavaScript value from a GraphQL language AST with a type.
           |export { valueFromAST } from './valueFromAST';
+          |
           |// Create a JavaScript value from a GraphQL language AST without a type.
           |export { valueFromASTUntyped } from './valueFromASTUntyped';
         `);
@@ -3945,6 +3988,7 @@ const typescriptTests = {
           |  | "networkError"
           |  | "graphQLErrors"
           |  >;
+          |
           |// A QueryInfo object represents a single query managed by the
           |// QueryManager, which tracks all QueryInfo objects by queryId in its...
           |export class QueryInfo {

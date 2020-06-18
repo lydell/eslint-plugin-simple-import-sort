@@ -132,9 +132,12 @@ function printSortedImportsThenExports(
   const newline = guessNewline(sourceCode);
 
   const all = [
-    printSortedImportsOrExports(imports, sourceCode, outerGroups),
-    printSortedImportsOrExports(reExports, sourceCode, outerGroups),
-    [[otherExports], otherExports.map((item) => item.code).join(newline)],
+    printSortedImportsOrExports(true, imports, sourceCode, outerGroups),
+    printSortedImportsOrExports(false, reExports, sourceCode, outerGroups),
+    [
+      [otherExports],
+      otherExports.map((item) => item.code).join(newline + newline),
+    ],
   ];
 
   // Edge case: If the last import/export (after sorting) ends with a line
@@ -172,6 +175,7 @@ function printSortedImportsThenExports(
 }
 
 function printSortedImportsOrExports(
+  areImports,
   importOrExportItems,
   sourceCode,
   outerGroups
@@ -215,7 +219,31 @@ function printSortedImportsOrExports(
   const sorted = sortedItems
     .map((groups) =>
       groups
-        .map((groupItems) => groupItems.map((item) => item.code).join(newline))
+        .map((groupItems) =>
+          areImports
+            ? groupItems.map((item) => item.code).join(newline)
+            : // If an export is multiline (comments also count), surround it with
+              // blank lines.
+              groupItems
+                .map((item, index) => {
+                  const previous =
+                    index === 0 ? undefined : groupItems[index - 1];
+                  const before =
+                    previous != null &&
+                    !hasNewline(previous.code) &&
+                    hasNewline(item.code)
+                      ? newline
+                      : "";
+                  const after =
+                    index === groupItems.length - 1
+                      ? ""
+                      : hasNewline(item.code)
+                      ? newline + newline
+                      : newline;
+                  return before + item.code + after;
+                })
+                .join("")
+        )
         .join(newline)
     )
     .join(newline + newline);
