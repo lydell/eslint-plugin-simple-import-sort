@@ -96,7 +96,7 @@ const baseTests = (expect) => ({
     `export const three = 3;`,
     `export function f() {}`,
     `export class C {}`,
-    `export { a, b as c };`,
+    `export { a, b as c }; var a, b;`,
     `export default whatever;`,
 
     // Side-effect only imports are kept in the original order.
@@ -430,9 +430,11 @@ const baseTests = (expect) => ({
       errors: 1,
     },
     {
-      code: `export { e, b, a as c }`,
+      code: `export { e, b, a as c }; var e, b, a;`,
       output: (actual) => {
-        expect(actual).toMatchInlineSnapshot(`export { a as c,b, e }`);
+        expect(actual).toMatchInlineSnapshot(
+          `export { a as c,b, e }; var e, v, a;`
+        );
       },
       errors: 1,
     },
@@ -468,9 +470,11 @@ const baseTests = (expect) => ({
       errors: 1,
     },
     {
-      code: `export { e, b, a as c, }`,
+      code: `export { e, b, a as c, }; var e, b, a;`,
       output: (actual) => {
-        expect(actual).toMatchInlineSnapshot(`export { a as c,b, e,  }`);
+        expect(actual).toMatchInlineSnapshot(
+          `export { a as c,b, e,  }; var e, b, a;`
+        );
       },
       errors: 1,
     },
@@ -495,9 +499,11 @@ const baseTests = (expect) => ({
       errors: 1,
     },
     {
-      code: `export { a as c, a as b2, b, a }`,
+      code: `export { a as c, a as b2, b, a }; var a, b;`,
       output: (actual) => {
-        expect(actual).toMatchInlineSnapshot(`export { a,a as b2, a as c, b }`);
+        expect(actual).toMatchInlineSnapshot(
+          `export { a,a as b2, a as c, b }; var a, b;`
+        );
       },
       errors: 1,
     },
@@ -682,15 +688,6 @@ const baseTests = (expect) => ({
       },
       errors: 1,
     },
-    {
-      code: `export { aaNotKeyword, zzNotKeyword, abstract, as, asserts, any, async, /*await,*/ boolean, constructor, declare, get, infer, is, keyof, module, namespace, never, readonly, require, number, object, set, string, symbol, type, undefined, unique, unknown, from, global, bigint, of };`,
-      output: (actual) => {
-        expect(actual).toMatchInlineSnapshot(
-          `export { aaNotKeyword, abstract, any, as, asserts, async, /*await,*/ bigint, boolean, constructor, declare, from, get, global, infer, is, keyof, module, namespace, never, number, object, of,readonly, require, set, string, symbol, type, undefined, unique, unknown, zzNotKeyword };`
-        );
-      },
-      errors: 1,
-    },
 
     // No spaces in specifiers.
     {
@@ -712,9 +709,11 @@ const baseTests = (expect) => ({
       errors: 1,
     },
     {
-      code: `export {e,b,a as c}`,
+      code: `export {e,b,a as c}; var e, b, a;`,
       output: (actual) => {
-        expect(actual).toMatchInlineSnapshot(`export {a as c,b,e}`);
+        expect(actual).toMatchInlineSnapshot(
+          `export {a as c,b,e}; var e, b, a;`
+        );
       },
       errors: 1,
     },
@@ -739,9 +738,9 @@ const baseTests = (expect) => ({
       errors: 1,
     },
     {
-      code: `export { b,a}`,
+      code: `export { b,a}; var b, a;`,
       output: (actual) => {
-        expect(actual).toMatchInlineSnapshot(`export { a,b}`);
+        expect(actual).toMatchInlineSnapshot(`export { a,b}; var b, a;`);
       },
       errors: 1,
     },
@@ -766,9 +765,9 @@ const baseTests = (expect) => ({
       errors: 1,
     },
     {
-      code: `export {b,a }`,
+      code: `export {b,a }; var b, a;`,
       output: (actual) => {
-        expect(actual).toMatchInlineSnapshot(`export {a,b }`);
+        expect(actual).toMatchInlineSnapshot(`export {a,b }; var b, a;`);
       },
       errors: 1,
     },
@@ -793,9 +792,9 @@ const baseTests = (expect) => ({
       errors: 1,
     },
     {
-      code: `export {b,a, }`,
+      code: `export {b,a, }; var b, a;`,
       output: (actual) => {
-        expect(actual).toMatchInlineSnapshot(`export {a,b, }`);
+        expect(actual).toMatchInlineSnapshot(`export {a,b, }; var b, a;`);
       },
       errors: 1,
     },
@@ -959,9 +958,11 @@ const baseTests = (expect) => ({
       errors: 1,
     },
     {
-      code: `export { b /* b */, a }`,
+      code: `export { b /* b */, a }; var b, a;`,
       output: (actual) => {
-        expect(actual).toMatchInlineSnapshot(`export { a,b /* b */ }`);
+        expect(actual).toMatchInlineSnapshot(
+          `export { a,b /* b */ }; var b, a;`
+        );
       },
       errors: 1,
     },
@@ -1808,6 +1809,7 @@ const baseTests = (expect) => ({
           |*/
           |
           |require("c"); import x7 from "b"; import x8 from "a"; export {x9}; require("c")
+          |var x8
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
@@ -1836,6 +1838,7 @@ const baseTests = (expect) => ({
           |require("c"); import x8 from "a"; 
           |import x7 from "b";
           |export {x8}; require("c")
+          |var x8
         `);
       },
       errors: 4,
@@ -2063,6 +2066,7 @@ const baseTests = (expect) => ({
           |  /* c0
           |*/ /*c1*/ /*c2*/export {c} from 'c' ; /*c3*/ export {a} from "a" /*a*/ /*
           |   x1 */ /* x2 */
+          |var d
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
@@ -2078,6 +2082,7 @@ const baseTests = (expect) => ({
           |// above d
           |  export {d} /*d1*/ from   "d" ; /* d2 */ /*
           |   x1 */ /* x2 */
+          |var d
         `);
       },
       errors: 1,
@@ -2800,6 +2805,7 @@ const baseTests = (expect) => ({
           |export {a} from "a"    
           |export {e}; /* multiline
           |comment 2 */ export {f} from "f";
+          |var e
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
@@ -2813,6 +2819,7 @@ const baseTests = (expect) => ({
           |export {e}; 
           |/* multiline
           |comment 2 */ export {f} from "f";
+          |var e
         `);
       },
       errors: 1,
@@ -3316,6 +3323,7 @@ const baseTests = (expect) => ({
           |
           |  4
           |;[].forEach()
+          |var c1, b1, a;
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot();
@@ -3334,7 +3342,7 @@ const flowTests = {
     `import type {} from "a"`,
     `import type {    } from "a"`,
     `export type T = string;`,
-    `export type { T, U as V };`,
+    `export type { T, U as V }; type T = 1; type U = 1;`,
 
     // typeof
     `import typeof a from "a"`,
@@ -3702,7 +3710,7 @@ const typescriptTests = {
     `import type {} from "a"`,
     `import type {    } from "a"`,
     `export type T = string;`,
-    `export type { T, U as V };`,
+    `export type { T, U as V }; type T = 1; type U = 1;`,
 
     // Sorted alphabetically.
     input`

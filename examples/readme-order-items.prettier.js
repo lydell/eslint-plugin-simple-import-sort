@@ -22,3 +22,7 @@ export {
   n,
 };
 export type { A, B, A as C };
+
+var k, L, anotherName, tie, n;
+type A = 1;
+type B = 1;

@@ -50,3 +50,7 @@ export type T = string;
 export { a, b as c };
 export type { T, U as V };
 export default whatever;
+
+var a, b;
+type T = 1;
+type U = 1;
