@@ -51,7 +51,11 @@ module.exports = {
     );
     return {
       Program: (node) => {
-        for (const chunk of extractChunks(node)) {
+        const chunks = [
+          ...extractChunks(node, isImport),
+          ...extractChunks(isExportFrom),
+        ];
+        for (const chunk of chunks) {
           maybeReportChunkSorting(chunk, context, outerGroups);
         }
       },
@@ -67,12 +71,12 @@ module.exports = {
 // A “chunk” is a sequence of import OR export-from statements with only
 // comments and whitespace between. Exports interrupt a chunk of imports and
 // vice versa.
-function extractChunks(programNode) {
+function extractChunks(programNode, isPartOfChunk) {
   const chunks = [];
   let chunk = [];
 
   for (const item of programNode.body) {
-    if (isImport(item) || isExportFrom(item)) {
+    if (isPartOfChunk(item)) {
       chunk.push(item);
     } else if (chunk.length > 0) {
       chunks.push(chunk);
