@@ -60,7 +60,7 @@ module.exports = {
         }
       },
       ExportNamedDeclaration: (node) => {
-        if (node.source == null) {
+        if (node.source == null && node.declaration == null) {
           maybeReportExportSpecifierSorting(node, context);
         }
       },
