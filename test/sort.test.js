@@ -3016,30 +3016,48 @@ const baseTests = (expect) => ({
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
-          |export {
-          |  batchedUpdates as unstable_batchedUpdates,
+          |var
+          |  createPortal,
+          |  batchedUpdates,
+          |  flushSync,
+          |  Internals,
+          |  ReactVersion,
+          |  findDOMNode,
+          |  hydrate,
+          |  render,
+          |  unmountComponentAtNode,
+          |  createRoot,
           |  createBlockingRoot,
-          |  // enableCreateEventHandleAPI
-          |  createEventHandle as unstable_createEventHandle,
+          |  flushControlled,
+          |  scheduleHydration,
+          |  renderSubtreeIntoContainer,
+          |  unstable_createPortal,
+          |  createEventHandle
+          |;
+          |export {
+          |  Internals as __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED,
+          |  createBlockingRoot,
           |  createPortal,
           |  // exposeConcurrentModeAPIs
           |  createRoot,
           |  // Disabled behind disableLegacyReactDOMAPIs
           |  findDOMNode,
-          |  flushControlled as unstable_flushControlled,
           |  flushSync,
           |  hydrate,
-          |  Internals as __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED,
-          |  ReactVersion as version,
           |  render,
+          |  unmountComponentAtNode,
+          |  batchedUpdates as unstable_batchedUpdates,
+          |  // enableCreateEventHandleAPI
+          |  createEventHandle as unstable_createEventHandle,
+          |  // Disabled behind disableUnstableCreatePortal
+          |  // Temporary alias since we already shipped React 16 RC with it.
+          |  // TODO: remove in React 18.
+          |  unstable_createPortal,
+          |  flushControlled as unstable_flushControlled,
           |  // Disabled behind disableUnstableRenderSubtreeIntoContainer
           |  renderSubtreeIntoContainer as unstable_renderSubtreeIntoContainer,
           |  scheduleHydration as unstable_scheduleHydration,
-          |  unmountComponentAtNode,
-          |  // Disabled behind disableUnstableCreatePortal
-          |  // Temporary alias since we already shipped React 16 RC with it.
-          |  // TODO: remove in React 17.
-          |  unstable_createPortal,
+          |  ReactVersion as version,
           |};
         `);
       },
