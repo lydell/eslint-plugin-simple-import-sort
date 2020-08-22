@@ -40,9 +40,8 @@ module.exports = {
         "https://github.com/lydell/eslint-plugin-simple-import-sort#sort-order",
     },
     messages: {
-      imports: "Run autofix to sort these imports!",
-      exports: "Run autofix to sort these exports!",
-      both: "Run autofix to sort these imports and exports!",
+      imports: "Run autofix to organize these imports!",
+      exports: "Run autofix to organize these exports!",
     },
   },
   create: (context) => {
@@ -52,55 +51,54 @@ module.exports = {
     );
     return {
       Program: (node) => {
-        for (const importsAndExports of extractChunks(node)) {
-          maybeReportSorting(importsAndExports, context, outerGroups);
+        for (const chunk of extractChunks(node)) {
+          maybeReportChunkSorting(chunk, context, outerGroups);
+        }
+      },
+      ExportNamedDeclaration: (node) => {
+        if (node.source == null) {
+          maybeReportExportSpecifierSorting(node, context);
         }
       },
     };
   },
 };
 
-// A “chunk” is a sequence of import and/or export statements with only comments
-// and whitespace between.
+// A “chunk” is a sequence of import OR export-from statements with only
+// comments and whitespace between. Exports interrupt a chunk of imports and
+// vice versa.
 function extractChunks(programNode) {
   const chunks = [];
-  let importsAndExports = [];
+  let chunk = [];
 
   for (const item of programNode.body) {
-    if (isImport(item) || isExport(item)) {
-      importsAndExports.push(item);
-    } else if (importsAndExports.length > 0) {
-      chunks.push(importsAndExports);
-      importsAndExports = [];
+    if (isImport(item) || isExportFrom(item)) {
+      chunk.push(item);
+    } else if (chunk.length > 0) {
+      chunks.push(chunk);
+      chunk = [];
     }
   }
 
-  if (importsAndExports.length > 0) {
-    chunks.push(importsAndExports);
+  if (chunk.length > 0) {
+    chunks.push(chunk);
   }
 
   return chunks;
 }
 
-function maybeReportSorting(importsAndExports, context, outerGroups) {
+function maybeReportChunkSorting(chunk, context, outerGroups) {
   const sourceCode = context.getSourceCode();
-  const items = getImportItems(importsAndExports, sourceCode);
-  const sorted = printSortedImportsThenExports(items, sourceCode, outerGroups);
+  const items = getImportExportItems(chunk, sourceCode);
+  const sorted = printSortedImportsOrExports(items, sourceCode, outerGroups);
 
   const { start } = items[0];
   const { end } = items[items.length - 1];
   const original = sourceCode.getText().slice(start, end);
 
-  const imports = importsAndExports.filter((node) => isImport(node));
-
   if (original !== sorted) {
     context.report({
-      messageId:
-        imports.length === importsAndExports.length
-          ? "imports"
-          : imports.length === 0
-          ? "exports"
-          : "both",
+      messageId: isImport(chunk[0]) ? "imports" : "exports",
       loc: {
         start: sourceCode.getLocFromIndex(start),
         end: sourceCode.getLocFromIndex(end),
@@ -110,45 +108,40 @@ function maybeReportSorting(importsAndExports, context, outerGroups) {
   }
 }
 
-function printSortedImportsThenExports(
-  importAndExportItems,
-  sourceCode,
-  outerGroups
-) {
-  const imports = [];
-  const reExports = [];
-  const otherExports = [];
+function maybeReportExportSpecifierSorting(node, context) {
+  const sourceCode = context.getSourceCode();
+  const sorted = printWithSortedSpecifiers(node, sourceCode);
 
-  for (const importOrExportItem of importAndExportItems) {
-    if (isImport(importOrExportItem.node)) {
-      imports.push(importOrExportItem);
-    } else if (importOrExportItem.source) {
-      reExports.push(importOrExportItem);
-    } else {
-      otherExports.push(importOrExportItem);
-    }
+  const [start, end] = node.range;
+  const original = sourceCode.getText().slice(start, end);
+
+  if (original !== sorted) {
+    context.report({
+      messageId: "exports",
+      loc: {
+        start: sourceCode.getLocFromIndex(start),
+        end: sourceCode.getLocFromIndex(end),
+      },
+      fix: (fixer) => fixer.replaceTextRange([start, end], sorted),
+    });
   }
+}
 
+function printSortedImportsOrExports(items, sourceCode, outerGroups) {
   const newline = guessNewline(sourceCode);
 
-  const all = [
-    printSortedImportsOrExports(true, imports, sourceCode, outerGroups),
-    printSortedImportsOrExports(false, reExports, sourceCode, outerGroups),
-    [
-      [otherExports],
-      otherExports.map((item) => item.code).join(newline + newline),
-    ],
-  ];
+  const [sortedItems, sorted] = printSortedImportsOrExportsHelper(
+    items,
+    sourceCode,
+    outerGroups
+  );
 
   // Edge case: If the last import/export (after sorting) ends with a line
   // comment and there’s code (or a multiline block comment) on the same line,
   // add a newline so we don’t accidentally comment stuff out.
-  const flattened = flatMap(all, ([sortedItems]) =>
-    flatMap(sortedItems, (groups) => [].concat(...groups))
-  );
+  const flattened = flatMap(sortedItems, (groups) => [].concat(...groups));
   const lastSortedItem = flattened[flattened.length - 1];
-  const lastOriginalItem =
-    importAndExportItems[importAndExportItems.length - 1];
+  const lastOriginalItem = items[items.length - 1];
   const nextToken = lastSortedItem.needsNewline
     ? sourceCode.getTokenAfter(lastOriginalItem.node, {
         includeComments: true,
@@ -166,26 +159,17 @@ function printSortedImportsThenExports(
       ? newline
       : "";
 
-  return (
-    all
-      .filter(([, code]) => code !== "")
-      .map(([, code]) => code)
-      .join(newline + newline) + maybeNewline
-  );
+  return sorted + maybeNewline;
 }
 
-function printSortedImportsOrExports(
-  areImports,
-  importOrExportItems,
-  sourceCode,
-  outerGroups
-) {
+function printSortedImportsOrExportsHelper(items, sourceCode, outerGroups) {
+  const areImports = isImport(items[0]);
   const itemGroups = outerGroups.map((groups) =>
     groups.map((regex) => ({ regex, items: [] }))
   );
   const rest = [];
 
-  for (const item of importOrExportItems) {
+  for (const item of items) {
     // All exports reaching this point are guaranteed to have `.source`.
     const { originalSource } = item.source;
     const source = item.isSideEffectImport
@@ -251,20 +235,17 @@ function printSortedImportsOrExports(
   return [sortedItems, sorted];
 }
 
-// Wrap the import/export nodes in `passedImportsAndExports` in objects with
-// more data about the import/export. Most importantly there’s a `code` property
-// that contains the node as a string, with comments (if any). Finding the
-// corresponding comments is the hard part.
-function getImportItems(passedImportsAndExports, sourceCode) {
-  const importsAndExports = handleLastSemicolon(
-    passedImportsAndExports,
-    sourceCode
-  );
-  return importsAndExports.map((importOrExportNode, importOrExportIndex) => {
+// Wrap the import/export nodes in `passedChunk` in objects with more data about
+// the import/export. Most importantly there’s a `code` property that contains
+// the node as a string, with comments (if any). Finding the corresponding
+// comments is the hard part.
+function getImportExportItems(passedChunk, sourceCode) {
+  const chunk = handleLastSemicolon(passedChunk, sourceCode);
+  return chunk.map((importOrExportNode, importOrExportIndex) => {
     const lastLine =
       importOrExportIndex === 0
         ? importOrExportNode.loc.start.line - 1
-        : importsAndExports[importOrExportIndex - 1].loc.end.line;
+        : chunk[importOrExportIndex - 1].loc.end.line;
 
     // Get all comments before the import/export, except:
     //
@@ -358,9 +339,9 @@ function getImportItems(passedImportsAndExports, sourceCode) {
 // an export), adjust the node to end at the `from` string instead.
 //
 // In the above example, the import is adjusted to end after `"x"`.
-function handleLastSemicolon(importsAndExports, sourceCode) {
-  const lastIndex = importsAndExports.length - 1;
-  const lastImportOrExport = importsAndExports[lastIndex];
+function handleLastSemicolon(chunk, sourceCode) {
+  const lastIndex = chunk.length - 1;
+  const lastImportOrExport = chunk[lastIndex];
   const [nextToLastToken, lastToken] = sourceCode.getLastTokens(
     lastImportOrExport,
     {
@@ -370,7 +351,7 @@ function handleLastSemicolon(importsAndExports, sourceCode) {
   const lastIsSemicolon = isPunctuator(lastToken, ";");
 
   if (!lastIsSemicolon) {
-    return importsAndExports;
+    return chunk;
   }
 
   const semicolonBelongsToImportOrExport =
@@ -380,7 +361,7 @@ function handleLastSemicolon(importsAndExports, sourceCode) {
     sourceCode.getTokenAfter(lastToken) == null;
 
   if (semicolonBelongsToImportOrExport) {
-    return importsAndExports;
+    return chunk;
   }
 
   // Preserve the start position, but use the end position of the `from` string
@@ -393,15 +374,10 @@ function handleLastSemicolon(importsAndExports, sourceCode) {
     },
   });
 
-  return importsAndExports.slice(0, lastIndex).concat(newLastImportOrExport);
+  return chunk.slice(0, lastIndex).concat(newLastImportOrExport);
 }
 
 function printWithSortedSpecifiers(importOrExportNode, sourceCode) {
-  // Print exports without `from` as-is.
-  if (!importOrExportNode.source) {
-    return sourceCode.getText(importOrExportNode);
-  }
-
   const allTokens = getAllTokens(importOrExportNode, sourceCode);
   const openBraceIndex = allTokens.findIndex((token) =>
     isPunctuator(token, "{")
@@ -942,17 +918,20 @@ function compare(a, b) {
   return collator.compare(a, b) || (a < b ? -1 : a > b ? 1 : 0);
 }
 
-// Full import statement.
+// Full import statement (any variant).
 function isImport(node) {
   return node.type === "ImportDeclaration";
 }
 
-// Full export statement.
-function isExport(node) {
+// Full export-from statement.
+// export {a, b} from "A"
+// export * from "A"
+// export * as A from "A"
+function isExportFrom(node) {
   return (
-    node.type === "ExportNamedDeclaration" ||
-    node.type === "ExportDefaultDeclaration" ||
-    node.type === "ExportAllDeclaration"
+    (node.type === "ExportNamedDeclaration" ||
+      node.type === "ExportAllDeclaration") &&
+    node.source != null
   );
 }
 
