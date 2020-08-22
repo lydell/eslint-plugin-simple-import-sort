@@ -95,33 +95,25 @@ function maybeReportChunkSorting(chunk, context, outerGroups) {
   const sourceCode = context.getSourceCode();
   const items = getImportExportItems(chunk, sourceCode);
   const sorted = printSortedImportsOrExports(items, sourceCode, outerGroups);
-
   const { start } = items[0];
   const { end } = items[items.length - 1];
-  const original = sourceCode.getText().slice(start, end);
-
-  if (original !== sorted) {
-    context.report({
-      messageId: isImport(chunk[0]) ? "imports" : "exports",
-      loc: {
-        start: sourceCode.getLocFromIndex(start),
-        end: sourceCode.getLocFromIndex(end),
-      },
-      fix: (fixer) => fixer.replaceTextRange([start, end], sorted),
-    });
-  }
+  const messageId = isImport(chunk[0]) ? "imports" : "exports";
+  maybeReportSorting(context, sorted, start, end, messageId);
 }
 
 function maybeReportExportSpecifierSorting(node, context) {
   const sourceCode = context.getSourceCode();
   const sorted = printWithSortedSpecifiers(node, sourceCode);
-
   const [start, end] = node.range;
-  const original = sourceCode.getText().slice(start, end);
+  maybeReportSorting(context, sorted, start, end, "exports");
+}
 
+function maybeReportSorting(context, sorted, start, end, messageId) {
+  const sourceCode = context.getSourceCode();
+  const original = sourceCode.getText().slice(start, end);
   if (original !== sorted) {
     context.report({
-      messageId: "exports",
+      messageId,
       loc: {
         start: sourceCode.getLocFromIndex(start),
         end: sourceCode.getLocFromIndex(end),
