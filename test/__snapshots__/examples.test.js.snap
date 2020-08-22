@@ -99,6 +99,15 @@ import "../../alert.css"
 import circleStyles from "./circle.scss";
 import styles from "./styles.scss";
 
+export {readFile} from "fs";
+
+export {removeWhitespace,truncate} from "../../utils";
+
+export {providers} from "./providers"
+export {PRODUCT_NAMES} from "."
+export default 5;
+export const answer = 42;
+
 `;
 
 exports[`examples groups.no-blank-lines.js 1`] = `
@@ -154,6 +163,7 @@ separator();
 import "side-effects";
 
 import Other from "another";
+
 // eslint-disable-next-line no-duplicate-imports, import/no-duplicates
 import Thing from "side-effects";
 // The above two lines will still be sorted after autofixing! This can be
@@ -217,6 +227,7 @@ import def, { // start
   f, // f
   // end
 } from "s";
+
 import { /* start */ a, /*a*/ b /*b*/ } from "t";
 
 `;
@@ -226,8 +237,10 @@ exports[`examples readme-comments.js 1`] = `
 // a1
 /* a2
  */ import a /* a3 */ from "a"; /* a4 */ 
+
 // b1
 import b from "b"; // b2
+
 /* c1 */ import c from "c"; // c2
 /* not-a
 */ // comment after import chunk
@@ -245,11 +258,13 @@ import { // comment at start
 /* not-a
   */ // comment at end
 } from "wherever";
+
 import {
   d, /* d */   e,
 /* not-d
   */ // comment at end after trailing comma
 } from "wherever2";
+
 import {/* comment at start */ f, /* f */g/* g */ } from "wherever3";
 
 `;
@@ -333,17 +348,23 @@ function pluck<T, K extends keyof T>(o: T, names: K[]): T[K][] {
 exports[`examples vue.vue 1`] = `
 <script lang="ts">
   /* a */ import a from "a"; 
+
   // b
   import {
     b2,
 b3,
     b4  } from "b";
+
 import c from "c"
+
     // d
     import d from "d"
+
   import e from "e"
+
   // Comment for vue-property-decorator
   import { Component, Vue, Watch } from 'vue-property-decorator';
+
   import { Location } from 'vue-router';
   </script>
 

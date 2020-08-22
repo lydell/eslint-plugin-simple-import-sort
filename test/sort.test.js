@@ -309,8 +309,10 @@ const baseTests = (expect) => ({
           |import x3 from "c"
           |import x4 from "d" ; 
           |import x5 from "e"
+          |
           |import x6 from "f"
           |;
+          |
           |import x7 from "g";[].forEach()
         `);
       },
@@ -390,6 +392,7 @@ const baseTests = (expect) => ({
         expect(actual).toMatchInlineSnapshot(`
           |import x1 from "a"
           |;
+          |
           |import x2 from "b"
         `);
       },
@@ -436,7 +439,7 @@ const baseTests = (expect) => ({
       code: `export { e, b, a as c }; var e, b, a;`,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
-          `export { a as c,b, e }; var e, v, a;`
+          `export { b, a as c,e }; var e, b, a;`
         );
       },
       errors: 1,
@@ -476,7 +479,7 @@ const baseTests = (expect) => ({
       code: `export { e, b, a as c, }; var e, b, a;`,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
-          `export { a as c,b, e,  }; var e, b, a;`
+          `export { b, a as c,e,  }; var e, b, a;`
         );
       },
       errors: 1,
@@ -505,7 +508,7 @@ const baseTests = (expect) => ({
       code: `export { a as c, a as b2, b, a }; var a, b;`,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
-          `export { a,a as b2, a as c, b }; var a, b;`
+          `export { a,b, a as b2, a as c }; var a, b;`
         );
       },
       errors: 1,
@@ -715,7 +718,7 @@ const baseTests = (expect) => ({
       code: `export {e,b,a as c}; var e, b, a;`,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
-          `export {a as c,b,e}; var e, b, a;`
+          `export {b,a as c,e}; var e, b, a;`
         );
       },
       errors: 1,
@@ -1327,6 +1330,7 @@ const baseTests = (expect) => ({
           |/* not-a
           |  */ // comment at end
           |} from "specifiers-lots-of-comments-multiline";
+          |
           |import {
           |  d, /* d */   e,
           |/* not-d
@@ -2039,10 +2043,12 @@ const baseTests = (expect) => ({
           |/* also
           |before */ import a from "a" /*a*/ 
           |/* b */ import b from "b" // b
+          |
           |/* before
           |  c0 */ // before c1
           |  /* c0
           |*/ /*c1*/ /*c2*/import c from 'c' ; /*c3*/ 
+          |
           |// above d
           |  import d /*d1*/ from   "d" ; /* d2 */ /*
           |   x1 */ /* x2 */
@@ -2278,9 +2284,11 @@ const baseTests = (expect) => ({
         expect(actual).toMatchInlineSnapshot(`
           |// a
           |import a from "a"
+          |
           |// b1
           |// b2
           |import b from "b"
+          |
           |import c from "c"
         `);
       },
@@ -2329,9 +2337,11 @@ const baseTests = (expect) => ({
         expect(actual).toMatchInlineSnapshot(`
           |// a<CR>
           |import a from "a"<CR>
+          |<CR>
           |// b1<CR>
           |// b2<CR>
           |import b from "b"<CR>
+          |<CR>
           |import c from "c"<CR>
           |after();<CR>
         `);
@@ -2661,14 +2671,18 @@ const baseTests = (expect) => ({
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |  /* a */ import a from "a"; 
+          |
           |  // b
           |  import {
           |    b2,
           |b3,
           |    b4  } from "b";
+          |
           |import c from "c"
+          |
           |    // d
           |    import d from "d"
+          |
           |  import e from "e"
         `);
       },
@@ -2728,14 +2742,18 @@ const baseTests = (expect) => ({
         expect(actual).toMatchInlineSnapshot(`
           |      <CR>
           |  /* a */ import a from "a"; <CR>
+          |<CR>
           |  // b<CR>
           |  import {<CR>
           |    b2,<CR>
           |b3,<CR>
           |    b4  } from "b";<CR>
+          |<CR>
           |import c from "c"<CR>
+          |<CR>
           |    // d<CR>
           |    import d from "d"<CR>
+          |<CR>
           |  import e from "e"<CR>
           |
         `);
@@ -2796,10 +2814,12 @@ const baseTests = (expect) => ({
           |/* multiline
           |comment */  
           |import a from "a"    
+          |
           |import b from "b";    
           |import c from "c";  /* comment */  
           |import d from "d";  
           |import e from "e"; 
+          |
           |/* multiline
           |comment 2 */ import f from "f";
         `);
@@ -2826,11 +2846,8 @@ const baseTests = (expect) => ({
           |export {b} from "b";    
           |export {c} from "c";  /* comment */  
           |export {d} from "d";  
-          |
-          |/* multiline
+          |export {e}; /* multiline
           |comment 2 */ export {f} from "f";
-          |
-          |export {e}; 
           |var e
         `);
       },
@@ -2937,6 +2954,7 @@ const baseTests = (expect) => ({
           |import { connect } from 'react-redux';
           |
           |import agent from '../agent';
+          |
           |import {
           |  ADD_TAG,
           |  ARTICLE_SUBMITTED,
@@ -2945,6 +2963,7 @@ const baseTests = (expect) => ({
           |  REMOVE_TAG,
           |  UPDATE_FIELD_EDITOR
           |} from '../constants/actionTypes';
+          |
           |import ListErrors from './ListErrors';
         `);
       },
@@ -3108,11 +3127,6 @@ const baseTests = (expect) => ({
         expect(actual).toMatchInlineSnapshot(`
           |/* Core */
           |
-          |/* Supporting */
-          |// Note that importing \`gql\` by itself, then destructuring
-          |// additional properties separately before exporting, is intentional...
-          |import gql from 'graphql-tag';
-          |
           |export {
           |  ApolloClient,
           |  ApolloClientOptions,
@@ -3196,13 +3210,17 @@ const baseTests = (expect) => ({
           |  ObservableSubscription,
           |  Observer} from '../utilities/observables/Observable';
           |
+          |/* Supporting */
+          |
+          |// Note that importing \`gql\` by itself, then destructuring
+          |// additional properties separately before exporting, is intentional...
+          |import gql from 'graphql-tag';
           |export const {
           |  resetCaches,
           |  disableFragmentWarnings,
           |  enableExperimentalFragmentVariables,
           |  disableExperimentalFragmentVariables
           |} = gql;
-          |
           |export { gql };
         `);
       },
@@ -3539,15 +3557,14 @@ const flowTests = {
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
-          |export type {X} from "X";
           |export type {Z} from "Z";
+          |export type Y = 5;
+          |export type {X} from "X";
           |
           |export type {E} from "@/B";
           |export type {C} from "/B";
           |
           |export type {B} from "./B";
-          |
-          |export type Y = 5;
         `);
       },
       errors: 1,
@@ -3633,6 +3650,7 @@ const flowTests = {
           |import type { ObjMap } from '../jsutils/ObjMap';
           |import promiseForObject from '../jsutils/promiseForObject';
           |import promiseReduce from '../jsutils/promiseReduce';
+          |
           |import type {
           |  DocumentNode,
           |  FieldNode,
@@ -3642,7 +3660,9 @@ const flowTests = {
           |  OperationDefinitionNode,
           |  SelectionSetNode,
           |} from '../language/ast';
+          |
           |import { Kind } from '../language/kinds';
+          |
           |import type {
           |  GraphQLAbstractType,
           |  GraphQLField,
@@ -3654,6 +3674,7 @@ const flowTests = {
           |  GraphQLResolveInfo,
           |  ResponsePath,
           |} from '../type/definition';
+          |
           |import {
           |  isAbstractType,
           |  isLeafType,
@@ -3661,19 +3682,23 @@ const flowTests = {
           |  isNonNullType,
           |  isObjectType,
           |} from '../type/definition';
+          |
           |import {
           |  GraphQLIncludeDirective,
           |  GraphQLSkipDirective,
           |} from '../type/directives';
+          |
           |import {
           |  SchemaMetaFieldDef,
           |  TypeMetaFieldDef,
           |  TypeNameMetaFieldDef,
           |} from '../type/introspection';
+          |
           |import type { GraphQLSchema } from '../type/schema';
           |import { assertValidSchema } from '../type/validate';
           |import { getOperationRootType } from '../utilities/getOperationRootType';
           |import { typeFromAST } from '../utilities/typeFromAST';
+          |
           |import {
           |  getArgumentValues,
           |  getDirectiveValues,
@@ -4011,15 +4036,14 @@ const typescriptTests = {
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
-          |export type {X} from "X";
           |export type {Z} from "Z";
+          |export type Y = 5;
+          |export type {X} from "X";
           |
           |export type {E} from "@/B";
           |export type {C} from "/B";
           |
           |export type {B} from "./B";
-          |
-          |export type Y = 5;
         `);
       },
       errors: 1,
@@ -4073,10 +4097,12 @@ const typescriptTests = {
           |import { isNonEmptyArray } from '../utilities/common/arrays';
           |import { graphQLResultHasError } from '../utilities/common/errorHandling';
           |import { ObservableSubscription } from '../utilities/observables/Observable';
+          |
           |import {
           |  isNetworkRequestInFlight,
           |  NetworkStatus,
           |} from './networkStatus';
+          |
           |import { ObservableQuery } from './ObservableQuery';
           |import { QueryListener } from './types';
           |import { WatchQueryOptions } from './watchQueryOptions';
