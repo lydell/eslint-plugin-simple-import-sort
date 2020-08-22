@@ -53,7 +53,7 @@ module.exports = {
       Program: (node) => {
         const chunks = [
           ...extractChunks(node, isImport),
-          ...extractChunks(isExportFrom),
+          ...extractChunks(node, isExportFrom),
         ];
         for (const chunk of chunks) {
           maybeReportChunkSorting(chunk, context, outerGroups);
