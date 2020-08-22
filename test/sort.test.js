@@ -1809,7 +1809,7 @@ const baseTests = (expect) => ({
           |*/
           |
           |require("c"); import x7 from "b"; import x8 from "a"; export {x9}; require("c")
-          |var x8
+          |var x9
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
@@ -2243,27 +2243,24 @@ const baseTests = (expect) => ({
       code: input`
           |// before
           |/* also
-          |before */  {b} from "b";
-          |import a from "a"; /*a*/ /* comment
+          |before */ export /*middle*/ {b,a}; /* comment
           |after */ // after
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |// before
           |/* also
-          |before */ import a from "a"; /*a*/ 
-          |
-          |export {b} from "b";/* comment
+          |before */ export /*middle*/ {a,b}; /* comment
           |after */ // after
         `);
       },
       errors: [
         {
-          messageId: "both",
+          messageId: "exports",
           line: 3,
           column: 11,
-          endLine: 4,
-          endColumn: 26,
+          endLine: 3,
+          endColumn: 34,
         },
       ],
     },
@@ -2601,8 +2598,8 @@ const baseTests = (expect) => ({
           |    a: 1,
           |
           |    b: 2
-          |    }"specifiers-empty"
-          |export {a} from "a"
+          |    }, a = 1
+          |export {options, a}
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
@@ -2973,6 +2970,24 @@ const baseTests = (expect) => ({
     // https://github.com/facebook/react/blob/4c7036e807fa18a3e21a5182983c7c0f05c5936e/packages/react-dom/src/client/ReactDOM.js#L193-L217
     {
       code: input`
+          |var
+          |  createPortal,
+          |  batchedUpdates,
+          |  flushSync,
+          |  Internals,
+          |  ReactVersion,
+          |  findDOMNode,
+          |  hydrate,
+          |  render,
+          |  unmountComponentAtNode,
+          |  createRoot,
+          |  createBlockingRoot,
+          |  flushControlled,
+          |  scheduleHydration,
+          |  renderSubtreeIntoContainer,
+          |  unstable_createPortal,
+          |  createEventHandle
+          |;
           |export {
           |  createPortal,
           |  batchedUpdates as unstable_batchedUpdates,
@@ -3456,7 +3471,7 @@ const baseTests = (expect) => ({
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot();
       },
-      errors: 1,
+      errors: 3,
     },
   ],
 });
