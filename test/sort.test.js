@@ -3742,7 +3742,6 @@ const flowTests = {
           |import type { ObjMap } from '../jsutils/ObjMap';
           |import promiseForObject from '../jsutils/promiseForObject';
           |import promiseReduce from '../jsutils/promiseReduce';
-          |
           |import type {
           |  DocumentNode,
           |  FieldNode,
@@ -3752,9 +3751,7 @@ const flowTests = {
           |  OperationDefinitionNode,
           |  SelectionSetNode,
           |} from '../language/ast';
-          |
           |import { Kind } from '../language/kinds';
-          |
           |import type {
           |  GraphQLAbstractType,
           |  GraphQLField,
@@ -3766,7 +3763,6 @@ const flowTests = {
           |  GraphQLResolveInfo,
           |  ResponsePath,
           |} from '../type/definition';
-          |
           |import {
           |  isAbstractType,
           |  isLeafType,
@@ -3774,23 +3770,19 @@ const flowTests = {
           |  isNonNullType,
           |  isObjectType,
           |} from '../type/definition';
-          |
           |import {
           |  GraphQLIncludeDirective,
           |  GraphQLSkipDirective,
           |} from '../type/directives';
-          |
           |import {
           |  SchemaMetaFieldDef,
           |  TypeMetaFieldDef,
           |  TypeNameMetaFieldDef,
           |} from '../type/introspection';
-          |
           |import type { GraphQLSchema } from '../type/schema';
           |import { assertValidSchema } from '../type/validate';
           |import { getOperationRootType } from '../utilities/getOperationRootType';
           |import { typeFromAST } from '../utilities/typeFromAST';
-          |
           |import {
           |  getArgumentValues,
           |  getDirectiveValues,
@@ -4189,12 +4181,10 @@ const typescriptTests = {
           |import { isNonEmptyArray } from '../utilities/common/arrays';
           |import { graphQLResultHasError } from '../utilities/common/errorHandling';
           |import { ObservableSubscription } from '../utilities/observables/Observable';
-          |
           |import {
           |  isNetworkRequestInFlight,
           |  NetworkStatus,
           |} from './networkStatus';
-          |
           |import { ObservableQuery } from './ObservableQuery';
           |import { QueryListener } from './types';
           |import { WatchQueryOptions } from './watchQueryOptions';
@@ -4240,13 +4230,13 @@ const expect2 = (...args) => {
   return ret;
 };
 javascriptRuleTester.run("JavaScript", plugin.rules.sort, baseTests(expect));
-// flowRuleTester.run("Flow", plugin.rules.sort, baseTests(expect2));
-// typescriptRuleTester.run("TypeScript", plugin.rules.sort, baseTests(expect2));
+flowRuleTester.run("Flow", plugin.rules.sort, baseTests(expect2));
+typescriptRuleTester.run("TypeScript", plugin.rules.sort, baseTests(expect2));
 
-// flowRuleTester.run("Flow-specific", plugin.rules.sort, flowTests);
+flowRuleTester.run("Flow-specific", plugin.rules.sort, flowTests);
 
-// typescriptRuleTester.run(
-//   "TypeScript-specific",
-//   plugin.rules.sort,
-//   typescriptTests
-// );
+typescriptRuleTester.run(
+  "TypeScript-specific",
+  plugin.rules.sort,
+  typescriptTests
+);
