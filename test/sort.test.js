@@ -309,10 +309,8 @@ const baseTests = (expect) => ({
           |import x3 from "c"
           |import x4 from "d" ; 
           |import x5 from "e"
-          |
           |import x6 from "f"
           |;
-          |
           |import x7 from "g";[].forEach()
         `);
       },
@@ -392,7 +390,6 @@ const baseTests = (expect) => ({
         expect(actual).toMatchInlineSnapshot(`
           |import x1 from "a"
           |;
-          |
           |import x2 from "b"
         `);
       },
@@ -683,8 +680,7 @@ const baseTests = (expect) => ({
           |  Ba,
           |  BA,
           |  bA,
-          |  x as d,
-          |  x as C,
+          |  x,
           |  img10,
           |  img2,
           |  img1,
@@ -704,12 +700,12 @@ const baseTests = (expect) => ({
           |  Bb,
           |  bB,
           |  bb,
+          |  x as C,
+          |  x as d,
           |  img1,
           |  img2,
           |  img10,
           |  img10_black,
-          |  x as C,
-          |  x as d,
           |}
         `);
       },
@@ -1385,7 +1381,6 @@ const baseTests = (expect) => ({
           |/* not-a
           |  */ // comment at end
           |} from "specifiers-lots-of-comments-multiline";
-          |
           |import {
           |  d, /* d */   e,
           |/* not-d
@@ -1454,18 +1449,17 @@ const baseTests = (expect) => ({
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |export { // start
+          |/* a1
+          |  */ a, 
           |  /* c1 */ c /* c2 */, // c3
           |  // b1
-          |
           |  b as /* b2 */ renamed
-          |  , /* b3 */ /* a1
-          |  */ a /* not-a
+          |  /* b3 */ /* not-a
           |  */ // comment at end
           |};
-          |
           |export {
-          |  e,
-          |  d, /* d */ /* not-d
+          |  d, /* d */   e,
+          |/* not-d
           |  */ // comment at end after trailing comma
           |};
           |var c, b, a, e, d;
@@ -2111,12 +2105,10 @@ const baseTests = (expect) => ({
           |/* also
           |before */ import a from "a" /*a*/ 
           |/* b */ import b from "b" // b
-          |
           |/* before
           |  c0 */ // before c1
           |  /* c0
           |*/ /*c1*/ /*c2*/import c from 'c' ; /*c3*/ 
-          |
           |// above d
           |  import d /*d1*/ from   "d" ; /* d2 */ /*
           |   x1 */ /* x2 */
@@ -2352,11 +2344,9 @@ const baseTests = (expect) => ({
         expect(actual).toMatchInlineSnapshot(`
           |// a
           |import a from "a"
-          |
           |// b1
           |// b2
           |import b from "b"
-          |
           |import c from "c"
         `);
       },
@@ -2405,11 +2395,9 @@ const baseTests = (expect) => ({
         expect(actual).toMatchInlineSnapshot(`
           |// a<CR>
           |import a from "a"<CR>
-          |<CR>
           |// b1<CR>
           |// b2<CR>
           |import b from "b"<CR>
-          |<CR>
           |import c from "c"<CR>
           |after();<CR>
         `);
@@ -2674,14 +2662,13 @@ const baseTests = (expect) => ({
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
-          |export {a} from "a"
-          |
           |export const options = {
           |
           |    a: 1,
           |
           |    b: 2
-          |    }"specifiers-empty"
+          |    }, a = 1
+          |export {a as a2,options as options2}
         `);
       },
       errors: 1,
@@ -2739,18 +2726,14 @@ const baseTests = (expect) => ({
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |  /* a */ import a from "a"; 
-          |
           |  // b
           |  import {
           |    b2,
           |b3,
           |    b4  } from "b";
-          |
           |import c from "c"
-          |
           |    // d
           |    import d from "d"
-          |
           |  import e from "e"
         `);
       },
@@ -2810,18 +2793,14 @@ const baseTests = (expect) => ({
         expect(actual).toMatchInlineSnapshot(`
           |      <CR>
           |  /* a */ import a from "a"; <CR>
-          |<CR>
           |  // b<CR>
           |  import {<CR>
           |    b2,<CR>
           |b3,<CR>
           |    b4  } from "b";<CR>
-          |<CR>
           |import c from "c"<CR>
-          |<CR>
           |    // d<CR>
           |    import d from "d"<CR>
-          |<CR>
           |  import e from "e"<CR>
           |
         `);
@@ -2882,12 +2861,10 @@ const baseTests = (expect) => ({
           |/* multiline
           |comment */  
           |import a from "a"    
-          |
           |import b from "b";    
           |import c from "c";  /* comment */  
           |import d from "d";  
           |import e from "e"; 
-          |
           |/* multiline
           |comment 2 */ import f from "f";
         `);
@@ -3022,7 +2999,6 @@ const baseTests = (expect) => ({
           |import { connect } from 'react-redux';
           |
           |import agent from '../agent';
-          |
           |import {
           |  ADD_TAG,
           |  ARTICLE_SUBMITTED,
@@ -3031,7 +3007,6 @@ const baseTests = (expect) => ({
           |  REMOVE_TAG,
           |  UPDATE_FIELD_EDITOR
           |} from '../constants/actionTypes';
-          |
           |import ListErrors from './ListErrors';
         `);
       },
@@ -3397,14 +3372,13 @@ const baseTests = (expect) => ({
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |var e
+          |export {c} from '';
+          |export {e}
           |export {a} from 'a';
           |
           |export {b} from '.';
           |
-          |export {c} from '';
           |export {d} from '@/a';
-          |
-          |export {e}
         `);
       },
       errors: 1,

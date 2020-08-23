@@ -44,13 +44,13 @@ export { i } from "./styles";
 export var one = 1;
 export let two = 2;
 export const three = 3;
-export function f() {}
-export class C {}
-export type T = string;
-export { a, b as c };
+export function func() {}
+export class Class {}
+export type Type = string;
+export { named, other as renamed };
 export type { T, U as V };
 export default whatever;
 
-var a, b;
+var named, other;
 type T = 1;
 type U = 1;

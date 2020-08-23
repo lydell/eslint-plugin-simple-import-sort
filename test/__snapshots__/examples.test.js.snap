@@ -163,7 +163,6 @@ separator();
 import "side-effects";
 
 import Other from "another";
-
 // eslint-disable-next-line no-duplicate-imports, import/no-duplicates
 import Thing from "side-effects";
 // The above two lines will still be sorted after autofixing! This can be
@@ -227,7 +226,6 @@ import def, { // start
   f, // f
   // end
 } from "s";
-
 import { /* start */ a, /*a*/ b /*b*/ } from "t";
 
 `;
@@ -237,10 +235,8 @@ exports[`examples readme-comments.js 1`] = `
 // a1
 /* a2
  */ import a /* a3 */ from "a"; /* a4 */ 
-
 // b1
 import b from "b"; // b2
-
 /* c1 */ import c from "c"; // c2
 /* not-a
 */ // comment after import chunk
@@ -258,13 +254,11 @@ import { // comment at start
 /* not-a
   */ // comment at end
 } from "wherever";
-
 import {
   d, /* d */   e,
 /* not-d
   */ // comment at end after trailing comma
 } from "wherever2";
-
 import {/* comment at start */ f, /* f */g/* g */ } from "wherever3";
 
 `;
@@ -307,9 +301,46 @@ import typeof C from "../types";
 import g from ".";
 import h from "./constants";
 import i from "./styles";
-// Regardless of group, imported items are sorted like this:
+
+// Package re-exports.
+export * from "an-npm-package";
+export { readFile } from "fs";
+export * as ns from "https://example.com/script.js";
+
+// Absolute and other re-exports.
+export { Error } from "@/components/error.vue";
+
+export { c } from "/";
+export { d } from "/home/user/foo";
+
+// Relative re-exports.
+export { e } from "../..";
+
+export { f } from "../../Utils"; // Case insensitive.
+export { g } from ".";
+export { h } from "./constants";
+export { i } from "./styles";
+
+// Other exports. (These are not sorted internally.)
+export var one = 1;
+export let two = 2;
+export const three = 3;
+export function func() {}
+export class Class {}
+export type Type = string;
+export { named, other as renamed };
+export type { T, U as V };
+export default whatever;
+
+var named, other;
+type T = 1;
+type U = 1;
+
+`;
+
+exports[`examples readme-order-items.prettier.js 1`] = `
 import {
-  // First, type imports.
+  // First, type imports (\`export { type x, typeof y }\` is a syntax error).
   type x,
   typeof y,
   // Numbers are sorted by their numeric value:
@@ -319,10 +350,23 @@ import {
   // Then everything else, alphabetically:
   k,
   L, // Case insensitive.
-  m as anotherName, // Sorted by the original name “m”, not “anotherName”.
-  m as tie, // But do use the \`as\` name in case of a tie.
+  m as anotherName, // Sorted by the “external interface” name “m”, not “anotherName”.
+  m as tie, // But do use the file-local name in case of a tie.
   n,
 } from "./x";
+
+export {
+  k_,
+  L_, // Case insensitive.
+  anotherName_ as m, // Sorted by the “external interface” name “m”, not “anotherName”.
+  // tie as m, // For exports there can’t be ties – all exports must be unique.
+  n_,
+};
+export type { A, B, A as C };
+
+var k_, L_, anotherName_, n_;
+type A = 1;
+type B = 1;
 
 `;
 
@@ -348,23 +392,17 @@ function pluck<T, K extends keyof T>(o: T, names: K[]): T[K][] {
 exports[`examples vue.vue 1`] = `
 <script lang="ts">
   /* a */ import a from "a"; 
-
   // b
   import {
     b2,
 b3,
     b4  } from "b";
-
 import c from "c"
-
     // d
     import d from "d"
-
   import e from "e"
-
   // Comment for vue-property-decorator
   import { Component, Vue, Watch } from 'vue-property-decorator';
-
   import { Location } from 'vue-router';
   </script>
 

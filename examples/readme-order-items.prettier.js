@@ -15,14 +15,14 @@ import {
 } from "./x";
 
 export {
-  k,
-  L, // Case insensitive.
-  anotherName as m, // Sorted by the “external interface” name “m”, not “anotherName”.
-  tie as m, // But do use the file-local name in case of a tie.
-  n,
+  k_,
+  L_, // Case insensitive.
+  anotherName_ as m, // Sorted by the “external interface” name “m”, not “anotherName”.
+  // tie as m, // For exports there can’t be ties – all exports must be unique.
+  n_,
 };
 export type { A, B, A as C };
 
-var k, L, anotherName, tie, n;
+var k_, L_, anotherName_, n_;
 type A = 1;
 type B = 1;
