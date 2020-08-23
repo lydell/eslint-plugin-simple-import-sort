@@ -163,7 +163,6 @@ const baseTests = (expect) => ({
           |  a, // a
           |  b // b
           |} from "specifiers-comment-space"
-          |
           |export {
           |  c, // c
           |  d, // d
@@ -332,10 +331,8 @@ const baseTests = (expect) => ({
           |export {x3} from "c"
           |export {x4} from "d" ; 
           |export {x5} from "e"
-          |
           |export {x6} from "f"
           |;
-          |
           |export {x7} from "g";[].forEach()
         `);
       },
@@ -406,7 +403,6 @@ const baseTests = (expect) => ({
         expect(actual).toMatchInlineSnapshot(`
           |export {x1} from "a"
           |;
-          |
           |export {x2} from "b"
         `);
       },
@@ -1418,7 +1414,6 @@ const baseTests = (expect) => ({
           |  /* b3 */ /* not-a
           |  */ // comment at end
           |} from "specifiers-lots-of-comments-multiline";
-          |
           |export {
           |  d, /* d */   e,
           |/* not-d
@@ -2350,7 +2345,6 @@ const baseTests = (expect) => ({
           |// b1
           |// b2
           |export {b} from "b"
-          |
           |export {c} from "c"
         `);
       },
@@ -2403,7 +2397,6 @@ const baseTests = (expect) => ({
           |// b1<CR>
           |// b2<CR>
           |export {b} from "b"<CR>
-          |<CR>
           |export {c} from "c"<CR>
           |after();<CR>
         `);
@@ -2740,12 +2733,10 @@ const baseTests = (expect) => ({
           |    b2,
           |b3,
           |    b4  } from "b";
-          |
           |export {c} from "c"
           |
           |    // d
           |    export {d} from "d"
-          |
           |  export {e} from "e"
         `);
       },
@@ -2811,12 +2802,10 @@ const baseTests = (expect) => ({
           |    b2,<CR>
           |b3,<CR>
           |    b4  } from "b";<CR>
-          |<CR>
           |export {c} from "c"<CR>
           |<CR>
           |    // d<CR>
           |    export {d} from "d"<CR>
-          |<CR>
           |  export {e} from "e"<CR>
           |
         `);
@@ -2866,7 +2855,6 @@ const baseTests = (expect) => ({
           |/* multiline
           |comment */  
           |export {a} from "a"    
-          |
           |export {b} from "b";    
           |export {c} from "c";  /* comment */  
           |export {d} from "d";  
@@ -3193,23 +3181,18 @@ const baseTests = (expect) => ({
           |
           |/* Cache */
           |export * from '../cache';
-          |
           |export {
           |  FragmentMatcher as LocalStateFragmentMatcher,
           |  Resolver,
           |} from '../core/LocalState';
-          |
           |export { NetworkStatus } from '../core/networkStatus';
-          |
           |export {
           |  ApolloCurrentQueryResult,
           |  FetchMoreOptions,
           |  ObservableQuery,
           |  UpdateQueryOptions,
           |} from '../core/ObservableQuery';
-          |
           |export * from '../core/types';
-          |
           |export {
           |  ErrorPolicy,
           |  FetchMoreQueryOptions,
@@ -3223,14 +3206,12 @@ const baseTests = (expect) => ({
           |  WatchQueryFetchPolicy,
           |  WatchQueryOptions,
           |} from '../core/watchQueryOptions';
-          |
           |export { ApolloError,isApolloError } from '../errors/ApolloError';
           |export { ApolloLink } from '../link/core/ApolloLink';
           |export { concat } from '../link/core/concat';
           |
           |/* Link */
           |export { empty } from '../link/core/empty';
-          |
           |export { execute } from '../link/core/execute';
           |export { from } from '../link/core/from';
           |export { split } from '../link/core/split';
@@ -3239,30 +3220,24 @@ const baseTests = (expect) => ({
           |export { createHttpLink } from '../link/http/createHttpLink';
           |export { createSignalIfSupported } from '../link/http/createSignalIfSupported';
           |export { HttpLink } from '../link/http/HttpLink';
-          |
           |export {
           |  parseAndCheckHttpResponse,
           |  ServerParseError
           |} from '../link/http/parseAndCheckHttpResponse';
-          |
           |export {
           |  fallbackHttpConfig,
           |  HttpOptions,
           |  selectHttpOptionsAndBody,
           |  UriFunction
           |} from '../link/http/selectHttpOptionsAndBody';
-          |
           |export { selectURI } from '../link/http/selectURI';
-          |
           |export {
           |  ClientParseError,
           |  serializeFetchParameter} from '../link/http/serializeFetchParameter';
-          |
           |export { fromError } from '../link/utils/fromError';
           |export { fromPromise } from '../link/utils/fromPromise';
           |export { ServerError, throwServerError } from '../link/utils/throwServerError';
           |export { toPromise } from '../link/utils/toPromise';
-          |
           |export {
           |  Observable,
           |  ObservableSubscription,
@@ -3923,7 +3898,6 @@ const flowTests = {
           |
           |// Create a GraphQL language AST from a JavaScript value.
           |export { astFromValue } from './astFromValue';
-          |
           |export type { BuildSchemaOptions } from './buildASTSchema';
           |
           |// Build a GraphQLSchema from GraphQL Schema language.
@@ -3945,7 +3919,6 @@ const flowTests = {
           |  // syntax for specifying descriptions - will be removed in v16.
           |  getDescription,
           |} from './extendSchema';
-          |
           |export type { BreakingChange, DangerousChange } from './findBreakingChanges';
           |
           |// Compares two GraphQLSchemas and detects breaking changes.
@@ -3958,7 +3931,6 @@ const flowTests = {
           |
           |// Report all deprecated usage within a GraphQL document.
           |export { findDeprecatedUsages } from './findDeprecatedUsages';
-          |
           |export type {
           |  IntrospectionDirective,
           |  IntrospectionEnumType,
@@ -3983,7 +3955,6 @@ const flowTests = {
           |  IntrospectionTypeRef,
           |  IntrospectionUnionType,
           |} from './getIntrospectionQuery';
-          |
           |export { getIntrospectionQuery } from './getIntrospectionQuery';
           |
           |// Gets the target Operation from a Document.

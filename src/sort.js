@@ -159,7 +159,6 @@ function printSortedImportsOrExports(items, sourceCode, outerGroups) {
 }
 
 function printSortedImportsOrExportsHelper(items, sourceCode, outerGroups) {
-  const areImports = isImport(items[0].node);
   const itemGroups = outerGroups.map((groups) =>
     groups.map((regex) => ({ regex, items: [] }))
   );
@@ -199,29 +198,13 @@ function printSortedImportsOrExportsHelper(items, sourceCode, outerGroups) {
     .map((groups) =>
       groups
         .map((groupItems) =>
-          areImports
-            ? groupItems.map((item) => item.code).join(newline)
-            : // If an export is multiline (comments also count), surround it with
-              // blank lines.
-              groupItems
-                .map((item, index) => {
-                  const previous =
-                    index === 0 ? undefined : groupItems[index - 1];
-                  const before =
-                    previous != null &&
-                    !hasNewline(previous.code) &&
-                    hasNewline(item.code)
-                      ? newline
-                      : "";
-                  const after =
-                    index === groupItems.length - 1
-                      ? ""
-                      : hasNewline(item.code)
-                      ? newline + newline
-                      : newline;
-                  return before + item.code + after;
-                })
-                .join("")
+          groupItems
+            .map((item, index) =>
+              index > 0 && item.wantsBlankLineAbove
+                ? newline + item.code
+                : item.code
+            )
+            .join(newline)
         )
         .join(newline)
     )
@@ -319,6 +302,7 @@ function getImportExportItems(passedChunk, sourceCode) {
       needsNewline:
         commentsAfter.length > 0 &&
         isLineComment(commentsAfter[commentsAfter.length - 1]),
+      wantsBlankLineAbove: !isImport(importOrExportNode) && hasNewline(before),
     };
   });
 }

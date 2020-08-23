@@ -309,13 +309,11 @@ export * as ns from "https://example.com/script.js";
 
 // Absolute and other re-exports.
 export { Error } from "@/components/error.vue";
-
 export { c } from "/";
 export { d } from "/home/user/foo";
 
 // Relative re-exports.
 export { e } from "../..";
-
 export { f } from "../../Utils"; // Case insensitive.
 export { g } from ".";
 export { h } from "./constants";
