@@ -3477,7 +3477,7 @@ const baseTests = (expect) => ({
       errors: 1,
     },
 
-    // Mix of imports and different kinds of exports
+    // Mix of imports and different kinds of exports.
     {
       code: input`
           |import x1 from 'b';
