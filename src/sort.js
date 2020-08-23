@@ -218,6 +218,7 @@ function printSortedImportsOrExportsHelper(items, sourceCode, outerGroups) {
 // comments is the hard part.
 function getImportExportItems(passedChunk, sourceCode) {
   const chunk = handleLastSemicolon(passedChunk, sourceCode);
+
   return chunk.map((importOrExportNode, importOrExportIndex) => {
     const lastLine =
       importOrExportIndex === 0
@@ -254,6 +255,7 @@ function getImportExportItems(passedChunk, sourceCode) {
       commentsBefore,
       sourceCode
     );
+
     const after = printCommentsAfter(
       importOrExportNode,
       commentsAfter,
@@ -320,12 +322,10 @@ function getImportExportItems(passedChunk, sourceCode) {
 function handleLastSemicolon(chunk, sourceCode) {
   const lastIndex = chunk.length - 1;
   const lastImportOrExport = chunk[lastIndex];
-  const [nextToLastToken, lastToken] = sourceCode.getLastTokens(
-    lastImportOrExport,
-    {
-      count: 2,
-    }
-  );
+  const [
+    nextToLastToken,
+    lastToken,
+  ] = sourceCode.getLastTokens(lastImportOrExport, { count: 2 });
   const lastIsSemicolon = isPunctuator(lastToken, ";");
 
   if (!lastIsSemicolon) {
@@ -736,6 +736,7 @@ function removeBlankLines(whitespace) {
 function getAllTokens(node, sourceCode) {
   const tokens = sourceCode.getTokens(node);
   const lastTokenIndex = tokens.length - 1;
+
   return flatMap(tokens, (token, tokenIndex) => {
     const newToken = Object.assign({}, token, {
       code: sourceCode.getText(token),
@@ -964,7 +965,6 @@ function isNewline(node) {
 
 function getSource(importOrExportNode) {
   const source = importOrExportNode.source.value;
-
   return {
     source:
       // Due to "." sorting before "/" by default, relative imports are
