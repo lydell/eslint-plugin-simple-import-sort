@@ -166,7 +166,6 @@ function printSortedImportsOrExportsHelper(items, sourceCode, outerGroups) {
   const rest = [];
 
   for (const item of items) {
-    // All exports reaching this point are guaranteed to have `.source`.
     const { originalSource } = item.source;
     const source = item.isSideEffectImport
       ? `\0${originalSource}`
@@ -981,11 +980,6 @@ function isNewline(node) {
 }
 
 function getSource(importOrExportNode) {
-  // Not all exports have a `from` part.
-  if (!importOrExportNode.source) {
-    return undefined;
-  }
-
   const source = importOrExportNode.source.value;
 
   return {
