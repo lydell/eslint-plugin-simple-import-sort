@@ -40,7 +40,8 @@ export { g } from ".";
 export { h } from "./constants";
 export { i } from "./styles";
 
-// Other exports. (These are not sorted internally.)
+// Other exports – the plugin does not touch these, other than sorting inside
+// named exports inside braces.
 export var one = 1;
 export let two = 2;
 export const three = 3;

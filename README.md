@@ -195,24 +195,18 @@ This section is for learning how the sorting works, not for how to manually fix 
 
 **TL;DR:** First group, then sort alphabetically.
 
-First, the plugin finds all _chunks_ of imports and exports. A “chunk” is a sequence of import and export statements with only comments and whitespace between. Each chunk is sorted separately. Use [import/first] if you want to make sure that all imports end up in the same chunk. There is a similar rule [import/exports-last] that groups all exports at the end of the file.
+First, the plugin finds all _chunks_ of imports or re-exports (exports with `from`). A “chunk” is a sequence of import or re-export statements with only comments and whitespace between. Each chunk is sorted separately. Use [import/first] if you want to make sure that all imports end up in the same chunk. There is a similar rule [import/exports-last] that groups all exports at the end of the file.
 
-Each chunk is split into sections with a blank line between each.
-
-1. Imports (for example `import a from "a"`).
-2. Re-exports (for example `export { a } from "a"`).
-3. Other exports (for example `export const a = 5`). These are not sorted internally (because they have no `from` string and can have side-effects).
-
-Then, each section is _grouped_ into sub-sections with a blank line between each.
+Then, each chunk is _grouped_ into sections with a blank line between each. Additionally, if an export has a comment above it, it will always get a blank line above the comment – this allows grouping big index files in a logic way manually.
 
 1. `import "./setup"`: Side effect imports. These are not sorted internally. (Exports don’t have this concept.)
 2. `import react from "react"`: Packages (npm packages and Node.js builtins).
-3. `import a from "/a"`: Absolute imports and other imports such as Vue-style `@/foo`.
-4. `import a from "./a"`: Relative imports.
+3. `import a from "/a"`: Absolute imports/exports and other imports/exports such as Vue-style `@/foo`.
+4. `import a from "./a"`: Relative imports/exports.
 
 Note: The above groups are very loosely defined. See [Custom grouping] for more information.
 
-Within each section, the imports are sorted alphabetically on the `from` string (see also [“Why sort on `from`?”][sort-from]). Keep it simple! It helps looking at the code here:
+Within each section, the imports/exports are sorted alphabetically on the `from` string (see also [“Why sort on `from`?”][sort-from]). Keep it simple! It helps looking at the code here:
 
 ```js
 const collator = new Intl.Collator("en", {
@@ -276,14 +270,15 @@ export { g } from ".";
 export { h } from "./constants";
 export { i } from "./styles";
 
-// Other exports. (These are not sorted internally.)
+// Other exports – the plugin does not touch these, other than sorting inside
+// named exports inside braces.
 export var one = 1;
 export let two = 2;
 export const three = 3;
-export function f() {}
-export class C {}
-export type T = string;
-export { a, b as c };
+export function func() {}
+export class Class {}
+export type Type = string;
+export { named, other as renamed };
 export type { T, U as V };
 export default whatever;
 ```
@@ -315,13 +310,13 @@ export {
   k,
   L, // Case insensitive.
   anotherName as m, // Sorted by the “external interface” name “m”, not “anotherName”.
-  tie as m, // But do use the file-local name in case of a tie.
+  // tie as m, // For exports there can’t be ties – all exports must be unique.
   n,
 };
 export type { A, B, A as C };
 ```
 
-At first it might sound counter-intuitive that `a as b` is sorted by `a` for imports, but by `b` for exports. The reason for doing it this way is to pick the most “stable” name. In `import { a as b } from "./some-file.js"`, the `as b` part is there to avoid a name collision in the file without having to change `some-file.js`. In `export { b as a }`, the `b as` part is there to aviod a name collison in the file without having to change the exported interface of the file.
+At first it might sound counter-intuitive that `a as b` is sorted by `a` for imports, but by `b` for exports. The reason for doing it this way is to pick the most “stable” name. In `import { a as b } from "./some-file.js"`, the `as b` part is there to avoid a name collision in the file without having to change `some-file.js`. In `export { b as a }`, the `b as` part is there to avoid a name collision in the file without having to change the exported interface of the file.
 
 ## Custom grouping
 
@@ -355,15 +350,15 @@ type Options = {
 
 Each string is a regex (with the `u` flag) and defines a group. (Remember to escape backslashes – it’s `"\\w"`, not `"\w"`, for example.)
 
-Each `import` is matched against _all_ regexes on the `from` string. The import ends up in the group with **the longest match.** In case of a tie, the first matching group wins.
+Each import/export is matched against _all_ regexes on the `from` string. The import/export ends up in the group with **the longest match.** In case of a tie, the first matching group wins.
 
-> If an import ends up in the wrong group – try making the desired group regex match more of the `from` string, or use negative lookahead (`(?!x)`) to exclude things from other groups.
+> If an import/export ends up in the wrong group – try making the desired group regex match more of the `from` string, or use negative lookahead (`(?!x)`) to exclude things from other groups.
 
 Imports/exports that don’t match any regex are grouped together last.
 
 Side effect imports have `\u0000` prepended to their `from` string. You can match them with `"^\\u0000"`.
 
-The inner arrays are joined with one newline; the outer arrays are joined with two (creating a blank line). There’s _always_ a blank line between imports, re-exports and other exports.
+The inner arrays are joined with one newline; the outer arrays are joined with two (creating a blank line). As mentioned in [Sort order], exports also get a blank line above them if they have a comment above.
 
 Every group is sorted internally as mentioned in [Sort order]. Side effect imports are always placed first in the group and keep their internal order. It’s recommended to keep side effect imports in their own group.
 
@@ -488,7 +483,7 @@ import {/* comment at start */ f, /* f */g/* g */ } from "wherever3";
 
 If you wonder what’s up with the strange whitespace – see [“The sorting autofix causes some odd whitespace!”][odd-whitespace]
 
-Speaking of whitespace – what about blank lines? Just like comments, it’s difficult to know where blank lines should go after sorting. This plugin went with a simple approach – all blank lines in chunks of imports are removed, except in `/**/` comments and the blank lines added between the groups mentioned in [Sort order]. For exports, blank lines are handled similarly, with a two added rules. First, exports without `from` _always_ have a blank line betwwen them. Exports _with_ `from` are surrounded by blank lines if they are multline. (Comments belonging to the export can cause the export to be considered multiline.)
+Speaking of whitespace – what about blank lines? Just like comments, it’s difficult to know where blank lines should go after sorting. This plugin went with a simple approach – all blank lines in chunks of imports/exports are removed, except in `/**/` comments and the blank lines added between the groups (as well as the extra case for exports) mentioned in [Sort order].
 
 (Since blank lines are removed, you might get slight incompatibilities with the [lines-around-comment] and [padding-line-between-statements] rules – I don’t use those myself, but I think there should be workarounds.)
 
@@ -587,11 +582,11 @@ Looking for `/* eslint-disable */` for this rule? Read all about **[ignoring (pa
 
 Imports wouldn’t be much of a feature without exports. `import { A } from "a"` and `export { A } from "a"` are super similar. If you like sorting one of them, why wouldn’t you want to sort the other?
 
-By sorting exports in the same plugin, we can re-use the advanced comment handling. And you only need to configure the “groups” option once.
+By sorting exports in the same plugin, we can re-use the advanced comment handling and you only need to configure the “groups” option once.
 
 ## Development
 
-You need [Node.js] ~12 and npm 6.
+You need [Node.js] ~14 and npm 6.
 
 ### npm scripts
 
