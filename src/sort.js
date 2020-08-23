@@ -159,7 +159,7 @@ function printSortedImportsOrExports(items, sourceCode, outerGroups) {
 }
 
 function printSortedImportsOrExportsHelper(items, sourceCode, outerGroups) {
-  const areImports = isImport(items[0]);
+  const areImports = isImport(items[0].node);
   const itemGroups = outerGroups.map((groups) =>
     groups.map((regex) => ({ regex, items: [] }))
   );
