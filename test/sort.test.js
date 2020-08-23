@@ -1482,7 +1482,6 @@ const baseTests = (expect) => ({
     },
     {
       code: input`
-          |var b, a
           |export {
           |  b/*b*/
           |  ,
@@ -1491,7 +1490,6 @@ const baseTests = (expect) => ({
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
-          |var b, a
           |export {
           |  a,
           |  b/*b*/
@@ -1551,7 +1549,6 @@ const baseTests = (expect) => ({
     },
     {
       code: input`
-          |var z, y, x, w, v, t, s
           |export {z, y,
           |  x,
           |
@@ -1565,7 +1562,6 @@ const baseTests = (expect) => ({
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
-          |var z, y, x, w, v, t, s
           |export {    s,
           |t /*t*/, // t
           |    v
@@ -1628,7 +1624,6 @@ const baseTests = (expect) => ({
     },
     {
       code: input`
-          |var b, a
           |export {
           |b,
           |a,
@@ -1636,7 +1631,6 @@ const baseTests = (expect) => ({
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
-          |var b, a
           |export {
           |a,
           |b,
@@ -1685,7 +1679,6 @@ const baseTests = (expect) => ({
     },
     {
       code: input`
-          |var b, a
           |export {
           |    b,
           |    a,
@@ -1693,7 +1686,6 @@ const baseTests = (expect) => ({
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
-          |var b, a
           |export {
           |    a,
           |    b,
@@ -1742,7 +1734,6 @@ const baseTests = (expect) => ({
     },
     {
       code: input`
-          |var b, a
           |export {
           |\tb,
           |\ta,
@@ -1750,7 +1741,6 @@ const baseTests = (expect) => ({
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
-          |var b, a
           |export {
           |→a,
           |→b,
@@ -1804,7 +1794,6 @@ const baseTests = (expect) => ({
     },
     {
       code: input`
-          |var b, a, c
           |export {
           | //
           |\tb,
@@ -1815,7 +1804,6 @@ const baseTests = (expect) => ({
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
-          |var b, a, c
           |export {
           |  a,
           | //
@@ -1929,14 +1917,12 @@ const baseTests = (expect) => ({
     },
     {
       code: input`
-          |var b, a1, a2
           |export {b} from "b"
           |export {a1} from "a"
           |export {a2} from "a"
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
-          |var b, a1, a2
           |export {a1} from "a"
           |export {a2} from "a"
           |export {b} from "b"
@@ -1963,14 +1949,12 @@ const baseTests = (expect) => ({
     },
     {
       code: input`
-          |var b, a1, a2
           |export {b} from "b"
           |export {a2} from "a"
           |export {a1} from "a"
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
-          |var b, a1, a2
           |export {a2} from "a"
           |export {a1} from "a"
           |export {b} from "b"
