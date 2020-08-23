@@ -123,41 +123,6 @@ function maybeReportSorting(context, sorted, start, end, messageId) {
 }
 
 function printSortedImportsOrExports(items, sourceCode, outerGroups) {
-  const newline = guessNewline(sourceCode);
-
-  const [sortedItems, sorted] = printSortedImportsOrExportsHelper(
-    items,
-    sourceCode,
-    outerGroups
-  );
-
-  // Edge case: If the last import/export (after sorting) ends with a line
-  // comment and there’s code (or a multiline block comment) on the same line,
-  // add a newline so we don’t accidentally comment stuff out.
-  const flattened = flatMap(sortedItems, (groups) => [].concat(...groups));
-  const lastSortedItem = flattened[flattened.length - 1];
-  const lastOriginalItem = items[items.length - 1];
-  const nextToken = lastSortedItem.needsNewline
-    ? sourceCode.getTokenAfter(lastOriginalItem.node, {
-        includeComments: true,
-        filter: (token) =>
-          !isLineComment(token) &&
-          !(
-            isBlockComment(token) &&
-            token.loc.end.line === lastOriginalItem.node.loc.end.line
-          ),
-      })
-    : undefined;
-  const maybeNewline =
-    nextToken != null &&
-    nextToken.loc.start.line === lastOriginalItem.node.loc.end.line
-      ? newline
-      : "";
-
-  return sorted + maybeNewline;
-}
-
-function printSortedImportsOrExportsHelper(items, sourceCode, outerGroups) {
   const itemGroups = outerGroups.map((groups) =>
     groups.map((regex) => ({ regex, items: [] }))
   );
@@ -209,7 +174,30 @@ function printSortedImportsOrExportsHelper(items, sourceCode, outerGroups) {
     )
     .join(newline + newline);
 
-  return [sortedItems, sorted];
+  // Edge case: If the last import/export (after sorting) ends with a line
+  // comment and there’s code (or a multiline block comment) on the same line,
+  // add a newline so we don’t accidentally comment stuff out.
+  const flattened = flatMap(sortedItems, (groups) => [].concat(...groups));
+  const lastSortedItem = flattened[flattened.length - 1];
+  const lastOriginalItem = items[items.length - 1];
+  const nextToken = lastSortedItem.needsNewline
+    ? sourceCode.getTokenAfter(lastOriginalItem.node, {
+        includeComments: true,
+        filter: (token) =>
+          !isLineComment(token) &&
+          !(
+            isBlockComment(token) &&
+            token.loc.end.line === lastOriginalItem.node.loc.end.line
+          ),
+      })
+    : undefined;
+  const maybeNewline =
+    nextToken != null &&
+    nextToken.loc.start.line === lastOriginalItem.node.loc.end.line
+      ? newline
+      : "";
+
+  return sorted + maybeNewline;
 }
 
 // Wrap the import/export nodes in `passedChunk` in objects with more data about
@@ -315,8 +303,8 @@ function getImportExportItems(passedChunk, sourceCode) {
 //     ;[].forEach()
 //
 // If the last import/export of a chunk ends with a semicolon, and that
-// semicolon isn’t located on the same line as the `from` string (or the end of
-// an export), adjust the node to end at the `from` string instead.
+// semicolon isn’t located on the same line as the `from` string, adjust the
+// node to end at the `from` string instead.
 //
 // In the above example, the import is adjusted to end after `"x"`.
 function handleLastSemicolon(chunk, sourceCode) {
