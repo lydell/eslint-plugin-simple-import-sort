@@ -102,8 +102,7 @@ function maybeReportChunkSorting(chunk, context, outerGroups) {
 }
 
 function maybeReportExportSpecifierSorting(node, context) {
-  const sourceCode = context.getSourceCode();
-  const sorted = printWithSortedSpecifiers(node, sourceCode);
+  const sorted = printWithSortedSpecifiers(node, context.getSourceCode());
   const [start, end] = node.range;
   maybeReportSorting(context, sorted, start, end, "exports");
 }
