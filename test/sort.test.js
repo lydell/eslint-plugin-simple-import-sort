@@ -3525,6 +3525,36 @@ const baseTests = (expect) => ({
       },
       errors: 3,
     },
+
+    // Blank line above comment above export – unless already one due to grouping.
+    {
+      code: input`
+          |export {} from 'a';
+          |export {} from 'b';
+          |// a
+          |export {} from './a';
+          |/*b*/export {} from './b';
+          |// c
+          |export {} from './c';
+          |
+          |export {} from './d';
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {} from 'a';
+          |export {} from 'b';
+          |
+          |// a
+          |export {} from './a';
+          |/*b*/export {} from './b';
+          |
+          |// c
+          |export {} from './c';
+          |export {} from './d';
+        `);
+      },
+      errors: 1,
+    },
   ],
 });
 
