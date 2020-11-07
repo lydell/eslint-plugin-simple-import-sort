@@ -41,9 +41,6 @@ This is for those who use `eslint --fix` (autofix) a lot and want to completely 
   - [The sorting autofix causes some odd whitespace!](#the-sorting-autofix-causes-some-odd-whitespace)
   - [Can I use this without autofix?](#can-i-use-this-without-autofix)
   - [How do I use eslint-ignore for this rule?](#how-do-i-use-eslint-ignore-for-this-rule)
-- [Development](#development)
-  - [npm scripts](#npm-scripts)
-  - [Directories](#directories)
 - [License](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -536,33 +533,12 @@ Not really. The error message for this rule is literally “Run autofix to sort 
 
 Looking for `/* eslint-disable */` for this rule? Read all about **[ignoring (parts of) sorting][example-ignore].**
 
-## Development
-
-You need [Node.js] ~12 and npm 6.
-
-### npm scripts
-
-- `npx jest --watch`: Run [Jest] tests in watch mode.
-- `npm run doctoc`: Run [doctoc] on README.md.
-- `npm run prettier`: Autoformat files with [Prettier].
-- `npm run eslint`: Autofix [ESLint] errors.
-- `npm run eslint:examples`: Used by `test/examples.test.js`.
-- `npm test`: Check that everything works.
-- `npm publish`: Publish to [npm], but only if `npm test` passes.
-
-### Directories
-
-- `src/`: Source code.
-- `examples/`: Examples, tested in `test/examples.test.js`.
-- `test/`: [Jest] tests.
-
 ## License
 
 [MIT](LICENSE)
 
 [comment-handling]: #comment-and-whitespace-handling
 [custom grouping]: #custom-grouping
-[doctoc]: https://github.com/thlorenz/doctoc/
 [eslint-fix]: https://eslint.org/docs/user-guide/command-line-interface#--fix
 [eslint]: https://eslint.org/
 [example-ignore]: https://github.com/lydell/eslint-plugin-simple-import-sort/blob/master/examples/ignore.js
@@ -575,10 +551,7 @@ You need [Node.js] ~12 and npm 6.
 [import/order]: https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/order.md
 [intl.collator]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Collator
 [issue #31]: https://github.com/lydell/eslint-plugin-simple-import-sort/issues/31
-[jest]: https://jestjs.io/
 [lines-around-comment]: https://eslint.org/docs/rules/lines-around-comment
-[node.js]: https://nodejs.org/en/
-[npm]: https://www.npmjs.com/
 [odd-whitespace]: #the-sorting-autofix-causes-some-odd-whitespace
 [padding-line-between-statements]: https://eslint.org/docs/rules/padding-line-between-statements
 [sort order]: #sort-order
