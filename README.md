@@ -216,7 +216,7 @@ function compare(a, b) {
 
 In other words, the imports within groups are sorted alphabetically, case-insensitively and treating numbers like a human would, falling back to good old character code sorting in case of ties. See [Intl.Collator] for more information.
 
-Since “.” sorts before “/”, relative imports of files higher up in the directory structure come before closer ones – `"../../utils"` comes before `"../utils"`. Perhaps surprisingly though, `".."` would come before `"../../utils"` (since shorter substrings sort before longer strings). For that reason there’s one addition to the alphabetical rule: `"."` and `".."` are treated as `"./"` and `"../"`.
+There’s one addition to the alphabetical rule: Directory structure. Relative imports of files higher up in the directory structure come before closer ones – `"../../utils"` comes before `"../utils"`, which comes before `".."`. (In short, `.` and `/` sort before any other (non-whitespace, non-control) character. `".."` and similar sort like `"../,"` (to avoid the “shorter prefix comes first” sorting concept).)
 
 If both `import type` _and_ regular imports are used for the same source, the type imports come first.
 
@@ -236,9 +236,9 @@ import fs from "fs";
 import b from "https://example.com/script.js";
 
 // Absolute imports and other imports.
-import Error from "@/components/error.vue";
 import c from "/";
 import d from "/home/user/foo";
+import Error from "@/components/error.vue";
 
 // Relative imports.
 import e from "../..";

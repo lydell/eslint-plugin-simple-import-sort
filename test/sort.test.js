@@ -865,11 +865,19 @@ const baseTests = (expect) => ({
           |import {} from "./B"; // B2
           |import {} from "./A";
           |import {} from "./a";
+          |import {} from "./_a";
+          |import {} from "./-a";
+          |import {} from "./[id]";
+          |import {} from "./,";
           |import {} from "./ä";
           |import {} from "./ä"; // “a” followed by “\u0308̈” (COMBINING DIAERESIS).
           |import {} from "..";
           |import {} from "../";
           |import {} from "../a";
+          |import {} from "../_a";
+          |import {} from "../-a";
+          |import {} from "../[id]";
+          |import {} from "../,";
           |import {} from "../a/..";
           |import {} from "../a/../";
           |import {} from "../a/...";
@@ -877,6 +885,18 @@ const baseTests = (expect) => ({
           |import {} from "../../";
           |import {} from "../..";
           |import {} from "../../a";
+          |import {} from "../../_a";
+          |import {} from "../../-a";
+          |import {} from "../../[id]";
+          |import {} from "../../,";
+          |import {} from "../../utils";
+          |import {} from "../../..";
+          |import {} from "../../../";
+          |import {} from "../../../a";
+          |import {} from "../../../_a";
+          |import {} from "../../../[id]";
+          |import {} from "../../../,";
+          |import {} from "../../../utils";
           |import {} from "...";
           |import {} from ".../";
           |import {} from ".a";
@@ -924,35 +944,55 @@ const baseTests = (expect) => ({
           |import {} from "react";
           |
           |import {} from "";
-          |import {} from "@/components/Alert"
-          |import {} from "@/components/error.vue"
           |import {} from "/";
           |import {} from "/a";
           |import {} from "/a/b";
+          |import {} from "@/components/Alert"
+          |import {} from "@/components/error.vue"
           |import {} from "#/test"
           |import {} from "~/test"
           |
           |import {} from "...";
           |import {} from ".../";
-          |import {} from "..";
-          |import {} from "../";
+          |import {} from "../../..";
+          |import {} from "../../../";
+          |import {} from "../../../,";
+          |import {} from "../../../_a";
+          |import {} from "../../../[id]";
+          |import {} from "../../../a";
+          |import {} from "../../../utils";
           |import {} from "../..";
           |import {} from "../../";
+          |import {} from "../../,";
+          |import {} from "../../_a";
+          |import {} from "../../[id]";
+          |import {} from "../../-a";
           |import {} from "../../a";
+          |import {} from "../../utils";
+          |import {} from "..";
+          |import {} from "../";
+          |import {} from "../,";
+          |import {} from "../_a";
+          |import {} from "../[id]";
+          |import {} from "../-a";
           |import {} from "../a";
           |import {} from "../a/..";
           |import {} from "../a/...";
           |import {} from "../a/../";
           |import {} from "../a/../b";
+          |import {} from ".//";
           |import {} from ".";
           |import {} from "./";
-          |import {} from ".//";
+          |import {} from "./,";
+          |import {} from "./_a";
+          |import {} from "./[id]";
+          |import {} from "./-a";
           |import {} from "./A";
           |import {} from "./a";
           |import {} from "./ä"; // “a” followed by “̈̈” (COMBINING DIAERESIS).
           |import {} from "./ä";
-          |import {} from "./a/-";
           |import {} from "./a/.";
+          |import {} from "./a/-";
           |import {} from "./a/0";
           |import {} from "./B"; // B1
           |import {} from "./B"; // B2
@@ -1662,8 +1702,8 @@ const flowTests = {
           |import type {X} from "X";
           |import type {Z} from "Z";
           |
-          |import type E from "@/B";
           |import type C from "/B";
+          |import type E from "@/B";
           |
           |import type B from "./B";
           |import typeof D from "./D";

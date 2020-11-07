@@ -104,8 +104,8 @@ import styles from "./styles.scss";
 exports[`examples groups.default-reverse.js 1`] = `
 import styles from "./styles";
 
-import App from "@/App";
 import config from "/config";
+import App from "@/App";
 
 import { storiesOf } from "@storybook/react";
 import react from "react";
@@ -128,9 +128,9 @@ import styles from "./styles.css";
 
 exports[`examples groups.none.js 1`] = `
 import styles from "./styles";
+import config from "/config";
 import App from "@/App";
 import { storiesOf } from "@storybook/react";
-import config from "/config";
 import react from "react";
 
 `;
@@ -293,9 +293,9 @@ import fs from "fs";
 import b from "https://example.com/script.js";
 
 // Absolute imports and other imports.
-import Error from "@/components/error.vue";
 import c from "/";
 import d from "/home/user/foo";
+import Error from "@/components/error.vue";
 
 // Relative imports.
 import e from "../..";

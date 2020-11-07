@@ -874,15 +874,28 @@ function getSource(importNode) {
   const source = importNode.source.value;
 
   return {
-    source:
-      // Due to "." sorting before "/" by default, relative imports are
-      // automatically sorted in a logical manner for us: Imports from files
-      // further up come first, with deeper imports last. There’s one
-      // exception, though: When the `from` part ends with one or two dots:
-      // "." and "..". Those are supposed to sort just like "./", "../". So
-      // add in the slash for them. (No special handling is done for cases
-      // like "./a/.." because nobody writes that anyway.)
-      source === "." || source === ".." ? `${source}/` : source,
+    // Sort by directory level rather than by string length.
+    source: source
+      // Treat `.` as `./`, `..` as `../`, `../..` as `../../` etc.
+      .replace(/^[./]*\.$/, "$&/")
+      // Make `../` sort after `../../` but before `../a` etc.
+      // Why a comma? See the next comment.
+      .replace(/^[./]*\/$/, "$&,")
+      // Make `.` and `/` sort before any other punctation.
+      // The default order is: _ - , x x x . x x x / x x x
+      // We’re changing it to: . / , x x x _ x x x - x x x
+      .replace(/[./_-]/g, (char) => {
+        switch (char) {
+          case ".":
+            return "_";
+          case "/":
+            return "-";
+          case "_":
+            return ".";
+          case "-":
+            return "/";
+        }
+      }),
     originalSource: source,
     importKind: getImportKind(importNode),
   };
