@@ -7,12 +7,11 @@
     "test": "jest --coverage",
     "posttest": "npm run build",
     "build": "node build.js",
-    "eslint:examples": "eslint --rulesdir src --no-ignore --fix-dry-run --format json --report-unused-disable-directives examples --ext .js,.ts,.vue,.md"
+    "examples": "eslint --rulesdir src --no-ignore --fix-dry-run --format json --report-unused-disable-directives examples --ext .js,.ts,.vue,.md"
   },
   "devDependencies": {
     "@typescript-eslint/parser": "4.6.1",
     "babel-eslint": "10.1.0",
-    "cross-spawn": "7.0.3",
     "doctoc": "1.4.0",
     "eslint": "7.13.0",
     "eslint-plugin-import": "2.22.1",

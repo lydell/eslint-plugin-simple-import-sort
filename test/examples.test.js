@@ -1,8 +1,7 @@
 "use strict";
 
+const childProcess = require("child_process");
 const path = require("path");
-
-const spawn = require("cross-spawn");
 const prettier = require("prettier");
 
 // Make snapshots easier to read.
@@ -14,9 +13,14 @@ expect.addSnapshotSerializer({
 });
 
 describe("examples", () => {
-  const result = spawn.sync("npm", ["run", "eslint:examples", "--silent"], {
-    encoding: "utf8",
-  });
+  const result = childProcess.spawnSync(
+    "npm",
+    ["run", "examples", "--silent"],
+    {
+      encoding: "utf8",
+      shell: true, // For Windows.
+    }
+  );
 
   const output = JSON.parse(result.stdout);
 
