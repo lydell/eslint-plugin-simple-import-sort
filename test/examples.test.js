@@ -23,7 +23,7 @@ describe("examples", () => {
   for (const item of output) {
     const name = path.basename(item.filePath);
     if (!name.startsWith(".")) {
-      test(name, () => {
+      test(`${name}`, () => {
         expect(item).toMatchObject({
           messages: [],
           errorCount: 0,

@@ -287,13 +287,14 @@ function handleLastSemicolon(imports, sourceCode) {
   }
 
   // Preserve the start position, but use the end position of the `from` string.
-  const newLastImport = Object.assign({}, lastImport, {
+  const newLastImport = {
+    ...lastImport,
     range: [lastImport.range[0], nextToLastToken.range[1]],
     loc: {
       start: lastImport.loc.start,
       end: nextToLastToken.loc.end,
     },
-  });
+  };
 
   return imports.slice(0, lastIndex).concat(newLastImport);
 }
@@ -323,9 +324,10 @@ function printSortedSpecifiers(importNode, sourceCode) {
   const specifierTokens = allTokens.slice(openBraceIndex + 1, closeBraceIndex);
   const itemsResult = getSpecifierItems(specifierTokens, sourceCode);
 
-  const items = itemsResult.items.map((originalItem, index) =>
-    Object.assign({}, originalItem, { node: specifiers[index] })
-  );
+  const items = itemsResult.items.map((originalItem, index) => ({
+    ...originalItem,
+    node: specifiers[index],
+  }));
 
   const sortedItems = sortSpecifierItems(items);
 
@@ -679,9 +681,7 @@ function getAllTokens(node, sourceCode) {
   const tokens = sourceCode.getTokens(node);
   const lastTokenIndex = tokens.length - 1;
   return flatMap(tokens, (token, tokenIndex) => {
-    const newToken = Object.assign({}, token, {
-      code: sourceCode.getText(token),
-    });
+    const newToken = { ...token, code: sourceCode.getText(token) };
 
     if (tokenIndex === lastTokenIndex) {
       return [newToken];
@@ -700,7 +700,7 @@ function getAllTokens(node, sourceCode) {
           ...parseWhitespace(
             sourceCode.text.slice(previous.range[1], comment.range[0])
           ),
-          Object.assign({}, comment, { code: sourceCode.getText(comment) }),
+          { ...comment, code: sourceCode.getText(comment) },
         ];
       }),
       ...parseWhitespace(
