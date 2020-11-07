@@ -101,6 +101,19 @@ import styles from "./styles.scss";
 
 `;
 
+exports[`examples groups.default-reverse.js 1`] = `
+import styles from "./styles";
+
+import App from "@/App";
+import config from "/config";
+
+import { storiesOf } from "@storybook/react";
+import react from "react";
+
+import "./polyfills";
+
+`;
+
 exports[`examples groups.no-blank-lines.js 1`] = `
 import classnames from "classnames";
 import PropTypes from "prop-types";

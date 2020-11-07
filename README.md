@@ -305,7 +305,7 @@ type Options = {
 
 Each string is a regex (with the `u` flag) and defines a group. (Remember to escape backslashes – it’s `"\\w"`, not `"\w"`, for example.)
 
-Each `import` is matched against _all_ regexes on the `from` string. The import ends up in the group with **the longest match.** In case of a tie, the first matching group wins.
+Each `import` is matched against _all_ regexes on the `from` string. The import ends up in the group with **the longest match.** In case of a tie, the **first** matching group wins.
 
 > If an import ends up in the wrong group – try making the desired group regex match more of the `from` string, or use negative lookahead (`(?!x)`) to exclude things from other groups.
 
@@ -327,8 +327,8 @@ These are the default groups:
   // Things that start with a letter (or digit or underscore), or `@` followed by a letter.
   ["^@?\\w"],
   // Absolute imports and other imports such as Vue-style `@/foo`.
-  // Anything that does not start with a dot.
-  ["^[^.]"],
+  // Anything not matched in another group.
+  ["^"],
   // Relative imports.
   // Anything that starts with a dot.
   ["^\\."],

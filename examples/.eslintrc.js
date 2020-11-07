@@ -98,7 +98,19 @@ module.exports = {
           "error",
           {
             // The default grouping, but with no blank lines.
-            groups: [["^\\u0000", "^@?\\w", "^[^.]", "^\\."]],
+            groups: [["^\\u0000", "^@?\\w", "^", "^\\."]],
+          },
+        ],
+      },
+    },
+    {
+      files: ["groups.default-reverse.js"],
+      rules: {
+        sort: [
+          "error",
+          {
+            // The default grouping, but in reverse.
+            groups: [["^\\."], ["^"], ["^@?\\w"], ["^\\u0000"]],
           },
         ],
       },

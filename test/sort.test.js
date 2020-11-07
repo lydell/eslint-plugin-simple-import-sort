@@ -923,6 +923,7 @@ const baseTests = (expect) => ({
           |import {} from "lodash/fp";
           |import {} from "react";
           |
+          |import {} from "";
           |import {} from "@/components/Alert"
           |import {} from "@/components/error.vue"
           |import {} from "/";
@@ -960,8 +961,6 @@ const baseTests = (expect) => ({
           |import img2 from "./img2";
           |import img10 from "./img10";
           |import {} from ".a";
-          |
-          |import {} from "";
         `);
       },
       errors: 1,
