@@ -28,6 +28,7 @@ function extractChunks(programNode, isPartOfChunk) {
         }
         break;
 
+      // istanbul ignore next
       default:
         throw new Error(`Unknown chunk result: ${result}`);
     }
@@ -810,6 +811,7 @@ function getSource(node) {
             return ".";
           case "-":
             return "/";
+          // istanbul ignore next
           default:
             throw new Error(`Unknown source substitution character: ${char}`);
         }
