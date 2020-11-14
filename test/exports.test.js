@@ -71,6 +71,288 @@ const baseTests = (expect) => ({
       },
       errors: 1,
     },
+
+    // https://github.com/facebook/react/blob/4c7036e807fa18a3e21a5182983c7c0f05c5936e/packages/react-dom/src/client/ReactDOM.js#L193-L217
+    {
+      code: input`
+          |var
+          |  createPortal,
+          |  batchedUpdates,
+          |  flushSync,
+          |  Internals,
+          |  ReactVersion,
+          |  findDOMNode,
+          |  hydrate,
+          |  render,
+          |  unmountComponentAtNode,
+          |  createRoot,
+          |  createBlockingRoot,
+          |  flushControlled,
+          |  scheduleHydration,
+          |  renderSubtreeIntoContainer,
+          |  unstable_createPortal,
+          |  createEventHandle
+          |;
+          |export {
+          |  createPortal,
+          |  batchedUpdates as unstable_batchedUpdates,
+          |  flushSync,
+          |  Internals as __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED,
+          |  ReactVersion as version,
+          |  // Disabled behind disableLegacyReactDOMAPIs
+          |  findDOMNode,
+          |  hydrate,
+          |  render,
+          |  unmountComponentAtNode,
+          |  // exposeConcurrentModeAPIs
+          |  createRoot,
+          |  createBlockingRoot,
+          |  flushControlled as unstable_flushControlled,
+          |  scheduleHydration as unstable_scheduleHydration,
+          |  // Disabled behind disableUnstableRenderSubtreeIntoContainer
+          |  renderSubtreeIntoContainer as unstable_renderSubtreeIntoContainer,
+          |  // Disabled behind disableUnstableCreatePortal
+          |  // Temporary alias since we already shipped React 16 RC with it.
+          |  // Todo: remove in React 18.
+          |  unstable_createPortal,
+          |  // enableCreateEventHandleAPI
+          |  createEventHandle as unstable_createEventHandle,
+          |};
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |var
+          |  createPortal,
+          |  batchedUpdates,
+          |  flushSync,
+          |  Internals,
+          |  ReactVersion,
+          |  findDOMNode,
+          |  hydrate,
+          |  render,
+          |  unmountComponentAtNode,
+          |  createRoot,
+          |  createBlockingRoot,
+          |  flushControlled,
+          |  scheduleHydration,
+          |  renderSubtreeIntoContainer,
+          |  unstable_createPortal,
+          |  createEventHandle
+          |;
+          |export {
+          |  Internals as __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED,
+          |  createBlockingRoot,
+          |  createPortal,
+          |  // exposeConcurrentModeAPIs
+          |  createRoot,
+          |  // Disabled behind disableLegacyReactDOMAPIs
+          |  findDOMNode,
+          |  flushSync,
+          |  hydrate,
+          |  render,
+          |  unmountComponentAtNode,
+          |  batchedUpdates as unstable_batchedUpdates,
+          |  // enableCreateEventHandleAPI
+          |  createEventHandle as unstable_createEventHandle,
+          |  // Disabled behind disableUnstableCreatePortal
+          |  // Temporary alias since we already shipped React 16 RC with it.
+          |  // Todo: remove in React 18.
+          |  unstable_createPortal,
+          |  flushControlled as unstable_flushControlled,
+          |  // Disabled behind disableUnstableRenderSubtreeIntoContainer
+          |  renderSubtreeIntoContainer as unstable_renderSubtreeIntoContainer,
+          |  scheduleHydration as unstable_scheduleHydration,
+          |  ReactVersion as version,
+          |};
+        `);
+      },
+      errors: 1,
+    },
+
+    // https://github.com/apollographql/apollo-client/blob/39942881567ff9825a0f17bbf114ec441590f8bb/src/core/index.ts#L1-L98
+    {
+      code: input`
+          |/* Core */
+          |
+          |export {
+          |  ApolloClient,
+          |  ApolloClientOptions,
+          |  DefaultOptions
+          |} from '../ApolloClient';
+          |export {
+          |  ObservableQuery,
+          |  FetchMoreOptions,
+          |  UpdateQueryOptions,
+          |  ApolloCurrentQueryResult,
+          |} from '../core/ObservableQuery';
+          |export {
+          |  QueryBaseOptions,
+          |  QueryOptions,
+          |  WatchQueryOptions,
+          |  MutationOptions,
+          |  SubscriptionOptions,
+          |  FetchPolicy,
+          |  WatchQueryFetchPolicy,
+          |  ErrorPolicy,
+          |  FetchMoreQueryOptions,
+          |  SubscribeToMoreOptions,
+          |  MutationUpdaterFn,
+          |} from '../core/watchQueryOptions';
+          |export { NetworkStatus } from '../core/networkStatus';
+          |export * from '../core/types';
+          |export {
+          |  Resolver,
+          |  FragmentMatcher as LocalStateFragmentMatcher,
+          |} from '../core/LocalState';
+          |export { isApolloError, ApolloError } from '../errors/ApolloError';
+          |
+          |/* Cache */
+          |
+          |export * from '../cache';
+          |
+          |/* Link */
+          |
+          |export { empty } from '../link/core/empty';
+          |export { from } from '../link/core/from';
+          |export { split } from '../link/core/split';
+          |export { concat } from '../link/core/concat';
+          |export { execute } from '../link/core/execute';
+          |export { ApolloLink } from '../link/core/ApolloLink';
+          |export * from '../link/core/types';
+          |export {
+          |  parseAndCheckHttpResponse,
+          |  ServerParseError
+          |} from '../link/http/parseAndCheckHttpResponse';
+          |export {
+          |  serializeFetchParameter,
+          |  ClientParseError
+          |} from '../link/http/serializeFetchParameter';
+          |export {
+          |  HttpOptions,
+          |  fallbackHttpConfig,
+          |  selectHttpOptionsAndBody,
+          |  UriFunction
+          |} from '../link/http/selectHttpOptionsAndBody';
+          |export { checkFetcher } from '../link/http/checkFetcher';
+          |export { createSignalIfSupported } from '../link/http/createSignalIfSupported';
+          |export { selectURI } from '../link/http/selectURI';
+          |export { createHttpLink } from '../link/http/createHttpLink';
+          |export { HttpLink } from '../link/http/HttpLink';
+          |export { fromError } from '../link/utils/fromError';
+          |export { toPromise } from '../link/utils/toPromise';
+          |export { fromPromise } from '../link/utils/fromPromise';
+          |export { ServerError, throwServerError } from '../link/utils/throwServerError';
+          |export {
+          |  Observable,
+          |  Observer,
+          |  ObservableSubscription
+          |} from '../utilities/observables/Observable';
+          |
+          |/* Supporting */
+          |
+          |// Note that importing \`gql\` by itself, then destructuring
+          |// additional properties separately before exporting, is intentional...
+          |import gql from 'graphql-tag';
+          |export const {
+          |  resetCaches,
+          |  disableFragmentWarnings,
+          |  enableExperimentalFragmentVariables,
+          |  disableExperimentalFragmentVariables
+          |} = gql;
+          |export { gql };
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |/* Core */
+          |
+          |export {
+          |  ApolloClient,
+          |  ApolloClientOptions,
+          |  DefaultOptions
+          |} from '../ApolloClient';
+          |export {
+          |  FragmentMatcher as LocalStateFragmentMatcher,
+          |  Resolver,
+          |} from '../core/LocalState';
+          |export { NetworkStatus } from '../core/networkStatus';
+          |export {
+          |  ApolloCurrentQueryResult,
+          |  FetchMoreOptions,
+          |  ObservableQuery,
+          |  UpdateQueryOptions,
+          |} from '../core/ObservableQuery';
+          |export * from '../core/types';
+          |export {
+          |  ErrorPolicy,
+          |  FetchMoreQueryOptions,
+          |  FetchPolicy,
+          |  MutationOptions,
+          |  MutationUpdaterFn,
+          |  QueryBaseOptions,
+          |  QueryOptions,
+          |  SubscribeToMoreOptions,
+          |  SubscriptionOptions,
+          |  WatchQueryFetchPolicy,
+          |  WatchQueryOptions,
+          |} from '../core/watchQueryOptions';
+          |export { ApolloError,isApolloError } from '../errors/ApolloError';
+          |
+          |/* Cache */
+          |
+          |export * from '../cache';
+          |
+          |/* Link */
+          |
+          |export { ApolloLink } from '../link/core/ApolloLink';
+          |export { concat } from '../link/core/concat';
+          |export { empty } from '../link/core/empty';
+          |export { execute } from '../link/core/execute';
+          |export { from } from '../link/core/from';
+          |export { split } from '../link/core/split';
+          |export * from '../link/core/types';
+          |export { checkFetcher } from '../link/http/checkFetcher';
+          |export { createHttpLink } from '../link/http/createHttpLink';
+          |export { createSignalIfSupported } from '../link/http/createSignalIfSupported';
+          |export { HttpLink } from '../link/http/HttpLink';
+          |export {
+          |  parseAndCheckHttpResponse,
+          |  ServerParseError
+          |} from '../link/http/parseAndCheckHttpResponse';
+          |export {
+          |  fallbackHttpConfig,
+          |  HttpOptions,
+          |  selectHttpOptionsAndBody,
+          |  UriFunction
+          |} from '../link/http/selectHttpOptionsAndBody';
+          |export { selectURI } from '../link/http/selectURI';
+          |export {
+          |  ClientParseError,
+          |  serializeFetchParameter} from '../link/http/serializeFetchParameter';
+          |export { fromError } from '../link/utils/fromError';
+          |export { fromPromise } from '../link/utils/fromPromise';
+          |export { ServerError, throwServerError } from '../link/utils/throwServerError';
+          |export { toPromise } from '../link/utils/toPromise';
+          |export {
+          |  Observable,
+          |  ObservableSubscription,
+          |  Observer} from '../utilities/observables/Observable';
+          |
+          |/* Supporting */
+          |
+          |// Note that importing \`gql\` by itself, then destructuring
+          |// additional properties separately before exporting, is intentional...
+          |import gql from 'graphql-tag';
+          |export const {
+          |  resetCaches,
+          |  disableFragmentWarnings,
+          |  enableExperimentalFragmentVariables,
+          |  disableExperimentalFragmentVariables
+          |} = gql;
+          |export { gql };
+        `);
+      },
+      errors: 2,
+    },
   ],
 });
 
