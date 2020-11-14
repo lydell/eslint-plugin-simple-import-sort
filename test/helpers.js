@@ -78,7 +78,7 @@ function getLoc(depth = 1) {
 // the first one, because Jest can’t update the snapshots otherwise.
 const expect2 = (expect) => (...args) => {
   const ret = expect(...args);
-  ret.toMatchInlineSnapshot = (string) =>
+  ret.toMatchInlineSnapshot = (string = "No snapshot yet – run again!") =>
     ret.toBe(strip(string, { keepPipes: true }));
   return ret;
 };

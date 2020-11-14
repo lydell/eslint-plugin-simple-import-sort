@@ -54,6 +54,13 @@ const baseTests = (expect) => ({
           |export {b} from "b";    
           |export {c} from "c";  /* comment */  
     `,
+
+    // Commenting out an export doesn’t produce a sorting error.
+    input`
+          |export {a} from "a"
+          |// export {b} from "b";
+          |export {c} from "c";
+    `,
   ],
 
   invalid: [
@@ -70,6 +77,357 @@ const baseTests = (expect) => ({
         `);
       },
       errors: 1,
+    },
+
+    // Using comments for grouping.
+    {
+      code: input`
+          |export * from "g"
+          |export * from "f";
+          |// Group 2
+          |export * from "e"
+          |export * from "d"
+          |/* Group 3 */
+          |
+          |export * from "c"
+          |
+          |
+          |export * from "b"
+          |
+          |
+          | /* Group 4
+          | */
+          |
+          |   export * from "a"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export * from "f";
+          |export * from "g"
+          |// Group 2
+          |export * from "d"
+          |export * from "e"
+          |/* Group 3 */
+          |
+          |export * from "b"
+          |export * from "c"
+          |
+          |
+          | /* Group 4
+          | */
+          |
+          |   export * from "a"
+        `);
+      },
+      errors: 3,
+    },
+
+    // Sorting specifiers.
+    // In `a as c`, the “c” is used since that’s the “stable” name, while the
+    // internal `a` name can change at any time without affecting the module
+    // interface. In other words, this is “backwards” compared to
+    // `import {a as c} from "x"`.
+    {
+      code: `export { d, a as c, a as b2, b, a } from "specifiers"`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(
+          `export { a,b, a as b2, a as c, d } from "specifiers"`
+        );
+      },
+      errors: 1,
+    },
+    {
+      code: `export { d, a as c, a as b2, b, a, }; var d, a, b;`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(
+          `export { a,b, a as b2, a as c, d,  }; var d, a, b;`
+        );
+      },
+      errors: 1,
+    },
+
+    // Comments on the same line as something else don’t count for grouping.
+    {
+      code: input`
+          |export * from "g"
+          |/* f1 */export * from "f"; // f2
+          |export * from "e" /* d
+          | */
+          |export * from "d"
+          |export * from "c" /*
+          | b */ export * from "b"
+          | /* a
+          | */ export * from "a"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          | /* a
+          | */ export * from "a"
+          |/*
+          | b */ export * from "b"
+          |export * from "c" 
+          |/* d
+          | */
+          |export * from "d"
+          |export * from "e" 
+          |/* f1 */export * from "f"; // f2
+          |export * from "g"
+        `);
+      },
+      errors: 1,
+    },
+
+    // Sorting with lots of comments.
+    {
+      code: input`
+          |/*1*//*2*/export/*3*/*/*4*/as/*as*/foo/*foo1*//*foo2*/from/*6*/"specifiers-lots-of-comments"/*7*//*8*/
+          |export { // start
+          |  /* c1 */ c /* c2 */, // c3
+          |  // b1
+          |
+          |  b as /* b2 */ renamed
+          |  , /* b3 */ /* a1
+          |  */ a /* not-a
+          |  */ // comment at end
+          |} from "specifiers-lots-of-comments-multiline";
+          |export {
+          |  e,
+          |  d, /* d */ /* not-d
+          |  */ // comment at end after trailing comma
+          |};
+          |var e, d;
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |/*1*//*2*/export/*3*/*/*4*/as/*as*/foo/*foo1*//*foo2*/from/*6*/"specifiers-lots-of-comments"/*7*//*8*/
+          |export { // start
+          |/* a1
+          |  */ a, 
+          |  /* c1 */ c /* c2 */, // c3
+          |  // b1
+          |  b as /* b2 */ renamed
+          |  /* b3 */ /* not-a
+          |  */ // comment at end
+          |} from "specifiers-lots-of-comments-multiline";
+          |export {
+          |  d, /* d */   e,
+          |/* not-d
+          |  */ // comment at end after trailing comma
+          |};
+          |var e, d;
+        `);
+      },
+      errors: 2,
+    },
+
+    // Collapse blank lines inside export statements.
+    {
+      code: input`
+          |export
+          |
+          |// export
+          |
+          |/* default */
+          |
+          |
+          |
+          |// default
+          |
+          | {
+          |
+          |  // c
+          |
+          |  c /*c*/,
+          |
+          |  /* b
+          |   */
+          |
+          |  b // b
+          |  ,
+          |
+          |  // a1
+          |
+          |  // a2
+          |
+          |  a
+          |
+          |  // a3
+          |
+          |  as
+          |
+          |  // a4
+          |
+          |  d
+          |
+          |  // a5
+          |
+          |  , // a6
+          |
+          |  // last
+          |
+          |}
+          |
+          |// from1
+          |
+          |from
+          |
+          |// from2
+          |
+          |"c"
+          |
+          |// final
+          |
+          |;
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export
+          |// export
+          |/* default */
+          |// default
+          | {
+          |  /* b
+          |   */
+          |  b // b
+          |  ,
+          |  // c
+          |  c /*c*/,
+          |  // a1
+          |  // a2
+          |  a
+          |  // a3
+          |  as
+          |  // a4
+          |  d
+          |  // a5
+          |  , // a6
+          |  // last
+          |}
+          |// from1
+          |from
+          |// from2
+          |"c"
+          |// final
+          |;
+        `);
+      },
+      errors: 1,
+    },
+
+    // Collapse blank lines inside empty specifier list.
+    {
+      code: input`
+          |export {
+          |
+          |    } from "specifiers-empty"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {
+          |    } from "specifiers-empty"
+        `);
+      },
+      errors: 1,
+    },
+
+    // Do not collapse empty lines inside export code.
+    {
+      code: input`
+          |export const options = {
+          |
+          |    a: 1,
+          |
+          |    b: 2
+          |    }, a = 1
+          |export {options as options2, a as a2}
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export const options = {
+          |
+          |    a: 1,
+          |
+          |    b: 2
+          |    }, a = 1
+          |export {a as a2,options as options2}
+        `);
+      },
+      errors: 1,
+    },
+
+    // Preserve indentation (for `<script>` tags).
+    {
+      code: input`
+          |  export {e} from "e"
+          |  export {
+          |    b4, b3,
+          |    b2
+          |  } from "b";
+          |  /* a */ export {a} from "a"; export {c} from "c"
+          |  
+          |    export {d} from "d"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |  /* a */ export {a} from "a"; 
+          |  export {
+          |    b2,
+          |b3,
+          |    b4  } from "b";
+          |export {c} from "c"
+          |    export {d} from "d"
+          |  export {e} from "e"
+        `);
+      },
+      errors: 1,
+    },
+
+    // Handling last semicolon.
+    {
+      code: input`
+          |export {x2} from "b"
+          |export {x1} from "a"
+          |
+          |;[].forEach()
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export {x1} from "a"
+          |export {x2} from "b"
+          |
+          |;[].forEach()
+        `);
+      },
+      errors: 1,
+    },
+
+    // Test messageId, lines and columns.
+    {
+      code: input`
+          |// before
+          |/* also
+          |before */ export * from "b";
+          |export * from "a"; /*a*/ /* comment
+          |after */ // after
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |// before
+          |/* also
+          |before */ export * from "a"; /*a*/ 
+          |export * from "b";/* comment
+          |after */ // after
+        `);
+      },
+      errors: [
+        {
+          messageId: "sort",
+          line: 3,
+          column: 11,
+          endLine: 4,
+          endColumn: 26,
+        },
+      ],
     },
 
     // https://github.com/facebook/react/blob/4c7036e807fa18a3e21a5182983c7c0f05c5936e/packages/react-dom/src/client/ReactDOM.js#L193-L217
