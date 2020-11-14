@@ -47,6 +47,7 @@ This is for those who use `eslint --fix` (autofix) a lot and want to completely 
   - [The sorting autofix causes some odd whitespace!](#the-sorting-autofix-causes-some-odd-whitespace)
   - [Can I use this without autofix?](#can-i-use-this-without-autofix)
   - [How do I use eslint-ignore for this rule?](#how-do-i-use-eslint-ignore-for-this-rule)
+  - [How is this rule different from `import/order`?](#how-is-this-rule-different-from-importorder)
 - [License](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -617,10 +618,30 @@ Not really. The error message for this rule is literally “Run autofix to sort 
 
 Looking for `/* eslint-disable */` for this rule? Read all about **[ignoring (parts of) sorting][example-ignore].**
 
+### How is this rule different from `import/order`?
+
+The [import/order] rule used to not support alphabetical sorting but now it does. So what does `eslint-plugin-simple-import-sort` bring to the table?
+
+- Sorts imported/exported items (`import { a, b, c } from "."`): [eslint-plugin-import#1787](https://github.com/benmosher/eslint-plugin-import/issues/1787)
+- Sorts re-exports: [eslint-plugin-import#1888](https://github.com/benmosher/eslint-plugin-import/issues/1888)
+- Supports comments: [eslint-plugin-import#1450](https://github.com/benmosher/eslint-plugin-import/issues/1450), [eslint-plugin-import#1723](https://github.com/benmosher/eslint-plugin-import/issues/1723)
+- Supports type imports: [eslint-plugin-import#645](https://github.com/benmosher/eslint-plugin-import/issues/645)
+- Supports absolute imports: [eslint-plugin-import#512](https://github.com/benmosher/eslint-plugin-import/issues/512)
+- Allows choosing where side effect imports go: [eslint-plugin-import#970](https://github.com/benmosher/eslint-plugin-import/issues/970)
+- Allows custom ordering within groups: [eslint-plugin-import#1378](https://github.com/benmosher/eslint-plugin-import/issues/1378)
+- Sorts numerically (`"./img10.jpg"` sorts after `"./img2.jpg"`, not before)
+- Open `import/order` issues: [import/export ordering](https://github.com/benmosher/eslint-plugin-import/labels/import%2Fexport%20ordering)
+
+Some other differences:
+
+- This plugin gives you a single error for each chunk of imports/exports, while `import/order` can give multiple (see [Can I use this without autofix?][autofix] for details). In other words, this plugin is noisier in terms of underlined lines in your editor, while `import/order` is noisier in terms of error count.
+- This plugin has a single (though very powerful) option that is a bunch of regexes, while `import/order` has bunch of different options. It’s unclear which is easier to configure. But `eslint-plugin-simple-import-sort` tries to do the maximum out of the box.
+
 ## License
 
 [MIT](LICENSE)
 
+[autofix]: #can-i-use-this-without-autofix
 [comment-handling]: #comment-and-whitespace-handling
 [custom grouping]: #custom-grouping
 [eslint-fix]: https://eslint.org/docs/user-guide/command-line-interface#--fix
