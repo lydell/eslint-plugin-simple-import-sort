@@ -52,10 +52,10 @@ module.exports = {
     );
     return {
       Program: (programNode) => {
-        for (const imports of shared.extractChunks(programNode, (node) =>
+        for (const chunk of shared.extractChunks(programNode, (node) =>
           isImport(node) ? "PartOfChunk" : "NotPartOfChunk"
         )) {
-          maybeReportChunkSorting(imports, context, outerGroups);
+          maybeReportChunkSorting(chunk, context, outerGroups);
         }
       },
     };

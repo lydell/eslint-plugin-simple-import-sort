@@ -1,11 +1,11 @@
 "use strict";
 
-const imports = require("./imports");
-const exports = require("./exports");
+const importsRule = require("./imports");
+const exportsRule = require("./exports");
 
 module.exports = {
   rules: {
-    imports,
-    exports,
+    imports: importsRule,
+    exports: exportsRule,
   },
 };

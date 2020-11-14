@@ -18,11 +18,10 @@ module.exports = {
   create: (context) => ({
     Program: (programNode) => {
       const sourceCode = context.getSourceCode();
-      for (const exports of shared.extractChunks(
-        programNode,
-        (node, lastNode) => isPartOfChunk(node, lastNode, sourceCode)
+      for (const chunk of shared.extractChunks(programNode, (node, lastNode) =>
+        isPartOfChunk(node, lastNode, sourceCode)
       )) {
-        maybeReportChunkSorting(exports, context);
+        maybeReportChunkSorting(chunk, context);
       }
     },
     ExportNamedDeclaration: (node) => {
