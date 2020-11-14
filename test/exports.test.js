@@ -22,6 +22,38 @@ const baseTests = (expect) => ({
     `export class C {}`,
     `export { a, b as c }; var a, b;`,
     `export default whatever;`,
+
+    // Sorted alphabetically.
+    input`
+          |export {x1} from "a";
+          |export {x2} from "b"
+    `,
+
+    // Opt-out.
+    input`
+          |// eslint-disable-next-line
+          |export {x2} from "b"
+          |export {x1} from "a";
+    `,
+
+    // Whitespace before comment at last specifier should stay.
+    input`
+          |export {
+          |  a, // a
+          |  b // b
+          |} from "specifiers-comment-space"
+          |export {
+          |  c, // c
+          |  d, // d
+          |} from "specifiers-comment-space-2"
+    `,
+
+    // Accidental trailing spaces doesn’t produce a sorting error.
+    input`
+          |export {a} from "a"    
+          |export {b} from "b";    
+          |export {c} from "c";  /* comment */  
+    `,
   ],
 
   invalid: [
