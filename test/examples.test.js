@@ -1,6 +1,7 @@
 "use strict";
 
 const childProcess = require("child_process");
+const fs = require("fs");
 const path = require("path");
 const prettier = require("prettier");
 
@@ -36,7 +37,10 @@ describe("examples", () => {
           fixableWarningCount: 0,
         });
         const code = name.includes("prettier")
-          ? prettier.format(item.output, { parser: "babel" })
+          ? prettier.format(
+              item.output || fs.readFileSync(item.filePath, "utf8"),
+              { parser: "babel" }
+            )
           : item.output;
         expect(code).toMatchSnapshot();
       });
