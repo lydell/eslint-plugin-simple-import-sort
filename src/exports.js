@@ -1,6 +1,6 @@
 "use strict";
 
-const { extractChunks } = require("./shared");
+const shared = require("./shared");
 
 module.exports = {
   meta: {
@@ -16,8 +16,12 @@ module.exports = {
     },
   },
   create: (context) => ({
-    Program: (node) => {
-      for (const exports of extractChunks(node, isExportFrom)) {
+    Program: (programNode) => {
+      const sourceCode = context.getSourceCode();
+      for (const exports of shared.extractChunks(
+        programNode,
+        (node, lastNode) => isPartOfChunk(node, lastNode, sourceCode)
+      )) {
         maybeReportChunkSorting(exports, context);
       }
     },
@@ -29,19 +33,50 @@ module.exports = {
   }),
 };
 
-function maybeReportChunkSorting(chunk, context, outerGroups) {
+function maybeReportChunkSorting(chunk, context) {
   const sourceCode = context.getSourceCode();
-  const items = getImportExportItems(chunk, sourceCode);
-  const sorted = printSortedImportsOrExports(items, sourceCode, outerGroups);
+  const items = shared.getImportExportItems(
+    chunk,
+    sourceCode,
+    () => false, // isSideEffectImport
+    getSpecifiers
+  );
+  const sortedItems = [[shared.sortImportExportItems(items)]];
+  const sorted = shared.printSortedItems(sortedItems, items, sourceCode);
   const { start } = items[0];
   const { end } = items[items.length - 1];
-  maybeReportSorting(context, sorted, start, end);
+  shared.maybeReportSorting(context, sorted, start, end);
 }
 
 function maybeReportExportSpecifierSorting(node, context) {
-  const sorted = printWithSortedSpecifiers(node, context.getSourceCode());
+  const sorted = shared.printWithSortedSpecifiers(
+    node,
+    context.getSourceCode(),
+    getSpecifiers
+  );
   const [start, end] = node.range;
-  maybeReportSorting(context, sorted, start, end);
+  shared.maybeReportSorting(context, sorted, start, end);
+}
+
+// `export * from "a"` does not have `.specifiers`.
+function getSpecifiers(exportNode) {
+  return exportNode.specifiers || [];
+}
+
+function isPartOfChunk(node, lastNode, sourceCode) {
+  if (!isExportFrom(node)) {
+    return "NotPartOfChunk";
+  }
+
+  const hasGroupingComment = sourceCode
+    .getCommentsBefore(node)
+    .some(
+      (comment) =>
+        (lastNode == null || comment.loc.start.line > lastNode.loc.end.line) &&
+        comment.loc.end.line > node.loc.start.line
+    );
+
+  return hasGroupingComment ? "PartOfNewChunk" : "PartOfChunk";
 }
 
 // Full export-from statement.

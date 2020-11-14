@@ -51,8 +51,10 @@ module.exports = {
       groups.map((item) => RegExp(item, "u"))
     );
     return {
-      Program: (node) => {
-        for (const imports of shared.extractChunks(node, isImport)) {
+      Program: (programNode) => {
+        for (const imports of shared.extractChunks(programNode, (node) =>
+          isImport(node) ? "PartOfChunk" : "NotPartOfChunk"
+        )) {
           maybeReportChunkSorting(imports, context, outerGroups);
         }
       },
@@ -60,10 +62,10 @@ module.exports = {
   },
 };
 
-function maybeReportChunkSorting(imports, context, outerGroups) {
+function maybeReportChunkSorting(chunk, context, outerGroups) {
   const sourceCode = context.getSourceCode();
   const items = shared.getImportExportItems(
-    imports,
+    chunk,
     sourceCode,
     isSideEffectImport,
     getSpecifiers
@@ -75,13 +77,13 @@ function maybeReportChunkSorting(imports, context, outerGroups) {
   shared.maybeReportSorting(context, sorted, start, end);
 }
 
-function makeSortedItems(importItems, outerGroups) {
+function makeSortedItems(items, outerGroups) {
   const itemGroups = outerGroups.map((groups) =>
     groups.map((regex) => ({ regex, items: [] }))
   );
   const rest = [];
 
-  for (const item of importItems) {
+  for (const item of items) {
     const { originalSource } = item.source;
     const source = item.isSideEffectImport
       ? `\0${originalSource}`

@@ -5,14 +5,34 @@
 function extractChunks(programNode, isPartOfChunk) {
   const chunks = [];
   let chunk = [];
+  let lastNode = undefined;
 
-  for (const item of programNode.body) {
-    if (isPartOfChunk(item)) {
-      chunk.push(item);
-    } else if (chunk.length > 0) {
-      chunks.push(chunk);
-      chunk = [];
+  for (const node of programNode.body) {
+    const result = isPartOfChunk(node, lastNode);
+    switch (result) {
+      case "PartOfChunk":
+        chunk.push(node);
+        break;
+
+      case "PartOfNewChunk":
+        if (chunk.length > 0) {
+          chunks.push(chunk);
+        }
+        chunk = [node];
+        break;
+
+      case "NotPartOfChunk":
+        if (chunk.length > 0) {
+          chunks.push(chunk);
+          chunk = [];
+        }
+        break;
+
+      default:
+        throw new Error(`Unknown chunk result: ${result}`);
     }
+
+    lastNode = node;
   }
 
   if (chunk.length > 0) {
@@ -790,6 +810,8 @@ function getSource(node) {
             return ".";
           case "-":
             return "/";
+          default:
+            throw new Error(`Unknown source substitution character: ${char}`);
         }
       }),
     originalSource: source,
@@ -829,5 +851,6 @@ module.exports = {
   isPunctuator,
   maybeReportSorting,
   printSortedItems,
+  printWithSortedSpecifiers,
   sortImportExportItems,
 };
