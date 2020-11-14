@@ -62,7 +62,7 @@ module.exports = {
 
 function maybeReportChunkSorting(imports, context, outerGroups) {
   const sourceCode = context.getSourceCode();
-  const items = shared.getImportItems(
+  const items = shared.getImportExportItems(
     imports,
     sourceCode,
     isSideEffectImport,
@@ -110,7 +110,7 @@ function makeSortedItems(importItems, outerGroups) {
     .map((groups) => groups.filter((group) => group.items.length > 0))
     .filter((groups) => groups.length > 0)
     .map((groups) =>
-      groups.map((group) => shared.sortImportItems(group.items))
+      groups.map((group) => shared.sortImportExportItems(group.items))
     );
 }
 

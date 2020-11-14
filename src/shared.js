@@ -4,19 +4,19 @@
 // and whitespace between.
 function extractChunks(programNode, isPartOfChunk) {
   const chunks = [];
-  let imports = [];
+  let chunk = [];
 
   for (const item of programNode.body) {
     if (isPartOfChunk(item)) {
-      imports.push(item);
-    } else if (imports.length > 0) {
-      chunks.push(imports);
-      imports = [];
+      chunk.push(item);
+    } else if (chunk.length > 0) {
+      chunks.push(chunk);
+      chunk = [];
     }
   }
 
-  if (imports.length > 0) {
-    chunks.push(imports);
+  if (chunk.length > 0) {
+    chunks.push(chunk);
   }
 
   return chunks;
@@ -48,9 +48,9 @@ function printSortedItems(sortedItems, originalItems, sourceCode) {
     )
     .join(newline + newline);
 
-  // Edge case: If the last import (after sorting) ends with a line comment and
-  // there’s code (or a multiline block comment) on the same line, add a newline
-  // so we don’t accidentally comment stuff out.
+  // Edge case: If the last import/export (after sorting) ends with a line
+  // comment and there’s code (or a multiline block comment) on the same line,
+  // add a newline so we don’t accidentally comment stuff out.
   const flattened = flatMap(sortedItems, (groups) => [].concat(...groups));
   const lastSortedItem = flattened[flattened.length - 1];
   const lastOriginalItem = originalItems[originalItems.length - 1];
@@ -74,86 +74,85 @@ function printSortedItems(sortedItems, originalItems, sourceCode) {
   return sorted + maybeNewline;
 }
 
-// Wrap the import nodes in `passedImports` in objects with more data about the
-// import. Most importantly there’s a `code` property that contains the import
-// node as a string, with comments (if any). Finding the corresponding comments
-// is the hard part.
-function getImportItems(
-  passedImports,
+// Wrap the import/export nodes in `passedChunk` in objects with more data about
+// the import/export. Most importantly there’s a `code` property that contains
+// the node as a string, with comments (if any). Finding the corresponding
+// comments is the hard part.
+function getImportExportItems(
+  passedChunk,
   sourceCode,
   isSideEffectImport,
   getSpecifiers
 ) {
-  const imports = handleLastSemicolon(passedImports, sourceCode);
-  return imports.map((importNode, importIndex) => {
+  const chunk = handleLastSemicolon(passedChunk, sourceCode);
+  return chunk.map((node, nodeIndex) => {
     const lastLine =
-      importIndex === 0
-        ? importNode.loc.start.line - 1
-        : imports[importIndex - 1].loc.end.line;
+      nodeIndex === 0
+        ? node.loc.start.line - 1
+        : chunk[nodeIndex - 1].loc.end.line;
 
-    // Get all comments before the import, except:
+    // Get all comments before the import/export, except:
     //
-    // - Comments on another line for the first import.
-    // - Comments that belong to the previous import (if any) – that is,
-    //   comments that are on the same line as the previous import. But multiline
-    //   block comments always belong to this import, not the previous.
+    // - Comments on another line for the first import/export.
+    // - Comments that belong to the previous import/export (if any) – that is,
+    //   comments that are on the same line as the previous import/export. But
+    //   multiline block comments always belong to this import/export, not the
+    //   previous.
     const commentsBefore = sourceCode
-      .getCommentsBefore(importNode)
+      .getCommentsBefore(node)
       .filter(
         (comment) =>
-          comment.loc.start.line <= importNode.loc.start.line &&
+          comment.loc.start.line <= node.loc.start.line &&
           comment.loc.end.line > lastLine &&
-          (importIndex > 0 || comment.loc.start.line > lastLine)
+          (nodeIndex > 0 || comment.loc.start.line > lastLine)
       );
 
-    // Get all comments after the import that are on the same line. Multiline
-    // block comments belong to the _next_ import (or the following code in case
-    // of the last import).
+    // Get all comments after the import/export that are on the same line.
+    // Multiline block comments belong to the _next_ import/export (or the
+    // following code in case of the last import/export).
     const commentsAfter = sourceCode
-      .getCommentsAfter(importNode)
-      .filter((comment) => comment.loc.end.line === importNode.loc.end.line);
+      .getCommentsAfter(node)
+      .filter((comment) => comment.loc.end.line === node.loc.end.line);
 
-    const before = printCommentsBefore(importNode, commentsBefore, sourceCode);
-    const after = printCommentsAfter(importNode, commentsAfter, sourceCode);
+    const before = printCommentsBefore(node, commentsBefore, sourceCode);
+    const after = printCommentsAfter(node, commentsAfter, sourceCode);
 
-    // Print the indentation before the import or its first comment, if any, to
-    // support indentation in `<script>` tags.
+    // Print the indentation before the import/export or its first comment, if
+    // any, to support indentation in `<script>` tags.
     const indentation = getIndentation(
-      commentsBefore.length > 0 ? commentsBefore[0] : importNode,
+      commentsBefore.length > 0 ? commentsBefore[0] : node,
       sourceCode
     );
 
-    // Print spaces after the import or its last comment, if any, to avoid
-    // producing a sort error just because you accidentally added a few trailing
-    // spaces among the imports.
+    // Print spaces after the import/export or its last comment, if any, to
+    // avoid producing a sort error just because you accidentally added a few
+    // trailing spaces among the imports/exports.
     const trailingSpaces = getTrailingSpaces(
-      commentsAfter.length > 0
-        ? commentsAfter[commentsAfter.length - 1]
-        : importNode,
+      commentsAfter.length > 0 ? commentsAfter[commentsAfter.length - 1] : node,
       sourceCode
     );
 
     const code =
       indentation +
       before +
-      printSortedSpecifiers(importNode, sourceCode, getSpecifiers) +
+      printWithSortedSpecifiers(node, sourceCode, getSpecifiers) +
       after +
       trailingSpaces;
 
-    const all = [...commentsBefore, importNode, ...commentsAfter];
+    const all = [...commentsBefore, node, ...commentsAfter];
     const [start] = all[0].range;
     const [, end] = all[all.length - 1].range;
 
-    const source = getSource(importNode);
+    const source = getSource(node);
 
     return {
-      node: importNode,
+      node,
       code,
       start: start - indentation.length,
       end: end + trailingSpaces.length,
-      isSideEffectImport: isSideEffectImport(importNode, sourceCode),
+      isSideEffectImport: isSideEffectImport(node, sourceCode),
       source,
-      index: importIndex,
+      index: nodeIndex,
       needsNewline:
         commentsAfter.length > 0 &&
         isLineComment(commentsAfter[commentsAfter.length - 1]),
@@ -167,48 +166,48 @@ function getImportItems(
 //     import x from "x"
 //     ;[].forEach()
 //
-// If the last import of a chunk ends with a semicolon, and that semicolon isn’t
-// located on the same line as the `from` string, adjust the import node to end
-// at the `from` string instead.
+// If the last import/export of a chunk ends with a semicolon, and that
+// semicolon isn’t located on the same line as the `from` string, adjust the
+// node to end at the `from` string instead.
 //
 // In the above example, the import is adjusted to end after `"x"`.
-function handleLastSemicolon(imports, sourceCode) {
-  const lastIndex = imports.length - 1;
-  const lastImport = imports[lastIndex];
-  const [nextToLastToken, lastToken] = sourceCode.getLastTokens(lastImport, {
+function handleLastSemicolon(chunk, sourceCode) {
+  const lastIndex = chunk.length - 1;
+  const lastNode = chunk[lastIndex];
+  const [nextToLastToken, lastToken] = sourceCode.getLastTokens(lastNode, {
     count: 2,
   });
   const lastIsSemicolon = isPunctuator(lastToken, ";");
 
   if (!lastIsSemicolon) {
-    return imports;
+    return chunk;
   }
 
-  const semicolonBelongsToImport =
+  const semicolonBelongsToNode =
     nextToLastToken.loc.end.line === lastToken.loc.start.line ||
-    // If there’s no more code after the last import the semicolon has to belong
-    // to the import, even if it is not on the same line.
+    // If there’s no more code after the last import/export the semicolon has to
+    // belong to the import/export, even if it is not on the same line.
     sourceCode.getTokenAfter(lastToken) == null;
 
-  if (semicolonBelongsToImport) {
-    return imports;
+  if (semicolonBelongsToNode) {
+    return chunk;
   }
 
   // Preserve the start position, but use the end position of the `from` string.
-  const newLastImport = {
-    ...lastImport,
-    range: [lastImport.range[0], nextToLastToken.range[1]],
+  const newLastNode = {
+    ...lastNode,
+    range: [lastNode.range[0], nextToLastToken.range[1]],
     loc: {
-      start: lastImport.loc.start,
+      start: lastNode.loc.start,
       end: nextToLastToken.loc.end,
     },
   };
 
-  return imports.slice(0, lastIndex).concat(newLastImport);
+  return chunk.slice(0, lastIndex).concat(newLastNode);
 }
 
-function printSortedSpecifiers(importNode, sourceCode, getSpecifiers) {
-  const allTokens = getAllTokens(importNode, sourceCode);
+function printWithSortedSpecifiers(node, sourceCode, getSpecifiers) {
+  const allTokens = getAllTokens(node, sourceCode);
   const openBraceIndex = allTokens.findIndex((token) =>
     isPunctuator(token, "{")
   );
@@ -216,7 +215,7 @@ function printSortedSpecifiers(importNode, sourceCode, getSpecifiers) {
     isPunctuator(token, "}")
   );
 
-  const specifiers = getSpecifiers(importNode);
+  const specifiers = getSpecifiers(node);
 
   if (
     openBraceIndex === -1 ||
@@ -303,8 +302,8 @@ function printSortedSpecifiers(importNode, sourceCode, getSpecifiers) {
   ]);
 }
 
-// Turns a list of tokens between the `{` and `}` of an import specifiers list
-// into an object with the following properties:
+// Turns a list of tokens between the `{` and `}` of an import/export specifiers
+// list into an object with the following properties:
 //
 // - before: Array of tokens – whitespace and comments after the `{` that do not
 //   belong to any specifier.
@@ -513,7 +512,7 @@ function makeEmptyItem() {
 
 // If a specifier item starts with a line comment or a singleline block comment
 // it needs a newline before that. Otherwise that comment can end up belonging
-// to the _previous_ import specifier after sorting.
+// to the _previous_ specifier after sorting.
 function needsStartingNewline(tokens) {
   const before = tokens.filter((token) => !isSpaces(token));
 
@@ -679,7 +678,7 @@ function getTrailingSpaces(node, sourceCode) {
   return lines[0];
 }
 
-function sortImportItems(items) {
+function sortImportExportItems(items) {
   return items.slice().sort((itemA, itemB) =>
     // If both items are side effect imports, keep their original order.
     itemA.isSideEffectImport && itemB.isSideEffectImport
@@ -694,9 +693,9 @@ function sortImportItems(items) {
         // The `.source` has been slightly tweaked. To stay fully deterministic,
         // also sort on the original value.
         compare(itemA.source.originalSource, itemB.source.originalSource) ||
-        // Then put type imports before regular ones.
+        // Then put type imports/exports before regular ones.
         compare(itemA.source.kind, itemB.source.kind) ||
-        // Keep the original order if the sources are the same. It's not worth
+        // Keep the original order if the sources are the same. It’s not worth
         // trying to compare anything else, and you can use `import/no-duplicates`
         // to get rid of the problem anyway.
         itemA.index - itemB.index
@@ -706,16 +705,27 @@ function sortImportItems(items) {
 function sortSpecifierItems(items) {
   return items.slice().sort(
     (itemA, itemB) =>
-      // Put type imports before regular ones.
+      // Put type imports/exports before regular ones.
       compare(
-        getImportOrExportKind(itemA.node),
-        getImportOrExportKind(itemB.node)
+        getImportExportKind(itemA.node),
+        getImportExportKind(itemB.node)
       ) ||
-      // Then compare by name.
-      compare(itemA.node.imported.name, itemB.node.imported.name) ||
-      // Then compare by the `as` name.
+      // Then compare by imported or exported name (external interface name).
+      // import { a as b } from "a"
+      //          ^
+      // export { b as a }
+      //               ^
+      compare(
+        (itemA.node.imported || itemA.node.exported).name,
+        (itemB.node.imported || itemB.node.exported).name
+      ) ||
+      // Then compare by the file-local name.
+      // import { a as b } from "a"
+      //               ^
+      // export { b as a }
+      //          ^
       compare(itemA.node.local.name, itemB.node.local.name) ||
-      // Keep the original order if the names are the same. It's not worth
+      // Keep the original order if the names are the same. It’s not worth
       // trying to compare anything else, `import {a, a} from "mod"` is a syntax
       // error anyway (but babel-eslint kind of supports it).
       // istanbul ignore next
@@ -756,8 +766,8 @@ function isNewline(node) {
   return node.type === "Newline";
 }
 
-function getSource(importNode) {
-  const source = importNode.source.value;
+function getSource(node) {
+  const source = node.source.value;
 
   return {
     // Sort by directory level rather than by string length.
@@ -783,11 +793,11 @@ function getSource(importNode) {
         }
       }),
     originalSource: source,
-    kind: getImportOrExportKind(importNode),
+    kind: getImportExportKind(node),
   };
 }
 
-function getImportOrExportKind(node) {
+function getImportExportKind(node) {
   // `type` and `typeof` imports, as well as `type` exports (there are no
   // `typeof` exports). In Flow, import specifiers can also have a kind. Default
   // to "value" (like TypeScript) to make regular imports/exports come after the
@@ -815,9 +825,9 @@ function flatMap(array, fn) {
 module.exports = {
   extractChunks,
   flatMap,
-  getImportItems,
+  getImportExportItems,
   isPunctuator,
   maybeReportSorting,
   printSortedItems,
-  sortImportItems,
+  sortImportExportItems,
 };
