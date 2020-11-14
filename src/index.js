@@ -1,9 +1,9 @@
 "use strict";
 
-const sort = require("./sort");
+const imports = require("./imports");
 
 module.exports = {
   rules: {
-    sort,
+    imports,
   },
 };

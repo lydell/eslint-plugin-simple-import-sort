@@ -108,7 +108,7 @@ Then add the import sort rule:
 ```json
 {
   "rules": {
-    "simple-import-sort/sort": "error"
+    "simple-import-sort/imports": "error"
   }
 }
 ```
@@ -132,7 +132,7 @@ Since this plugin does not support [sorting `require`][no-require], you might wa
     {
       "files": "server/**/*.js",
       "rules": {
-        "simple-import-sort/sort": "off",
+        "simple-import-sort/imports": "off",
         "import/order": ["error", { "newlines-between": "always" }]
       }
     }
@@ -154,7 +154,7 @@ It is recommended to also set up [Prettier], to help formatting your imports (an
   "env": { "es6": true },
   "plugins": ["simple-import-sort", "import"],
   "rules": {
-    "simple-import-sort/sort": "error",
+    "simple-import-sort/imports": "error",
     "sort-imports": "off",
     "import/first": "error",
     "import/newline-after-import": "error",
@@ -165,7 +165,7 @@ It is recommended to also set up [Prettier], to help formatting your imports (an
       "files": "server/**/*.js",
       "env": { "node": true },
       "rules": {
-        "simple-import-sort/sort": "off",
+        "simple-import-sort/imports": "off",
         "import/order": ["error", { "newlines-between": "always" }]
       }
     }
@@ -173,12 +173,12 @@ It is recommended to also set up [Prettier], to help formatting your imports (an
 }
 ```
 
-- `simple-import-sort/sort` is turned on by default.
+- `simple-import-sort/imports` is turned on by default.
 - The standard [sort-imports] rule is turned off, in case you extend a config that includes it.
 - [import/first] makes sure all imports are at the top of the file. (autofixable)
 - [import/newline-after-import] makes sure there’s a newline after the imports. (autofixable)
 - [import/no-duplicates] merges import statements of the same file. (autofixable, mostly)
-- For Node.js code, `simple-import-sort/sort` is turned off and replaced with [import/order] for sorting of `require` calls.
+- For Node.js code, `simple-import-sort/imports` is turned off and replaced with [import/order] for sorting of `require` calls.
 
 With the above configuration, you don’t need to scroll to the top of the file to add another import. Just put it above your function! ESLint will then snap it into place (at the top of the file, in order, and without duplicates).
 

@@ -13,14 +13,14 @@ module.exports = {
   },
   env: { es6: true },
   rules: {
-    // The actual rule name is "simple-import-sort/sort", but for technical
-    // reasons it’s just called "sort" within the examples of this repo.
-    // "simple-import-sort/sort": "error",
-    sort: "error",
+    // The actual rule name is "simple-import-sort/imports", but for technical
+    // reasons it’s just called "imports" within the examples of this repo.
+    // "simple-import-sort/imports": "error",
+    imports: "error",
   },
   overrides: [
     {
-      // This file only enables the “sort” rule from this plugin. After
+      // This file only enables the “imports” rule from this plugin. After
       // autofixing, there might be some oddly placed spaces.
       files: ["1.spaces.just-sort.js"],
     },
@@ -65,7 +65,7 @@ module.exports = {
     {
       files: ["groups.custom.js"],
       rules: {
-        sort: [
+        imports: [
           "error",
           {
             groups: [
@@ -94,7 +94,7 @@ module.exports = {
     {
       files: ["groups.no-blank-lines.js"],
       rules: {
-        sort: [
+        imports: [
           "error",
           {
             // The default grouping, but with no blank lines.
@@ -106,7 +106,7 @@ module.exports = {
     {
       files: ["groups.default-reverse.js"],
       rules: {
-        sort: [
+        imports: [
           "error",
           {
             // The default grouping, but in reverse.
@@ -118,7 +118,7 @@ module.exports = {
     {
       files: ["groups.none.js"],
       rules: {
-        sort: [
+        imports: [
           "error",
           {
             // No grouping, only alphabetical sorting.

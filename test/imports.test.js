@@ -1913,14 +1913,18 @@ const expect2 = (...args) => {
     ret.toBe(strip(string, { keepPipes: true }));
   return ret;
 };
-javascriptRuleTester.run("JavaScript", plugin.rules.sort, baseTests(expect));
-flowRuleTester.run("Flow", plugin.rules.sort, baseTests(expect2));
-typescriptRuleTester.run("TypeScript", plugin.rules.sort, baseTests(expect2));
+javascriptRuleTester.run("JavaScript", plugin.rules.imports, baseTests(expect));
+flowRuleTester.run("Flow", plugin.rules.imports, baseTests(expect2));
+typescriptRuleTester.run(
+  "TypeScript",
+  plugin.rules.imports,
+  baseTests(expect2)
+);
 
-flowRuleTester.run("Flow-specific", plugin.rules.sort, flowTests);
+flowRuleTester.run("Flow-specific", plugin.rules.imports, flowTests);
 
 typescriptRuleTester.run(
   "TypeScript-specific",
-  plugin.rules.sort,
+  plugin.rules.imports,
   typescriptTests
 );

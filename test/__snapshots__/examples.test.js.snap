@@ -145,14 +145,14 @@ import "a";
 separator();
 
 // You can also disable sorting for a whole chunk. The actual rule name is
-// "simple-import-sort/sort", but for technical reasons it’s just called "sort"
-// within the examples of this repo.
-// For copying: eslint-disable-next-line simple-import-sort/sort
-// eslint-disable-next-line sort
+// "simple-import-sort/imports", but for technical reasons it’s just called
+// "imports" within the examples of this repo.
+// For copying: eslint-disable-next-line simple-import-sort/imports
+// eslint-disable-next-line imports
 import d from "d";
 import c from "c";
 
-// Note that putting a \`eslint-disable-next-line simple-import-sort/sort\`
+// Note that putting a \`eslint-disable-next-line simple-import-sort/imports\`
 // comment in the middle of a chunk of imports WON’T WORK. It HAS to be at the
 // very start!
 
