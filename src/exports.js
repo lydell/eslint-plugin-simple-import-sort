@@ -72,7 +72,7 @@ function isPartOfChunk(node, lastNode, sourceCode) {
     .some(
       (comment) =>
         (lastNode == null || comment.loc.start.line > lastNode.loc.end.line) &&
-        comment.loc.end.line > node.loc.start.line
+        comment.loc.end.line < node.loc.start.line
     );
 
   return hasGroupingComment ? "PartOfNewChunk" : "PartOfChunk";

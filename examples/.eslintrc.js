@@ -13,10 +13,13 @@ module.exports = {
   },
   env: { es6: true },
   rules: {
-    // The actual rule name is "simple-import-sort/imports", but for technical
-    // reasons it’s just called "imports" within the examples of this repo.
+    // The actual rule names are "simple-import-sort/imports" and
+    // "simple-import-sort/exports", but for technical reasons they’re called
+    // just "imports" and "exports" within the examples of this repo.
     // "simple-import-sort/imports": "error",
+    // "simple-import-sort/exports": "error",
     imports: "error",
+    exports: "error",
   },
   overrides: [
     {
