@@ -12,30 +12,44 @@ import b from "https://example.com/script.js";
 // Absolute imports and other imports.
 import c from "/";
 import d from "/home/user/foo";
-import Error from "@/components/error.vue"
+import Error from "@/components/error.vue";
 
 // Relative imports.
 import e from "../..";
-import f from "../../Utils"; // Case insensitive.
 import type { B } from "../types";
 import typeof C from "../types";
+import f from "../Utils"; // Case insensitive.
 import g from ".";
 import h from "./constants";
 import i from "./styles";
 
-// Regardless of group, imported items are sorted like this:
-import {
-  // First, type imports.
-  type x,
-  typeof y,
-  // Then everything else, alphabetically:
-  k,
-  L, // Case insensitive.
-  m as anotherName, // Sorted by the original name “m”, not “anotherName”.
-  m as tie, // But do use the `as` name in case of a tie.
-  n,
-  // Numbers are sorted by their numeric value:
-  img1,
-  img2,
-  img10,
-} from "./x";
+// Different types of exports:
+export { a } from "../..";
+export { b } from "/";
+export { Error } from "@/components/error.vue";
+export * from "an-npm-package";
+export { readFile } from "fs";
+export * as ns from "https://example.com/script.js";
+
+// This comment groups some more exports:
+export { e } from "../..";
+export { f } from "../Utils";
+export { g } from ".";
+export { h } from "./constants";
+export { i } from "./styles";
+
+// Other exports – the plugin does not touch these, other than sorting named
+// exports inside braces.
+export var one = 1;
+export let two = 2;
+export const three = 3;
+export function func() {}
+export class Class {}
+export type Type = string;
+export { named, other as renamed };
+export type { T, U as V };
+export default whatever;
+
+var named, other;
+type T = 1;
+type U = 1;

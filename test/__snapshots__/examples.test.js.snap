@@ -145,14 +145,14 @@ import "a";
 separator();
 
 // You can also disable sorting for a whole chunk. The actual rule name is
-// "simple-import-sort/sort", but for technical reasons it’s just called "sort"
-// within the examples of this repo.
-// For copying: eslint-disable-next-line simple-import-sort/sort
-// eslint-disable-next-line sort
+// "simple-import-sort/imports", but for technical reasons it’s just called
+// "imports" within the examples of this repo.
+// For copying: eslint-disable-next-line simple-import-sort/imports
+// eslint-disable-next-line imports
 import d from "d";
 import c from "c";
 
-// Note that putting a \`eslint-disable-next-line simple-import-sort/sort\`
+// Note that putting a \`eslint-disable-next-line simple-import-sort/imports\`
 // comment in the middle of a chunk of imports WON’T WORK. It HAS to be at the
 // very start!
 
@@ -280,6 +280,29 @@ import styles from "./styles.css";
 
 `;
 
+exports[`examples readme-exports-grouping.prettier.js 1`] = `
+export * from "x";
+export * from "y";
+
+// This comment starts a new group.
+/* This one does not. */ export * from "a"; // Neither does this one.
+/* Nor this
+one */ export * from "b";
+/* But this one does. */
+export * from "./";
+
+`;
+
+exports[`examples readme-exports-grouping-less-comments.prettier.js 1`] = `
+export * from "./";
+/* This one does not. */ export * from "a"; // Neither does this one.
+/* Nor this
+one */ export * from "b";
+export * from "x";
+export * from "y";
+
+`;
+
 exports[`examples readme-order.prettier.js 1`] = `
 // Side effect imports. (These are not sorted internally.)
 import "./setup";
@@ -299,15 +322,49 @@ import Error from "@/components/error.vue";
 
 // Relative imports.
 import e from "../..";
-import f from "../../Utils"; // Case insensitive.
 import type { B } from "../types";
 import typeof C from "../types";
+import f from "../Utils"; // Case insensitive.
 import g from ".";
 import h from "./constants";
 import i from "./styles";
-// Regardless of group, imported items are sorted like this:
+
+// Different types of exports:
+export { a } from "../..";
+export { b } from "/";
+export { Error } from "@/components/error.vue";
+export * from "an-npm-package";
+export { readFile } from "fs";
+export * as ns from "https://example.com/script.js";
+
+// This comment groups some more exports:
+export { e } from "../..";
+export { f } from "../Utils";
+export { g } from ".";
+export { h } from "./constants";
+export { i } from "./styles";
+
+// Other exports – the plugin does not touch these, other than sorting named
+// exports inside braces.
+export var one = 1;
+export let two = 2;
+export const three = 3;
+export function func() {}
+export class Class {}
+export type Type = string;
+export { named, other as renamed };
+export type { T, U as V };
+export default whatever;
+
+var named, other;
+type T = 1;
+type U = 1;
+
+`;
+
+exports[`examples readme-order-items.prettier.js 1`] = `
 import {
-  // First, type imports.
+  // First, type imports. (\`export { type x, typeof y }\` is a syntax error).
   type x,
   typeof y,
   // Numbers are sorted by their numeric value:
@@ -317,10 +374,23 @@ import {
   // Then everything else, alphabetically:
   k,
   L, // Case insensitive.
-  m as anotherName, // Sorted by the original name “m”, not “anotherName”.
-  m as tie, // But do use the \`as\` name in case of a tie.
+  m as anotherName, // Sorted by the “external interface” name “m”, not “anotherName”.
+  m as tie, // But do use the file-local name in case of a tie.
   n,
 } from "./x";
+
+export {
+  k,
+  L, // Case insensitive.
+  anotherName as m, // Sorted by the “external interface” name “m”, not “anotherName”.
+  // tie as m, // For exports there can’t be ties – all exports must be unique.
+  n,
+};
+export type { A, B, A as C };
+
+var k_, L_, anotherName_, n_;
+type A = 1;
+type B = 1;
 
 `;
 

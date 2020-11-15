@@ -15,6 +15,8 @@ module.exports = {
   env: { es6: true, node: true },
   rules: {
     "arrow-body-style": warn,
+    "default-case": error,
+    "default-case-last": warn,
     "dot-notation": warn,
     "no-caller": error,
     "no-console": warn,
