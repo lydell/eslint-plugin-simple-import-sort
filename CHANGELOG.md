@@ -1,3 +1,11 @@
+### Version 6.0.0 (2020-11-15)
+
+- Renamed: `simple-import-sort/sort` is now called `simple-import-sort/imports`.
+- Added: `simple-import-sort/exports` for sorting (some) exports. Big thanks to Remco Haszing (@remcohaszing) for the suggestion and great feedback, and to @JCrepin for the initial implementation!
+- Fixed: `../..` imports are now sorted properly based on directory hierarchy.
+- Improved: The default regexes for the `groups` option can now be reordered freely without causing imports to unexpectedly end up in other groups than before.
+- Removed: Support for Node.js 8.
+
 ### Version 5.0.3 (2020-04-27)
 
 - Improved: Reduced package size by 50%.
