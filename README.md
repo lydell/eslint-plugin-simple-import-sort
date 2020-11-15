@@ -2,15 +2,15 @@
 
 Easy autofixable import sorting.
 
-- ✔️ Runs via `eslint --fix` – no new tooling
-- ✔️ Also sorts exports where possible
-- ✔️ Handles comments
-- ✔️ Handles [Flow type imports] \(via [babel-eslint])
-- ✔️ [TypeScript] friendly \(via [@typescript-eslint/parser])
-- ✔️ [Prettier] friendly
-- ✔️ [eslint-plugin-import] friendly
-- ✔️ `git diff` friendly
-- ✔️ 100% code coverage
+- ✅️ Runs via `eslint --fix` – no new tooling
+- ✅️ Also sorts exports where possible
+- ✅️ Handles comments
+- ✅️ Handles [Flow type imports] \(via [babel-eslint])
+- ✅️ [TypeScript] friendly \(via [@typescript-eslint/parser])
+- ✅️ [Prettier] friendly
+- ✅️ [eslint-plugin-import] friendly
+- ✅️ `git diff` friendly
+- ✅️ 100% code coverage
 - ❌ [Does not support `require`][no-require]
 
 This is for those who use `eslint --fix` (autofix) a lot and want to completely forget about sorting imports!
@@ -596,6 +596,54 @@ import { a, b, c } from "wherever";
 ```
 
 Note: `import {} from "wherever"` is _not_ treated as a side effect import.
+
+Finally, there’s one more thing to know about exports. Consider this case:
+
+_one.js:_
+
+```js
+export const title = "One";
+export const one = 1;
+```
+
+_two.js:_
+
+```js
+export const title = "Two";
+export const two = 2;
+```
+
+_reexport.js:_
+
+```js
+export * from "./one.js";
+export * from "./two.js";
+```
+
+_main.js:_
+
+```js
+import * as reexport from "./rexport.js";
+console.log(reexport);
+```
+
+What happens if you run _main.js?_ In Node.js and browsers the result is:
+
+```js
+{
+  one: 1,
+  two: 2,
+}
+```
+
+Note how `title` is not even present in the object! This is good for sorting, because it means that it’s safe to reorder the two `export * from` exports in _reexport.js_ – it’s not like the last import “wins” and you’d accidentally change the value of `title` by sorting.
+
+However, this _might_ still cause issues depending on which bundler you use. Here’s how a few bundlers handled the duplicate name `title` the time of this writing:
+
+- ✅ Webpack: Compile time error – safe.
+- ✅ Parcel: Run time error – safe.
+- ⚠️ Rollup: Compile time warning, but uses the first one of them so it’s potentially unsafe. It’s possible to configure Rollup to treat warnings as errors, though.
+- ✅ TypeScript: Compile time error – safe.
 
 ### The sorting autofix causes some odd whitespace!
 
