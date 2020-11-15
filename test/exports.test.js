@@ -430,6 +430,56 @@ const baseTests = (expect) => ({
       ],
     },
 
+    // https://github.com/5monkeys/djedi-cms/blob/133a24a9ddcc0f133aaac6bd2f13db4d6dfe2dce/djedi-react/src/index.js
+    {
+      code: input`
+          |export { default as djedi } from "./djedi";
+          |export { default as Node, NodeContext } from "./Node";
+          |export { default as ForceNodes } from "./ForceNodes";
+          |export { default as md } from "dedent-js";
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export { default as djedi } from "./djedi";
+          |export { default as ForceNodes } from "./ForceNodes";
+          |export { default as Node, NodeContext } from "./Node";
+          |export { default as md } from "dedent-js";
+        `);
+      },
+      errors: 1,
+    },
+
+    // https://gitlab.com/appsemble/appsemble/-/blob/247705f90c606741149fec53c6738cce28a386a7/packages/node-utils/src/index.ts
+    {
+      code: input`
+          |export * from './logger';
+          |export * from './AppsembleError';
+          |export * from './basicAuth';
+          |export * from './commandDirOptions';
+          |export * from './getWorkspaces';
+          |export * from './handleError';
+          |export * from './interceptors';
+          |export * from './loggerMiddleware';
+          |export * from './readFileOrString';
+          |export * from './fs';
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export * from './AppsembleError';
+          |export * from './basicAuth';
+          |export * from './commandDirOptions';
+          |export * from './fs';
+          |export * from './getWorkspaces';
+          |export * from './handleError';
+          |export * from './interceptors';
+          |export * from './logger';
+          |export * from './loggerMiddleware';
+          |export * from './readFileOrString';
+        `);
+      },
+      errors: 1,
+    },
+
     // https://github.com/facebook/react/blob/4c7036e807fa18a3e21a5182983c7c0f05c5936e/packages/react-dom/src/client/ReactDOM.js#L193-L217
     {
       code: input`
