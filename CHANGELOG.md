@@ -1,3 +1,7 @@
+### Version 6.0.1 (2020-11-19)
+
+- Fixed: `as default` in exports no longer results in invalid code.
+
 ### Version 6.0.0 (2020-11-15)
 
 - Renamed: `simple-import-sort/sort` is now called `simple-import-sort/imports`.
