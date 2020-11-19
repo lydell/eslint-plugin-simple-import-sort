@@ -459,10 +459,14 @@ function getSpecifierItems(tokens) {
     // If the last specifier has no trailing comma we end up here. Move all
     // trailing comments and whitespace from `.specifier` to `.after`, and
     // comments and whitespace that don’t belong to the specifier to
-    // `result.after`.
+    // `result.after`. The last non-comment and non-whitespace token is usually
+    // an identifier, but in this case it’s a keyword:
+    //
+    //    export { z, d as default } from "a"
     case "specifier": {
-      const lastIdentifierIndex = findLastIndex(current.specifier, (token2) =>
-        isIdentifier(token2)
+      const lastIdentifierIndex = findLastIndex(
+        current.specifier,
+        (token2) => isIdentifier(token2) || isKeyword(token2)
       );
 
       const specifier = current.specifier.slice(0, lastIdentifierIndex + 1);
@@ -765,6 +769,10 @@ function compare(a, b) {
 
 function isIdentifier(node) {
   return node.type === "Identifier";
+}
+
+function isKeyword(node) {
+  return node.type === "Keyword";
 }
 
 function isPunctuator(node, value) {

@@ -401,6 +401,28 @@ const baseTests = (expect) => ({
       errors: 1,
     },
 
+    // Handling `as default` (issue #58).
+    {
+      code: `export { something, something as default } from './something'`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(
+          `export { something as default,something } from './something'`
+        );
+      },
+      errors: 1,
+    },
+
+    // Tricky `default` cases.
+    {
+      code: `export {default as default, default as def, default as fault} from "b"`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(
+          `export {default as def, default as default, default as fault} from "b"`
+        );
+      },
+      errors: 1,
+    },
+
     // Test messageId, lines and columns.
     {
       code: input`
