@@ -256,7 +256,7 @@ function compare(a, b) {
 
 In other words, the imports/exports within groups are sorted alphabetically, case-insensitively and treating numbers like a human would, falling back to good old character code sorting in case of ties. See [Intl.Collator] for more information.
 
-There’s one addition to the alphabetical rule: Directory structure. Relative imports/exports of files higher up in the directory structure come before closer ones – `"../../utils"` comes before `"../utils"`, which comes before `".."`. (In short, `.` and `/` sort before any other (non-whitespace, non-control) character. `".."` and similar sort like `"../,"` (to avoid the “shorter prefix comes first” sorting concept).)
+There’s one addition to the alphabetical rule: Directory structure. Relative imports/exports of files higher up in the directory structure come before closer ones – `"../../utils"` comes before `"../utils"`, which comes before `"."`. (In short, `.` and `/` sort before any other (non-whitespace, non-control) character. `".."` and similar sort like `"../,"` (to avoid the “shorter prefix comes first” sorting concept).)
 
 If both `import type` _and_ regular imports are used for the same source, the type imports come first. Same thing for `export type`.
 
