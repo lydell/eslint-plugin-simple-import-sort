@@ -87,6 +87,8 @@ function makeSortedItems(items, outerGroups) {
     const { originalSource } = item.source;
     const source = item.isSideEffectImport
       ? `\0${originalSource}`
+      : item.source.kind !== "value"
+      ? `${originalSource}\0`
       : originalSource;
     const [matchedGroup] = shared
       .flatMap(itemGroups, (groups) =>

@@ -5,7 +5,7 @@ Easy autofixable import sorting.
 - ✅️ Runs via `eslint --fix` – no new tooling
 - ✅️ Also sorts exports where possible
 - ✅️ Handles comments
-- ✅️ Handles [Flow type imports] \(via [babel-eslint])
+- ✅️ Handles type imports/exports
 - ✅️ [TypeScript] friendly \(via [@typescript-eslint/parser])
 - ✅️ [Prettier] friendly
 - ✅️ [eslint-plugin-import] friendly
@@ -16,9 +16,7 @@ Easy autofixable import sorting.
 This is for those who use `eslint --fix` (autofix) a lot and want to completely forget about sorting imports!
 
 [@typescript-eslint/parser]: https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/parser
-[babel-eslint]: https://github.com/babel/babel-eslint
 [eslint-plugin-import]: https://github.com/benmosher/eslint-plugin-import/
-[flow type imports]: https://flow.org/en/docs/types/modules/
 [no-require]: https://github.com/lydell/eslint-plugin-simple-import-sort/#does-it-support-require
 [prettier]: https://prettier.io/
 [typescript]: https://www.typescriptlang.org/
@@ -257,7 +255,7 @@ In other words, the imports/exports within groups are sorted alphabetically, cas
 
 There’s one addition to the alphabetical rule: Directory structure. Relative imports/exports of files higher up in the directory structure come before closer ones – `"../../utils"` comes before `"../utils"`, which comes before `"."`. (In short, `.` and `/` sort before any other (non-whitespace, non-control) character. `".."` and similar sort like `"../,"` (to avoid the “shorter prefix comes first” sorting concept).)
 
-If both `import type` _and_ regular imports are used for the same source, the type imports come first. Same thing for `export type`.
+If both `import type` _and_ regular imports are used for the same source, the type imports come first. Same thing for `export type`. (You can move type imports to their own group, as mentioned in [custom grouping].)
 
 ### Example
 
@@ -396,6 +394,8 @@ Each `import` is matched against _all_ regexes on the `from` string. The import 
 Imports that don’t match any regex are grouped together last.
 
 Side effect imports have `\u0000` prepended to their `from` string. You can match them with `"^\\u0000"`.
+
+Type imports have `\u0000` appended to their `from` string. You can match them with `"\\u0000$"` – but you probably need more than that to avoid them also being matched by other groups.
 
 The inner arrays are joined with one newline; the outer arrays are joined with two (creating a blank line).
 
