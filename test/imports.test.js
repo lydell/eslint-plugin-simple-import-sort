@@ -1896,6 +1896,44 @@ const typescriptTests = {
       },
       errors: 1,
     },
+
+    // `groups` – real-world example from issue #61 based on:
+    // https://github.com/polkadot-js/apps/blob/074b245a725873f7c3c16fc83b80fb9c02351a65/packages/apps/src/Endpoints/Group.tsx
+    // https://github.com/polkadot-js/apps/blob/074b245a725873f7c3c16fc83b80fb9c02351a65/.eslintrc.js#L31-L39
+    {
+      options: [
+        {
+          groups: [
+            ["^[^@.].*\\u0000$", "^[^/.]"],
+            ["^@polkadot.*\\u0000$", "^@polkadot"],
+            ["^\\..*\\u0000$", "^\\."],
+          ],
+        },
+      ],
+      code: input`
+          |import React, { useCallback } from 'react';
+          |import styled from 'styled-components';
+          |
+          |import { Icon } from '@polkadot/react-components';
+          |import type { ThemeProps } from '@polkadot/react-components/types';
+          |
+          |import Network from './Network';
+          |import type { Group } from './types';
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import React, { useCallback } from 'react';
+          |import styled from 'styled-components';
+          |
+          |import type { ThemeProps } from '@polkadot/react-components/types';
+          |import { Icon } from '@polkadot/react-components';
+          |
+          |import type { Group } from './types';
+          |import Network from './Network';
+        `);
+      },
+      errors: 1,
+    },
   ],
 };
 
