@@ -393,9 +393,9 @@ Each `import` is matched against _all_ regexes on the `from` string. The import 
 
 Imports that don’t match any regex are grouped together last.
 
-Side effect imports have `\u0000` prepended to their `from` string. You can match them with `"^\\u0000"`.
+Side effect imports have `\u0000` _prepended_ to their `from` string (starts with `\u0000`). You can match them with `"^\\u0000"`.
 
-Type imports have `\u0000` appended to their `from` string. You can match them with `"\\u0000$"` – but you probably need more than that to avoid them also being matched by other groups.
+Type imports have `\u0000` _appended_ to their `from` string (ends with `\u0000`). You can match them with `"\\u0000$"` – but you probably need more than that to avoid them also being matched by other groups.
 
 The inner arrays are joined with one newline; the outer arrays are joined with two (creating a blank line).
 

@@ -140,12 +140,12 @@ import type { Page } from "./page";
 import type { Css } from "./styles";
 import type { Config } from "/config";
 import type { AppRouter } from "@/App";
+import type { Story } from "@storybook/react";
 import type { Component } from "react";
 import type { Store } from "redux";
 
 import "./polyfills";
 
-import type { Story } from "@storybook/react";
 import { storiesOf } from "@storybook/react";
 import react from "react";
 
