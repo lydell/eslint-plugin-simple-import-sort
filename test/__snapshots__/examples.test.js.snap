@@ -135,6 +135,136 @@ import react from "react";
 
 `;
 
+exports[`examples groups.type-imports-first.ts 1`] = `
+import type { Page } from "./page";
+import type { Css } from "./styles";
+import type { Config } from "/config";
+import type { AppRouter } from "@/App";
+import type { Story } from "@storybook/react";
+import type { Component } from "react";
+import type { Store } from "redux";
+
+import "./polyfills";
+
+import { storiesOf } from "@storybook/react";
+import react from "react";
+
+import config from "/config";
+import App from "@/App";
+
+import page from "./page";
+import styles from "./styles";
+
+`;
+
+exports[`examples groups.type-imports-first-in-each-group.ts 1`] = `
+import "./polyfills";
+
+import type { Story } from "@storybook/react";
+import type { Component } from "react";
+import type { Store } from "redux";
+import { storiesOf } from "@storybook/react";
+import react from "react";
+
+import type { Config } from "/config";
+import type { AppRouter } from "@/App";
+import config from "/config";
+import App from "@/App";
+
+import type { Page } from "./page";
+import type { Css } from "./styles";
+import page from "./page";
+import styles from "./styles";
+
+`;
+
+exports[`examples groups.type-imports-first-sorted.ts 1`] = `
+import type { Story } from "@storybook/react";
+import type { Component } from "react";
+import type { Store } from "redux";
+import type { Config } from "/config";
+import type { AppRouter } from "@/App";
+import type { Page } from "./page";
+import type { Css } from "./styles";
+
+import "./polyfills";
+
+import { storiesOf } from "@storybook/react";
+import react from "react";
+
+import config from "/config";
+import App from "@/App";
+
+import page from "./page";
+import styles from "./styles";
+
+`;
+
+exports[`examples groups.type-imports-last.ts 1`] = `
+import "./polyfills";
+
+import { storiesOf } from "@storybook/react";
+import react from "react";
+
+import config from "/config";
+import App from "@/App";
+
+import page from "./page";
+import styles from "./styles";
+
+import type { Page } from "./page";
+import type { Css } from "./styles";
+import type { Config } from "/config";
+import type { AppRouter } from "@/App";
+import type { Story } from "@storybook/react";
+import type { Component } from "react";
+import type { Store } from "redux";
+
+`;
+
+exports[`examples groups.type-imports-last-in-each-group.ts 1`] = `
+import "./polyfills";
+
+import { storiesOf } from "@storybook/react";
+import react from "react";
+import type { Story } from "@storybook/react";
+import type { Component } from "react";
+import type { Store } from "redux";
+
+import config from "/config";
+import App from "@/App";
+import type { Config } from "/config";
+import type { AppRouter } from "@/App";
+
+import page from "./page";
+import styles from "./styles";
+import type { Page } from "./page";
+import type { Css } from "./styles";
+
+`;
+
+exports[`examples groups.type-imports-last-sorted.ts 1`] = `
+import "./polyfills";
+
+import { storiesOf } from "@storybook/react";
+import react from "react";
+
+import config from "/config";
+import App from "@/App";
+
+import page from "./page";
+import styles from "./styles";
+
+import type { Story } from "@storybook/react";
+import type { Component } from "react";
+import type { Store } from "redux";
+import type { Config } from "/config";
+import type { AppRouter } from "@/App";
+import type { Page } from "./page";
+import type { Css } from "./styles";
+
+`;
+
 exports[`examples ignore.js 1`] = `
 // First off, imports that are only used for side effects stay in the input
 // order. These won’t be sorted:

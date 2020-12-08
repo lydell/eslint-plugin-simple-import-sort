@@ -119,6 +119,108 @@ module.exports = {
       },
     },
     {
+      files: ["groups.type-imports-first.ts"],
+      parser: "@typescript-eslint/parser",
+      rules: {
+        imports: [
+          "error",
+          {
+            // The default grouping, but with type imports first as a separate group.
+            groups: [["^.*\\u0000$"], ["^\\u0000"], ["^@?\\w"], ["^"], ["^\\."]],
+          },
+        ],
+      },
+    },
+    {
+      files: ["groups.type-imports-last.ts"],
+      parser: "@typescript-eslint/parser",
+      rules: {
+        imports: [
+          "error",
+          {
+            // The default grouping, but with type imports last as a separate group.
+            groups: [["^\\u0000"], ["^@?\\w"], ["^"], ["^\\."], ["^.+\\u0000$"]],
+          },
+        ],
+      },
+    },
+    {
+      files: ["groups.type-imports-first-sorted.ts"],
+      parser: "@typescript-eslint/parser",
+      rules: {
+        imports: [
+          "error",
+          {
+            // The default grouping, but with type imports first as a separate
+            // group, sorting that group like non-type imports are grouped.
+            groups: [
+              ["^@?\\w.*\\u0000$", "^[^.].*\\u0000$", "^\\..*\\u0000$"],
+              ["^\\u0000"],
+              ["^@?\\w"],
+              ["^"],
+              ["^\\."],
+            ],
+          },
+        ],
+      },
+    },
+    {
+      files: ["groups.type-imports-last-sorted.ts"],
+      parser: "@typescript-eslint/parser",
+      rules: {
+        imports: [
+          "error",
+          {
+            // The default grouping, but with type imports last as a separate
+            // group, sorting that group like non-type imports are grouped.
+            groups: [
+              ["^\\u0000"],
+              ["^@?\\w"],
+              ["^"],
+              ["^\\."],
+              ["^@?\\w.*\\u0000$", "^[^.].*\\u0000$", "^\\..*\\u0000$"],
+            ],
+          },
+        ],
+      },
+    },
+    {
+      files: ["groups.type-imports-first-in-each-group.ts"],
+      parser: "@typescript-eslint/parser",
+      rules: {
+        imports: [
+          "error",
+          {
+            // The default grouping, but with type imports first in each group.
+            groups: [
+              ["^\\u0000"],
+              ["^@?\\w.*\\u0000$", "^@?\\w"],
+              ["(?<=\\u0000)$", "^"],
+              ["^\\..*\\u0000$", "^\\."],
+            ],
+          },
+        ],
+      },
+    },
+    {
+      files: ["groups.type-imports-last-in-each-group.ts"],
+      parser: "@typescript-eslint/parser",
+      rules: {
+        imports: [
+          "error",
+          {
+            // The default grouping, but with type imports last in each group.
+            groups: [
+              ["^\\u0000"],
+              ["^@?\\w", "^@?\\w.*\\u0000$"],
+              ["(?<!\\u0000)$", "(?<=\\u0000)$"],
+              ["^\\.", "^\\..*\\u0000$"],
+            ],
+          },
+        ],
+      },
+    },
+    {
       files: ["groups.none.js"],
       rules: {
         imports: [

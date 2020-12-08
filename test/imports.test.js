@@ -1637,6 +1637,41 @@ const flowTests = {
       errors: 1,
     },
 
+    // `groups` – type imports.
+    {
+      options: [{ groups: [["^\\w"], ["^\\."], ["^.*\\u0000$"]] }],
+      code: input`
+          |import '@/';
+          |import c from '@/';
+          |import type C from '@/';
+          |import b from './';
+          |import type B from './';
+          |import './';
+          |import a from 'a';
+          |import typeof A from 'a';
+          |import 'a';
+          |import {} from 'a';
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import a from 'a';
+          |import {} from 'a';
+          |
+          |import b from './';
+          |
+          |import type B from './';
+          |import type C from '@/';
+          |import typeof A from 'a';
+          |
+          |import '@/';
+          |import './';
+          |import 'a';
+          |import c from '@/';
+        `);
+      },
+      errors: 1,
+    },
+
     // https://github.com/graphql/graphql-js/blob/64b194c6c9b9aaa1c139f1b7c3692a6ef851928e/src/execution/execute.js#L10-L69
     {
       code: input`
@@ -1822,6 +1857,79 @@ const typescriptTests = {
           |function pluck<T, K extends keyof T>(o: T, names: K[]): T[K][] {
           |  return names.map(n => o[n]);
           |}
+        `);
+      },
+      errors: 1,
+    },
+
+    // `groups` – type imports.
+    {
+      options: [{ groups: [["^\\w"], ["^\\."], ["^.*\\u0000$"]] }],
+      code: input`
+          |import '@/';
+          |import c from '@/';
+          |import type C from '@/';
+          |import b from './';
+          |import type B from './';
+          |import './';
+          |import a from 'a';
+          |import type A from 'a';
+          |import 'a';
+          |import {} from 'a';
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import a from 'a';
+          |import {} from 'a';
+          |
+          |import b from './';
+          |
+          |import type B from './';
+          |import type C from '@/';
+          |import type A from 'a';
+          |
+          |import '@/';
+          |import './';
+          |import 'a';
+          |import c from '@/';
+        `);
+      },
+      errors: 1,
+    },
+
+    // `groups` – real-world example from issue #61 based on:
+    // https://github.com/polkadot-js/apps/blob/074b245a725873f7c3c16fc83b80fb9c02351a65/packages/apps/src/Endpoints/Group.tsx
+    // https://github.com/polkadot-js/apps/blob/074b245a725873f7c3c16fc83b80fb9c02351a65/.eslintrc.js#L31-L39
+    {
+      options: [
+        {
+          groups: [
+            ["^[^@.].*\\u0000$", "^[^/.]"],
+            ["^@polkadot.*\\u0000$", "^@polkadot"],
+            ["^\\..*\\u0000$", "^\\."],
+          ],
+        },
+      ],
+      code: input`
+          |import React, { useCallback } from 'react';
+          |import styled from 'styled-components';
+          |
+          |import { Icon } from '@polkadot/react-components';
+          |import type { ThemeProps } from '@polkadot/react-components/types';
+          |
+          |import Network from './Network';
+          |import type { Group } from './types';
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import React, { useCallback } from 'react';
+          |import styled from 'styled-components';
+          |
+          |import type { ThemeProps } from '@polkadot/react-components/types';
+          |import { Icon } from '@polkadot/react-components';
+          |
+          |import type { Group } from './types';
+          |import Network from './Network';
         `);
       },
       errors: 1,
