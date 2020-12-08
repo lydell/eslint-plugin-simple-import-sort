@@ -1,3 +1,9 @@
+### Version 7.0.0 (2020-12-08)
+
+You can now customize where type imports (`import type { X } from "x"`) go, via the `groups` option. Type imports have `\u0000` at the end.
+
+This is only a breaking change if you use the `groups` option and your regexes care about what the _last_ character is. If so, you now need to account for the fact that the last character of type imports is `\u0000`.
+
 ### Version 6.0.1 (2020-11-19)
 
 - Fixed: `as default` in exports no longer results in invalid code.
