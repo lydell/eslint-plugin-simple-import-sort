@@ -252,6 +252,7 @@ module.exports = {
       // Markdown JS code blocks.
       files: ["*.md"],
       plugins: ["markdown"],
+      processor: "markdown/markdown"
     },
   ],
 };
