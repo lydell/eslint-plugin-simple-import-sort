@@ -86,12 +86,14 @@ import styles from "./styles.css";
 ## Installation
 
 ```
-npm install --save-dev eslint eslint-plugin-simple-import-sort
+npm install --save-dev eslint-plugin-simple-import-sort
 ```
+
+> ℹ️ This is an [ESLint] plugin. 👉 [Getting Started with ESLint][eslint-getting-started]
 
 ## Usage
 
-Add `simple-import-sort` to the plugins section of your `.eslintrc` configuration file. You can omit the `eslint-plugin-` prefix:
+Add `"simple-import-sort"` to `"plugins"` in your .eslintrc:
 
 ```json
 {
@@ -110,32 +112,10 @@ Then add the rules for sorting imports and exports:
 }
 ```
 
-Make sure to remove or disable other sorting rules, such as [sort-imports] and [import/order].
+Make sure _not_ to use other sorting rules at the same time:
 
-```json
-{
-  "rules": {
-    "sort-imports": "off",
-    "import/order": "off"
-  }
-}
-```
-
-Since this plugin does not support [sorting `require`][no-require], you might want to enable some other sorting rule only for files that use `require`:
-
-```json
-{
-  "overrides": [
-    {
-      "files": "server/**/*.js",
-      "rules": {
-        "simple-import-sort/imports": "off",
-        "import/order": ["error", { "newlines-between": "always" }]
-      }
-    }
-  ]
-}
-```
+- [sort-imports]
+- [import/order]
 
 ## Example configuration
 
@@ -153,7 +133,6 @@ It is recommended to also set up [Prettier], to help formatting your imports (an
   "rules": {
     "simple-import-sort/imports": "error",
     "simple-import-sort/exports": "error",
-    "sort-imports": "off",
     "import/first": "error",
     "import/newline-after-import": "error",
     "import/no-duplicates": "error"
@@ -171,8 +150,8 @@ It is recommended to also set up [Prettier], to help formatting your imports (an
 }
 ```
 
+- `"sourceType": "module"` is needed so ESLint doesn’t report `import` and `export` as syntax errors.
 - `simple-import-sort/imports` and `simple-import-sort/exports` are turned on for all files.
-- [sort-imports] \(ESLint core rule) is turned off, in case you extend a config that includes it.
 - [import/first] makes sure all imports are at the top of the file. (autofixable)
 - [import/newline-after-import] makes sure there’s a newline after the imports. (autofixable)
 - [import/no-duplicates] merges import statements of the same file. (autofixable, mostly)
@@ -692,6 +671,8 @@ Some other differences:
 [comment-handling]: #comment-and-whitespace-handling
 [custom grouping]: #custom-grouping
 [eslint-fix]: https://eslint.org/docs/user-guide/command-line-interface#--fix
+[eslint-getting-started]: https://eslint.org/docs/user-guide/getting-started
+[eslint]: https://eslint.org/
 [example-ignore]: https://github.com/lydell/eslint-plugin-simple-import-sort/blob/master/examples/ignore.js
 [examples]: https://github.com/lydell/eslint-plugin-simple-import-sort/blob/master/examples/.eslintrc.js
 [exports]: #exports
