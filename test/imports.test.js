@@ -1543,6 +1543,30 @@ const baseTests = (expect) => ({
       errors: 1,
     },
 
+    // `groups` – side effect imports keep internal order but are sorted otherwise (2).
+    {
+      options: [{ groups: [] }],
+      code: input`
+          |import { a } from '@scoped/package/b';
+          |import '@scoped/package/a.css';
+          |import '@scoped/package/c.css';
+          |import 'package/f.css';
+          |import 'package/d.css';
+          |import { e } from 'package/e';
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import '@scoped/package/a.css';
+          |import { a } from '@scoped/package/b';
+          |import '@scoped/package/c.css';
+          |import { e } from 'package/e';
+          |import 'package/f.css';
+          |import 'package/d.css';
+        `);
+      },
+      errors: 1,
+    },
+
     // `groups` – no line breaks between inner array items.
     {
       options: [{ groups: [["^\\w", "^react"], ["^\\."]] }],
