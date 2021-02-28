@@ -703,28 +703,50 @@ function getTrailingSpaces(node, sourceCode) {
   return lines[0];
 }
 
-function sortImportExportItems(items) {
-  return items.slice().sort((itemA, itemB) =>
-    // If both items are side effect imports, keep their original order.
-    itemA.isSideEffectImport && itemB.isSideEffectImport
-      ? itemA.index - itemB.index
-      : // If one of the items is a side effect import, move it first.
-      itemA.isSideEffectImport
-      ? -1
-      : itemB.isSideEffectImport
-      ? 1
-      : // Compare the `from` part.
-        compare(itemA.source.source, itemB.source.source) ||
-        // The `.source` has been slightly tweaked. To stay fully deterministic,
-        // also sort on the original value.
-        compare(itemA.source.originalSource, itemB.source.originalSource) ||
-        // Then put type imports/exports before regular ones.
-        compare(itemA.source.kind, itemB.source.kind) ||
-        // Keep the original order if the sources are the same. It’s not worth
-        // trying to compare anything else, and you can use `import/no-duplicates`
-        // to get rid of the problem anyway.
-        itemA.index - itemB.index
+function compareImportExportItems(itemA, itemB) {
+  return (
+    // Compare the `from` part.
+    compare(itemA.source.source, itemB.source.source) ||
+    // The `.source` has been slightly tweaked. To stay fully deterministic,
+    // also sort on the original value.
+    compare(itemA.source.originalSource, itemB.source.originalSource) ||
+    // Then put type imports/exports before regular ones.
+    compare(itemA.source.kind, itemB.source.kind) ||
+    // Keep the original order if the sources are the same. It’s not worth
+    // trying to compare anything else, and you can use `import/no-duplicates`
+    // to get rid of the problem anyway.
+    itemA.index - itemB.index
   );
+}
+
+function sortImportExportItems(items) {
+  const sideEffectIndex1 = items.findIndex((item) => item.isSideEffectImport);
+  if (sideEffectIndex1 === -1) {
+    return items.slice().sort(compareImportExportItems);
+  }
+
+  const rest = items.slice(sideEffectIndex1 + 1);
+  const sideEffectIndex2 = rest.findIndex((item) => item.isSideEffectImport);
+  if (sideEffectIndex2 === -1) {
+    return items.slice().sort(compareImportExportItems);
+  }
+
+  const sorted = [
+    ...items.slice(0, sideEffectIndex1),
+    items[sideEffectIndex1],
+    ...rest.slice(0, sideEffectIndex2),
+  ].sort(compareImportExportItems);
+
+  const sideEffectIndex3 = sorted.findIndex((item) => item.isSideEffectImport);
+
+  // TODO: Optimize next round – we already know the index
+  return [
+    ...sorted.slice(0, sideEffectIndex3 + 1),
+    ...sortImportExportItems([
+      ...sorted.slice(sideEffectIndex3 + 1),
+      ...rest.slice(sideEffectIndex2),
+    ]),
+  ];
 }
 
 function sortSpecifierItems(items) {
