@@ -720,33 +720,33 @@ function compareImportExportItems(itemA, itemB) {
 }
 
 function sortImportExportItems(items) {
-  const sideEffectIndex1 = items.findIndex((item) => item.isSideEffectImport);
-  if (sideEffectIndex1 === -1) {
-    return items.slice().sort(compareImportExportItems);
+  const sideEffectImports = items.filter((item) => item.isSideEffectImport);
+
+  if (sideEffectImports.length === items.length) {
+    return items;
   }
 
-  const rest = items.slice(sideEffectIndex1 + 1);
-  const sideEffectIndex2 = rest.findIndex((item) => item.isSideEffectImport);
-  if (sideEffectIndex2 === -1) {
-    return items.slice().sort(compareImportExportItems);
+  const sorted = items.slice().sort(compareImportExportItems);
+
+  if (sideEffectImports.length === 0) {
+    return sorted;
   }
 
-  const sorted = [
-    ...items.slice(0, sideEffectIndex1),
-    items[sideEffectIndex1],
-    ...rest.slice(0, sideEffectIndex2),
-  ].sort(compareImportExportItems);
+  const newSideEffectImports = sorted.filter((item) => item.isSideEffectImport);
 
-  const sideEffectIndex3 = sorted.findIndex((item) => item.isSideEffectImport);
+  const sameOrder = newSideEffectImports.every(
+    (item, index) => item === sideEffectImports[index]
+  );
 
-  // TODO: Optimize next round – we already know the index
-  return [
-    ...sorted.slice(0, sideEffectIndex3 + 1),
-    ...sortImportExportItems([
-      ...sorted.slice(sideEffectIndex3 + 1),
-      ...rest.slice(sideEffectIndex2),
-    ]),
-  ];
+  if (sameOrder) {
+    return sorted;
+  }
+
+  const otherImports = items
+    .filter((item) => !item.isSideEffectImport)
+    .sort(compareImportExportItems);
+
+  return sideEffectImports.concat(otherImports);
 }
 
 function sortSpecifierItems(items) {
