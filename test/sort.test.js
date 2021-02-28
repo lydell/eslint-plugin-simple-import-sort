@@ -65,7 +65,7 @@ describe("side effect imports always stay in order", () => {
     });
   }
 
-  test("other imports should be as sorted as possible", () => {
-    expect(sortedVariations.size).toBe(138);
+  test("number of output variations should not change unknowingly between versions", () => {
+    expect(sortedVariations.size).toBe(24);
   });
 });
