@@ -720,33 +720,23 @@ function compareImportExportItems(itemA, itemB) {
 }
 
 function sortImportExportItems(items) {
-  const sideEffectImports = items.filter((item) => item.isSideEffectImport);
+  const result = [];
 
-  if (sideEffectImports.length === items.length) {
-    return items;
+  const group = [];
+
+  for (const item of items) {
+    if (item.isSideEffectImport) {
+      result.push(...group.sort(compareImportExportItems));
+      group.length = 0;
+      result.push(item);
+    } else {
+      group.push(item);
+    }
   }
 
-  const sorted = items.slice().sort(compareImportExportItems);
+  result.push(...group.sort(compareImportExportItems));
 
-  if (sideEffectImports.length === 0) {
-    return sorted;
-  }
-
-  const newSideEffectImports = sorted.filter((item) => item.isSideEffectImport);
-
-  const sameOrder = newSideEffectImports.every(
-    (item, index) => item === sideEffectImports[index]
-  );
-
-  if (sameOrder) {
-    return sorted;
-  }
-
-  const otherImports = items
-    .filter((item) => !item.isSideEffectImport)
-    .sort(compareImportExportItems);
-
-  return sideEffectImports.concat(otherImports);
+  return result;
 }
 
 function sortSpecifierItems(items) {
