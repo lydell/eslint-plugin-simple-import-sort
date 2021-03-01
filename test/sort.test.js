@@ -41,7 +41,7 @@ const itemsToString = (items) => items.map((item) => item.line).join("\n");
 const extractLinesSet = (items) => new Set(items.map((item) => item.line));
 
 const extractSideEffects = (items) =>
-  items.filter((item) => item.isSideEffectImport).map((item) => item.line);
+  items.map((item) => (item.isSideEffectImport ? item.line : "other import"));
 
 const itemsList = permutations(input);
 
@@ -56,7 +56,7 @@ describe("side effect imports always stay in order", () => {
       expect(sorted).toHaveLength(items.length);
       expect(extractLinesSet(sorted)).toStrictEqual(extractLinesSet(items));
 
-      // All side effect imports are in the same order as before.
+      // All side effect imports are in the same spots as before.
       expect(extractSideEffects(sorted)).toStrictEqual(
         extractSideEffects(items)
       );

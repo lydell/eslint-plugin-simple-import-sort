@@ -1526,42 +1526,22 @@ const baseTests = (expect) => ({
           |import b from 'b';
           |import 'c';
           |import d from 'd';
+          |import a from 'a';
           |import 'a';
           |import '.';
+          |import z from './z';
           |import x from './x';
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
-          |import 'c';
-          |import 'a';
-          |import '.';
-          |import x from './x';
           |import b from 'b';
+          |import 'c';
+          |import a from 'a';
           |import d from 'd';
-        `);
-      },
-      errors: 1,
-    },
-
-    // `groups` – side effect imports keep internal order but are sorted otherwise (2).
-    {
-      options: [{ groups: [] }],
-      code: input`
-          |import { a } from '@scoped/package/b';
-          |import '@scoped/package/a.css';
-          |import '@scoped/package/c.css';
-          |import 'package/f.css';
-          |import 'package/d.css';
-          |import { e } from 'package/e';
-      `,
-      output: (actual) => {
-        expect(actual).toMatchInlineSnapshot(`
-          |import '@scoped/package/a.css';
-          |import { a } from '@scoped/package/b';
-          |import '@scoped/package/c.css';
-          |import { e } from 'package/e';
-          |import 'package/f.css';
-          |import 'package/d.css';
+          |import 'a';
+          |import '.';
+          |import x from './x';
+          |import z from './z';
         `);
       },
       errors: 1,
@@ -1688,9 +1668,9 @@ const flowTests = {
           |import typeof A from 'a';
           |
           |import '@/';
+          |import c from '@/';
           |import './';
           |import 'a';
-          |import c from '@/';
         `);
       },
       errors: 1,
@@ -1913,9 +1893,9 @@ const typescriptTests = {
           |import type A from 'a';
           |
           |import '@/';
+          |import c from '@/';
           |import './';
           |import 'a';
-          |import c from '@/';
         `);
       },
       errors: 1,
