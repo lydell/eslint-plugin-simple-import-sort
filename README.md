@@ -378,7 +378,7 @@ Type imports have `\u0000` _appended_ to their `from` string (ends with `\u0000`
 
 The inner arrays are joined with one newline; the outer arrays are joined with two (creating a blank line).
 
-Every group is sorted internally as mentioned in [Sort order]. Side effect imports are always placed first in the group and keep their internal order. It’s recommended to keep side effect imports in their own group.
+Every group is sorted internally as mentioned in [Sort order]. Side effect imports _keep their original index_ in the group. Imports _between_ side effect imports are sorted. It’s recommended to keep side effect imports in their own group.
 
 These are the default groups:
 
