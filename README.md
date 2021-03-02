@@ -117,6 +117,8 @@ Make sure _not_ to use other sorting rules at the same time:
 - [sort-imports]
 - [import/order]
 
+> ℹ️ Note: There used to be a rule called `"simple-import-sort/sort"`. Since version 6.0.0 it’s called `"simple-import-sort/imports"`.
+
 ## Example configuration
 
 This example uses [eslint-plugin-import], which is optional.
