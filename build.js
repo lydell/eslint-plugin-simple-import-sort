@@ -23,7 +23,7 @@ const FILES_TO_COPY = [
 ];
 
 if (fs.existsSync(BUILD)) {
-  fs.rmdirSync(BUILD, { recursive: true });
+  fs.rmSync(BUILD, { recursive: true });
 }
 
 fs.mkdirSync(BUILD);
