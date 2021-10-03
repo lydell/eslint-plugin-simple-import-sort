@@ -882,24 +882,24 @@ const baseTests = (expect) => ({
           |import {} from "../../..";
           |import {} from "../../../";
           |import {} from "../../../,";
-          |import {} from "../../../_a";
           |import {} from "../../../[id]";
+          |import {} from "../../../_a";
           |import {} from "../../../a";
           |import {} from "../../../utils";
           |import {} from "../..";
           |import {} from "../../";
           |import {} from "../../,";
-          |import {} from "../../_a";
-          |import {} from "../../[id]";
           |import {} from "../../-a";
+          |import {} from "../../[id]";
+          |import {} from "../../_a";
           |import {} from "../../a";
           |import {} from "../../utils";
           |import {} from "..";
           |import {} from "../";
           |import {} from "../,";
-          |import {} from "../_a";
-          |import {} from "../[id]";
           |import {} from "../-a";
+          |import {} from "../[id]";
+          |import {} from "../_a";
           |import {} from "../a";
           |import {} from "../a/..";
           |import {} from "../a/...";
@@ -909,15 +909,15 @@ const baseTests = (expect) => ({
           |import {} from ".";
           |import {} from "./";
           |import {} from "./,";
-          |import {} from "./_a";
-          |import {} from "./[id]";
           |import {} from "./-a";
+          |import {} from "./[id]";
+          |import {} from "./_a";
           |import {} from "./A";
           |import {} from "./a";
           |import {} from "./ä"; // “a” followed by “̈̈” (COMBINING DIAERESIS).
           |import {} from "./ä";
-          |import {} from "./a/.";
           |import {} from "./a/-";
+          |import {} from "./a/.";
           |import {} from "./a/0";
           |import {} from "./B"; // B1
           |import {} from "./B"; // B2
