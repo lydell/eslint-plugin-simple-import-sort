@@ -17,7 +17,7 @@ Easy autofixable import sorting.
 This is for those who use `eslint --fix` (autofix) a lot and want to completely forget about sorting imports!
 
 [@typescript-eslint/parser]: https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/parser
-[eslint-plugin-import]: https://github.com/benmosher/eslint-plugin-import/
+[eslint-plugin-import]: https://github.com/import-js/eslint-plugin-import/
 [no-require]: https://github.com/lydell/eslint-plugin-simple-import-sort/#does-it-support-require
 [prettier]: https://prettier.io/
 [typescript]: https://www.typescriptlang.org/
@@ -669,15 +669,15 @@ Looking for `/* eslint-disable */` for this rule? Read all about **[ignoring (pa
 
 The [import/order] rule used to not support alphabetical sorting but now it does. So what does `eslint-plugin-simple-import-sort` bring to the table?
 
-- Sorts imported/exported items (`import { a, b, c } from "."`): [eslint-plugin-import#1787](https://github.com/benmosher/eslint-plugin-import/issues/1787)
-- Sorts re-exports: [eslint-plugin-import#1888](https://github.com/benmosher/eslint-plugin-import/issues/1888)
-- Supports comments: [eslint-plugin-import#1450](https://github.com/benmosher/eslint-plugin-import/issues/1450), [eslint-plugin-import#1723](https://github.com/benmosher/eslint-plugin-import/issues/1723)
-- Supports type imports: [eslint-plugin-import#645](https://github.com/benmosher/eslint-plugin-import/issues/645)
-- Supports absolute imports: [eslint-plugin-import#512](https://github.com/benmosher/eslint-plugin-import/issues/512)
-- Allows choosing where side effect imports go: [eslint-plugin-import#970](https://github.com/benmosher/eslint-plugin-import/issues/970)
-- Allows custom ordering within groups: [eslint-plugin-import#1378](https://github.com/benmosher/eslint-plugin-import/issues/1378)
+- Sorts imported/exported items (`import { a, b, c } from "."`): [eslint-plugin-import#1787](https://github.com/import-js/eslint-plugin-import/issues/1787)
+- Sorts re-exports: [eslint-plugin-import#1888](https://github.com/import-js/eslint-plugin-import/issues/1888)
+- Supports comments: [eslint-plugin-import#1450](https://github.com/import-js/eslint-plugin-import/issues/1450), [eslint-plugin-import#1723](https://github.com/import-js/eslint-plugin-import/issues/1723)
+- Supports type imports: [eslint-plugin-import#645](https://github.com/import-js/eslint-plugin-import/issues/645)
+- Supports absolute imports: [eslint-plugin-import#512](https://github.com/import-js/eslint-plugin-import/issues/512)
+- Allows choosing where side effect imports go: [eslint-plugin-import#970](https://github.com/import-js/eslint-plugin-import/issues/970)
+- Allows custom ordering within groups: [eslint-plugin-import#1378](https://github.com/import-js/eslint-plugin-import/issues/1378)
 - Sorts numerically (`"./img10.jpg"` sorts after `"./img2.jpg"`, not before)
-- Open `import/order` issues: [import/export ordering](https://github.com/benmosher/eslint-plugin-import/labels/import%2Fexport%20ordering)
+- Open `import/order` issues: [import/export ordering](https://github.com/import-js/eslint-plugin-import/labels/import%2Fexport%20ordering)
 
 Some other differences:
 
@@ -694,16 +694,16 @@ Some other differences:
 [eslint-fix]: https://eslint.org/docs/user-guide/command-line-interface#--fix
 [eslint-getting-started]: https://eslint.org/docs/user-guide/getting-started
 [eslint]: https://eslint.org/
-[example-ignore]: https://github.com/lydell/eslint-plugin-simple-import-sort/blob/master/examples/ignore.js
-[examples]: https://github.com/lydell/eslint-plugin-simple-import-sort/blob/master/examples/.eslintrc.js
+[example-ignore]: ./examples/ignore.js
+[examples]: ./examples/.eslintrc.js
 [exports]: #exports
 [flow]: https://flow.org/
-[import/first]: https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/first.md
-[import/first]: https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/first.md
-[import/newline-after-import]: https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/newline-after-import.md
-[import/no-duplicates]: https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/no-duplicates.md
+[import/first]: https://github.com/import-js/eslint-plugin-import/blob/main/docs/rules/first.md
+[import/first]: https://github.com/import-js/eslint-plugin-import/blob/main/docs/rules/first.md
+[import/newline-after-import]: https://github.com/import-js/eslint-plugin-import/blob/main/docs/rules/newline-after-import.md
+[import/no-duplicates]: https://github.com/import-js/eslint-plugin-import/blob/main/docs/rules/no-duplicates.md
 [import/order-comparison]: #how-is-this-rule-different-from-importorder
-[import/order]: https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/order.md
+[import/order]: https://github.com/import-js/eslint-plugin-import/blob/main/docs/rules/order.md
 [intl.collator]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Collator
 [issue #31]: https://github.com/lydell/eslint-plugin-simple-import-sort/issues/31
 [lines-around-comment]: https://eslint.org/docs/rules/lines-around-comment
