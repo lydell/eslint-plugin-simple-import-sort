@@ -11,6 +11,7 @@ Easy autofixable import sorting.
 - ✅️ [eslint-plugin-import] friendly
 - ✅️ `git diff` friendly
 - ✅️ 100% code coverage
+- ✅️ No dependencies
 - ❌ [Does not support `require`][no-require]
 
 This is for those who use `eslint --fix` (autofix) a lot and want to completely forget about sorting imports!
@@ -29,6 +30,7 @@ This is for those who use `eslint --fix` (autofix) a lot and want to completely 
 - [Installation](#installation)
 - [Usage](#usage)
 - [Example configuration](#example-configuration)
+- [Not for everyone](#not-for-everyone)
 - [Sort order](#sort-order)
   - [Grouping](#grouping)
     - [imports](#imports)
@@ -161,6 +163,27 @@ It is recommended to also set up [Prettier], to help formatting your imports (an
 
 With the above configuration, you don’t need to scroll to the top of the file to add another import. Just put it above your function! ESLint will then snap it into place (at the top of the file, in order, and without duplicates).
 
+## Not for everyone
+
+This plugin is not for everyone. Let me explain.
+
+For a long time, this plugin used to have no options, which helped keeping it simple.
+
+While the human alphabetical sorting and comment handling seems to work for a lot of people, grouping of imports is more difficult. Projects differ too much to have a one-size-fits-all grouping.
+
+I’ve decided to have this single option but nothing more. Here are some things you can’t configure:
+
+- The sorting within each group. It is what it is. See [Sorting].
+- Sorting of [side effect imports][safe] (they always stay in the original order).
+
+If you want more options, I recommend using the [import/order] rule (from [eslint-plugin-import]) instead. It has plenty of options, and the maintainers seem interested in expanding the feature where it makes sense.
+
+Then why does this plugin exist? See [How is this rule different from `import/order`?][import/order-comparison].
+
+If we start adding more options to this plugin, it won’t be eslint-plugin-<strong>simple</strong>-import-sort anymore. Eventually it would have no reason to exist – effort would be better spent contributing to [import/order].
+
+I made this plugin for myself. I use it in many little projects and I like it. If you like it too – I’m very glad to hear! But _everyone_ won’t like it. And that’s ok.
+
 ## Sort order
 
 This plugin is supposed to be used with autofix, ideally directly in your editor via an ESLint extension, or with [`eslint --fix`][eslint-fix] otherwise.
@@ -232,7 +255,7 @@ function compare(a, b) {
 }
 ```
 
-In other words, the imports/exports within groups are sorted alphabetically, case-insensitively and treating numbers like a human would, falling back to good old character code sorting in case of ties. See [Intl.Collator] for more information.
+In other words, the imports/exports within groups are sorted alphabetically, case-insensitively and treating numbers like a human would, falling back to good old character code sorting in case of ties. See [Intl.Collator] for more information. Note: `Intl.Collator` sorts punctuation in _some_ defined order. I have no idea what order punctuation sorts in, and I don’t care. There’s no ordered “alphabet” for punctuation that I know of.
 
 There’s one addition to the alphabetical rule: Directory structure. Relative imports/exports of files higher up in the directory structure come before closer ones – `"../../utils"` comes before `"../utils"`, which comes before `"."`. (In short, `.` and `/` sort before any other (non-whitespace, non-control) character. `".."` and similar sort like `"../,"` (to avoid the “shorter prefix comes first” sorting concept).)
 
@@ -338,17 +361,7 @@ Workaround to make the next section to appear in the table of contents.
 
 ## Custom grouping
 
-For a long time, this plugin used to have no options, which helped keeping it simple.
-
-While the human alphabetical sorting and comment handling seems to work for a lot of people, grouping of imports is more difficult. Projects differ too much to have a one-size-fits-all grouping. (Note, for exports the grouping is manual using comments – see [exports]).
-
-However, the default grouping is fine for many use cases! Don’t bother learning how custom grouping works unless you _really_ need it.
-
-> If you’re looking at custom grouping because you want to move `src/Button`, `@company/Button` and similar – also consider using names that do not look like npm packages, such as `@/Button` and `~company/Button`. Then you won’t need to customize the grouping at all, and as a bonus things might be less confusing for other people working on the code base.
->
-> In the future, it would be cool if the plugin could automatically detect your “first party”/“absolute” imports for TypeScript projects by reading your tsconfig.json – see [issue #31].
-
-There is **one** option (and I would really like it to stay that way!) called `groups` that allows you to:
+There is **one** option (see [Not for everyone]) called `groups` that allows you to:
 
 - Move `src/Button`, `@company/Button` and similar out of the (third party) “packages” group, into their own group.
 - Move `react` first.
@@ -357,6 +370,12 @@ There is **one** option (and I would really like it to stay that way!) called `g
 - Make a separate group for style imports.
 - Separate `./` and `../` imports.
 - Not use groups at all and only sort alphabetically.
+
+> If you’re looking at custom grouping because you want to move `src/Button`, `@company/Button` and similar – also consider using names that do not look like npm packages, such as `@/Button` and `~company/Button`. Then you won’t need to customize the grouping at all, and as a bonus things might be less confusing for other people working on the code base.
+>
+> See [issue #31] for some tips on what you can do if you have very complex requirements.
+>
+> Note: For exports the grouping is manual using comments – see [exports].
 
 `groups` is an array of arrays of strings:
 
@@ -683,12 +702,16 @@ Some other differences:
 [import/first]: https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/first.md
 [import/newline-after-import]: https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/newline-after-import.md
 [import/no-duplicates]: https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/no-duplicates.md
+[import/order-comparison]: #how-is-this-rule-different-from-importorder
 [import/order]: https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/order.md
 [intl.collator]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Collator
 [issue #31]: https://github.com/lydell/eslint-plugin-simple-import-sort/issues/31
 [lines-around-comment]: https://eslint.org/docs/rules/lines-around-comment
+[not for everyone]: #not-for-everyone
 [odd-whitespace]: #the-sorting-autofix-causes-some-odd-whitespace
 [padding-line-between-statements]: https://eslint.org/docs/rules/padding-line-between-statements
+[safe]: #is-sorting-importsexports-safe
 [sort order]: #sort-order
 [sort-from]: #why-sort-on-from
 [sort-imports]: https://eslint.org/docs/rules/sort-imports
+[sorting]: #sorting
