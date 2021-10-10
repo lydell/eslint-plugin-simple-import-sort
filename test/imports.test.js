@@ -1943,6 +1943,8 @@ const javascriptRuleTester = new RuleTester({
 
 const flowRuleTester = new RuleTester({
   parser: require.resolve("babel-eslint"),
+  // parser: require.resolve("@babel/eslint-parser"),
+  // parserOptions: { requireConfigFile: false },
 });
 
 const typescriptRuleTester = new RuleTester({
