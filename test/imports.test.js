@@ -1576,6 +1576,7 @@ const flowTests = {
     `import type a, {b} from "a"`,
     `import type {} from "a"`,
     `import type {    } from "a"`,
+    `import json from "./foo.json" assert { type: "json" };`,
 
     // typeof
     `import typeof a from "a"`,
@@ -1667,6 +1668,33 @@ const flowTests = {
           |import './';
           |import 'a';
           |import c from '@/';
+        `);
+      },
+      errors: 1,
+    },
+
+    // Import assertions.
+    {
+      code: input`
+          |import json from "./foo.json" assert { type: "json" };
+          |import {b, a} from "./bar.json" assert {
+          |  // json
+          |  type: "json",
+          |  a: "b",
+          |} /* bar */ /* end
+          | comment */
+          |;[].forEach()
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import {a,b} from "./bar.json" assert {
+          |  // json
+          |  type: "json",
+          |  a: "b",
+          |} /* bar */ 
+          |import json from "./foo.json" assert { type: "json" };/* end
+          | comment */
+          |;[].forEach()
         `);
       },
       errors: 1,
@@ -1812,6 +1840,7 @@ const typescriptTests = {
     `import type {a} from "a"`,
     `import type {} from "a"`,
     `import type {    } from "a"`,
+    `import json from "./foo.json" assert { type: "json" };`,
 
     // type specifiers.
     `import { type b, type c, a } from "a"`,
@@ -1935,6 +1964,33 @@ const typescriptTests = {
           |
           |import type { Group } from './types';
           |import Network from './Network';
+        `);
+      },
+      errors: 1,
+    },
+
+    // Import assertions.
+    {
+      code: input`
+          |import json from "./foo.json" assert { type: "json" };
+          |import {b, a} from "./bar.json" assert {
+          |  // json
+          |  type: "json",
+          |  a: "b",
+          |} /* bar */ /* end
+          | comment */
+          |;[].forEach()
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import {a,b} from "./bar.json" assert {
+          |  // json
+          |  type: "json",
+          |  a: "b",
+          |} /* bar */ 
+          |import json from "./foo.json" assert { type: "json" };/* end
+          | comment */
+          |;[].forEach()
         `);
       },
       errors: 1,

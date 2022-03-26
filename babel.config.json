@@ -1,3 +1,6 @@
 {
-  "plugins": ["@babel/plugin-transform-flow-strip-types"]
+  "plugins": [
+    "@babel/plugin-syntax-import-assertions",
+    "@babel/plugin-transform-flow-strip-types"
+  ]
 }
