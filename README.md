@@ -22,36 +22,6 @@ This is for those who use `eslint --fix` (autofix) a lot and want to completely 
 [prettier]: https://prettier.io/
 [typescript]: https://www.typescriptlang.org/
 
-<!-- prettier-ignore-start -->
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
-- [Example](#example)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Example configuration](#example-configuration)
-- [Not for everyone](#not-for-everyone)
-- [Sort order](#sort-order)
-  - [Grouping](#grouping)
-    - [imports](#imports)
-    - [exports](#exports)
-  - [Sorting](#sorting)
-  - [Example](#example-1)
-- [Custom grouping](#custom-grouping)
-- [Comment and whitespace handling](#comment-and-whitespace-handling)
-- [FAQ](#faq)
-  - [Does it support `require`?](#does-it-support-require)
-  - [Why sort on `from`?](#why-sort-on-from)
-  - [Is sorting imports/exports safe?](#is-sorting-importsexports-safe)
-  - [The sorting autofix causes some odd whitespace!](#the-sorting-autofix-causes-some-odd-whitespace)
-  - [Can I use this without autofix?](#can-i-use-this-without-autofix)
-  - [How do I use eslint-ignore for this rule?](#how-do-i-use-eslint-ignore-for-this-rule)
-  - [How is this rule different from `import/order`?](#how-is-this-rule-different-from-importorder)
-- [License](#license)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-<!-- prettier-ignore-end -->
-
 ## Example
 
 <!-- prettier-ignore -->
