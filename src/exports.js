@@ -8,8 +8,7 @@ module.exports = {
     fixable: "code",
     schema: [],
     docs: {
-      url:
-        "https://github.com/lydell/eslint-plugin-simple-import-sort#sort-order",
+      url: "https://github.com/lydell/eslint-plugin-simple-import-sort#sort-order",
     },
     messages: {
       sort: "Run autofix to sort these exports!",

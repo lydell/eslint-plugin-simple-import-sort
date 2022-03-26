@@ -235,7 +235,7 @@ module.exports = {
     {
       // These files are used in README.md.
       files: ["readme-*.js"],
-      parser: "babel-eslint",
+      parser: "@babel/eslint-parser",
     },
     {
       // TypeScript.

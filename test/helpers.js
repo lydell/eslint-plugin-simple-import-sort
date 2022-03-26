@@ -76,12 +76,14 @@ function getLoc(depth = 1) {
 
 // Run `baseTests` with all parsers, but only use `.toMatchInlineSnapshot` with
 // the first one, because Jest can’t update the snapshots otherwise.
-const expect2 = (expect) => (...args) => {
-  const ret = expect(...args);
-  ret.toMatchInlineSnapshot = (string = "No snapshot yet – run again!") =>
-    ret.toBe(strip(string, { keepPipes: true }));
-  return ret;
-};
+const expect2 =
+  (expect) =>
+  (...args) => {
+    const ret = expect(...args);
+    ret.toMatchInlineSnapshot = (string = "No snapshot yet – run again!") =>
+      ret.toBe(strip(string, { keepPipes: true }));
+    return ret;
+  };
 
 module.exports = {
   input,
