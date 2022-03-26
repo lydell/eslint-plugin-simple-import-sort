@@ -1071,6 +1071,10 @@ const typescriptTests = {
     `export type T = string;`,
     `export type { T, U as V }; type T = 1; type U = 1;`,
 
+    // type specifiers.
+    `export { type b, type c, a } from "a"`,
+    `export { type b, type c, a }`,
+
     // Sorted alphabetically.
     input`
           |export type {x1} from "a";
@@ -1087,11 +1091,13 @@ const typescriptTests = {
           |export type {B} from "./B";
           |export type {C} from "/B";
           |export type {E} from "@/B";
+          |export {a, type type as type, z} from "../type";
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |export type {Z} from "Z";
           |export type Y = 5;
+          |export {type type as type, a, z} from "../type";
           |export type {B} from "./B";
           |export type {C} from "/B";
           |export type {E} from "@/B";

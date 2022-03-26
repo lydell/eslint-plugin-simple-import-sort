@@ -1813,6 +1813,9 @@ const typescriptTests = {
     `import type {} from "a"`,
     `import type {    } from "a"`,
 
+    // type specifiers.
+    `import { type b, type c, a } from "a"`,
+
     // Sorted alphabetically.
     input`
           |import type x1 from "a";
@@ -1826,6 +1829,7 @@ const typescriptTests = {
           |import React from "react";
           |import Button from "../Button";
           |import type {target, type as tipe, Button} from "../Button";
+          |import {a, type type as type, z} from "../type";
           |
           |import styles from "./styles.css";
           |import { getUser } from "../../api";
@@ -1852,6 +1856,7 @@ const typescriptTests = {
           |import type {Button,target, type as tipe} from "../Button";
           |import type X from "../Button";
           |import Button from "../Button";
+          |import {type type as type, a, z} from "../type";
           |import styles from "./styles.css";
           |
           |function pluck<T, K extends keyof T>(o: T, names: K[]): T[K][] {
