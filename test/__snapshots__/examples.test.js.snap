@@ -288,7 +288,7 @@ import c from "c";
 
 separator();
 
-// If you lant to both import something from a module _and_ import it for its
+// If you want to both import something from a module _and_ import it for its
 // side effects _and_ you need it to run before other things, but don’t want to
 // disable sorting altogether, there’s a workaround. Import it twice – once for
 // side effects, once for the thing you want to import from it. You might need
