@@ -1,3 +1,26 @@
+### Version 8.0.0 (2022-09-03)
+
+Node.js builtin modules prefixed with `node:` are now in a separate group by default (regex: `^node:`), above the packages group. (Node.js builtins _without_ `node:` are still sorted together with npm packages like before.)
+
+Before:
+
+```js
+import fs from "fs";
+import _ from "lodash-es";
+import { rmSync } from "node:fs";
+```
+
+After:
+
+```js
+import { rmSync } from "node:fs";
+
+import fs from "fs";
+import _ from "lodash-es";
+```
+
+This is only a breaking change if you use the `node:` prefix in imports, and only in the form of that you need to autofix your files.
+
 ### Version 7.0.0 (2020-12-08)
 
 You can now customize where type imports (`import type { X } from "x"`) go, via the `groups` option. Type imports have `\u0000` at the end.
