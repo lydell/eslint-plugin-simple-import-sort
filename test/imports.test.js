@@ -841,6 +841,8 @@ const baseTests = (expect) => ({
           |import {} from "#/test"
           |import {} from "fs";
           |import {} from "fs/something";
+          |import {} from "node:fs/something";
+          |import {} from "node:fs";
           |import {} from "Fs";
           |import {} from "lodash/fp";
           |import {} from "@storybook/react";
@@ -854,6 +856,9 @@ const baseTests = (expect) => ({
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
+          |import {} from "node:fs";
+          |import {} from "node:fs/something";
+          |
           |import {} from "@storybook/react";
           |import {} from "@storybook/react/something";
           |import {} from "1";

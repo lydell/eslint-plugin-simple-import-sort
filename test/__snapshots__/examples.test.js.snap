@@ -439,10 +439,13 @@ import "./setup";
 import "some-polyfill";
 import "./global.css";
 
+// Node.js builtins prefixed with \`node:\`.
+import * as fs from "node:fs";
+
 // Packages.
 import type A from "an-npm-package";
 import a from "an-npm-package";
-import fs from "fs";
+import fs2 from "fs";
 import b from "https://example.com/script.js";
 
 // Absolute imports and other imports.
