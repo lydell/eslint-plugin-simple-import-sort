@@ -141,10 +141,15 @@ import type { Css } from "./styles";
 import type { Config } from "/config";
 import type { AppRouter } from "@/App";
 import type { Story } from "@storybook/react";
+import type { Dirent } from "node:fs";
+import type { ParsedPath } from "node:path";
 import type { Component } from "react";
 import type { Store } from "redux";
 
 import "./polyfills";
+
+import fs from "node:fs";
+import * as path from "node:path";
 
 import { storiesOf } from "@storybook/react";
 import react from "react";
@@ -159,6 +164,11 @@ import styles from "./styles";
 
 exports[`examples groups.type-imports-first-in-each-group.ts 1`] = `
 import "./polyfills";
+
+import type { Dirent } from "node:fs";
+import type { ParsedPath } from "node:path";
+import fs from "node:fs";
+import * as path from "node:path";
 
 import type { Story } from "@storybook/react";
 import type { Component } from "react";
@@ -179,6 +189,8 @@ import styles from "./styles";
 `;
 
 exports[`examples groups.type-imports-first-sorted.ts 1`] = `
+import type { Dirent } from "node:fs";
+import type { ParsedPath } from "node:path";
 import type { Story } from "@storybook/react";
 import type { Component } from "react";
 import type { Store } from "redux";
@@ -188,6 +200,9 @@ import type { Page } from "./page";
 import type { Css } from "./styles";
 
 import "./polyfills";
+
+import fs from "node:fs";
+import * as path from "node:path";
 
 import { storiesOf } from "@storybook/react";
 import react from "react";
@@ -203,6 +218,9 @@ import styles from "./styles";
 exports[`examples groups.type-imports-last.ts 1`] = `
 import "./polyfills";
 
+import fs from "node:fs";
+import * as path from "node:path";
+
 import { storiesOf } from "@storybook/react";
 import react from "react";
 
@@ -217,6 +235,8 @@ import type { Css } from "./styles";
 import type { Config } from "/config";
 import type { AppRouter } from "@/App";
 import type { Story } from "@storybook/react";
+import type { Dirent } from "node:fs";
+import type { ParsedPath } from "node:path";
 import type { Component } from "react";
 import type { Store } from "redux";
 
@@ -224,6 +244,11 @@ import type { Store } from "redux";
 
 exports[`examples groups.type-imports-last-in-each-group.ts 1`] = `
 import "./polyfills";
+
+import fs from "node:fs";
+import * as path from "node:path";
+import type { Dirent } from "node:fs";
+import type { ParsedPath } from "node:path";
 
 import { storiesOf } from "@storybook/react";
 import react from "react";
@@ -246,6 +271,9 @@ import type { Css } from "./styles";
 exports[`examples groups.type-imports-last-sorted.ts 1`] = `
 import "./polyfills";
 
+import fs from "node:fs";
+import * as path from "node:path";
+
 import { storiesOf } from "@storybook/react";
 import react from "react";
 
@@ -255,6 +283,8 @@ import App from "@/App";
 import page from "./page";
 import styles from "./styles";
 
+import type { Dirent } from "node:fs";
+import type { ParsedPath } from "node:path";
 import type { Story } from "@storybook/react";
 import type { Component } from "react";
 import type { Store } from "redux";

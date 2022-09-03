@@ -103,7 +103,7 @@ module.exports = {
           "error",
           {
             // The default grouping, but with no blank lines.
-            groups: [["^\\u0000", "^@?\\w", "^", "^\\."]],
+            groups: [["^\\u0000", "^node:", "^@?\\w", "^", "^\\."]],
           },
         ],
       },
@@ -115,7 +115,7 @@ module.exports = {
           "error",
           {
             // The default grouping, but in reverse.
-            groups: [["^\\."], ["^"], ["^@?\\w"], ["^\\u0000"]],
+            groups: [["^\\."], ["^"], ["^@?\\w"], ["^node:"], ["^\\u0000"]],
           },
         ],
       },
@@ -128,7 +128,7 @@ module.exports = {
           "error",
           {
             // The default grouping, but with type imports first as a separate group.
-            groups: [["^.*\\u0000$"], ["^\\u0000"], ["^@?\\w"], ["^"], ["^\\."]],
+            groups: [["^.*\\u0000$"], ["^\\u0000"], ["^node:"], ["^@?\\w"], ["^"], ["^\\."]],
           },
         ],
       },
@@ -141,7 +141,7 @@ module.exports = {
           "error",
           {
             // The default grouping, but with type imports last as a separate group.
-            groups: [["^\\u0000"], ["^@?\\w"], ["^"], ["^\\."], ["^.+\\u0000$"]],
+            groups: [["^\\u0000"], ["^node:"], ["^@?\\w"], ["^"], ["^\\."], ["^.+\\u0000$"]],
           },
         ],
       },
@@ -156,8 +156,9 @@ module.exports = {
             // The default grouping, but with type imports first as a separate
             // group, sorting that group like non-type imports are grouped.
             groups: [
-              ["^@?\\w.*\\u0000$", "^[^.].*\\u0000$", "^\\..*\\u0000$"],
+              ["^node:.*\\u0000$", "^@?\\w.*\\u0000$", "^[^.].*\\u0000$", "^\\..*\\u0000$"],
               ["^\\u0000"],
+              ["^node:"],
               ["^@?\\w"],
               ["^"],
               ["^\\."],
@@ -177,10 +178,11 @@ module.exports = {
             // group, sorting that group like non-type imports are grouped.
             groups: [
               ["^\\u0000"],
+              ["^node:"],
               ["^@?\\w"],
               ["^"],
               ["^\\."],
-              ["^@?\\w.*\\u0000$", "^[^.].*\\u0000$", "^\\..*\\u0000$"],
+              ["^node:.*\\u0000$", "^@?\\w.*\\u0000$", "^[^.].*\\u0000$", "^\\..*\\u0000$"],
             ],
           },
         ],
@@ -196,6 +198,7 @@ module.exports = {
             // The default grouping, but with type imports first in each group.
             groups: [
               ["^\\u0000"],
+              ["^node:.*\\u0000$", "^node:"],
               ["^@?\\w.*\\u0000$", "^@?\\w"],
               ["(?<=\\u0000)$", "^"],
               ["^\\..*\\u0000$", "^\\."],
@@ -214,6 +217,7 @@ module.exports = {
             // The default grouping, but with type imports last in each group.
             groups: [
               ["^\\u0000"],
+              ["^node:", "^node:.*\\u0000$"],
               ["^@?\\w", "^@?\\w.*\\u0000$"],
               ["(?<!\\u0000)$", "(?<=\\u0000)$"],
               ["^\\.", "^\\..*\\u0000$"],
