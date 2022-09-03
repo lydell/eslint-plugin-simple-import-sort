@@ -12,21 +12,21 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x]
+        node-version: [18.x]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
           node-version: "${{ matrix.node-version }}"
 
       - name: Cache node_modules
         id: cache-node_modules
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: node_modules
-          key: node_modules-${{ matrix.node-version }}-${{ hashFiles('package-lock.json') }}
+          key: node_modules-${{ matrix.node-version }}-${{ hashFiles('package.json', 'package-lock.json') }}
 
       - name: npm ci
         if: steps.cache-node_modules.outputs.cache-hit != 'true'
@@ -36,7 +36,7 @@ jobs:
         run: npm run build
 
       - name: ESLint
-        run: npx --no-install eslint . --report-unused-disable-directives
+        run: npx eslint . --report-unused-disable-directives
 
       - name: Prettier
-        run: npx --no-install prettier --check .
+        run: npx prettier --check .
