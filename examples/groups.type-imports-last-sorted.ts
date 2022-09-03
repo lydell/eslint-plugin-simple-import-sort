@@ -1,4 +1,8 @@
 import "./polyfills";
+import fs from "node:fs";
+import type { Dirent } from "node:fs";
+import type { ParsedPath } from "node:path";
+import * as path from "node:path";
 import react from "react";
 import type { Component } from "react";
 import type { Store } from "redux";

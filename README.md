@@ -158,9 +158,10 @@ First, the plugin finds all _chunks_ of imports. A “chunk” is a sequence of 
 Then, each chunk is _grouped_ into sections with a blank line between each.
 
 1. `import "./setup"`: Side effect imports. (These are not sorted internally.)
-2. `import react from "react"`: Packages (npm packages and Node.js builtins).
-3. `import a from "/a"`: Absolute imports and other imports such as Vue-style `@/foo`.
-4. `import a from "./a"`: Relative imports.
+2. `import * as fs from "node:fs"`: Node.js builtin modules prefixed with `node:`.
+3. `import react from "react"`: Packages (npm packages and Node.js builtins _without_ `node:`).
+4. `import a from "/a"`: Absolute imports and other imports such as Vue-style `@/foo`.
+5. `import a from "./a"`: Relative imports.
 
 Note: The above groups are very loosely defined. See [Custom grouping] for more information.
 
@@ -227,10 +228,13 @@ import "./setup";
 import "some-polyfill";
 import "./global.css";
 
+// Node.js builtins prefixed with `node:`.
+import * as fs from "node:fs";
+
 // Packages.
 import type A from "an-npm-package";
 import a from "an-npm-package";
-import fs from "fs";
+import fs2 from "fs";
 import b from "https://example.com/script.js";
 
 // Absolute imports and other imports.
@@ -323,7 +327,6 @@ There is **one** option (see [Not for everyone]) called `groups` that allows you
 - Move `src/Button`, `@company/Button` and similar out of the (third party) “packages” group, into their own group.
 - Move `react` first.
 - Remove blank lines between groups.
-- Make a separate group for Node.js builtins.
 - Make a separate group for style imports.
 - Separate `./` and `../` imports.
 - Not use groups at all and only sort alphabetically.
@@ -364,6 +367,8 @@ These are the default groups:
 [
   // Side effect imports.
   ["^\\u0000"],
+  // Node.js builtins prefixed with `node:`.
+  ["^node:"],
   // Packages.
   // Things that start with a letter (or digit or underscore), or `@` followed by a letter.
   ["^@?\\w"],

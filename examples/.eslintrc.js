@@ -74,6 +74,8 @@ module.exports = {
             groups: [
               // Node.js builtins. You could also generate this regex if you use a `.js` config.
               // For example: `^(${require("module").builtinModules.join("|")})(/|$)`
+              // Note that if you use the `node:` prefix for Node.js builtins,
+              // you can avoid this complexity: You can simply use "^node:".
               [
                 "^(assert|buffer|child_process|cluster|console|constants|crypto|dgram|dns|domain|events|fs|http|https|module|net|os|path|punycode|querystring|readline|repl|stream|string_decoder|sys|timers|tls|tty|url|util|vm|zlib|freelist|v8|process|async_hooks|http2|perf_hooks)(/.*|$)",
               ],
@@ -101,7 +103,7 @@ module.exports = {
           "error",
           {
             // The default grouping, but with no blank lines.
-            groups: [["^\\u0000", "^@?\\w", "^", "^\\."]],
+            groups: [["^\\u0000", "^node:", "^@?\\w", "^", "^\\."]],
           },
         ],
       },
@@ -113,7 +115,7 @@ module.exports = {
           "error",
           {
             // The default grouping, but in reverse.
-            groups: [["^\\."], ["^"], ["^@?\\w"], ["^\\u0000"]],
+            groups: [["^\\."], ["^"], ["^@?\\w"], ["^node:"], ["^\\u0000"]],
           },
         ],
       },
@@ -126,7 +128,7 @@ module.exports = {
           "error",
           {
             // The default grouping, but with type imports first as a separate group.
-            groups: [["^.*\\u0000$"], ["^\\u0000"], ["^@?\\w"], ["^"], ["^\\."]],
+            groups: [["^.*\\u0000$"], ["^\\u0000"], ["^node:"], ["^@?\\w"], ["^"], ["^\\."]],
           },
         ],
       },
@@ -139,7 +141,7 @@ module.exports = {
           "error",
           {
             // The default grouping, but with type imports last as a separate group.
-            groups: [["^\\u0000"], ["^@?\\w"], ["^"], ["^\\."], ["^.+\\u0000$"]],
+            groups: [["^\\u0000"], ["^node:"], ["^@?\\w"], ["^"], ["^\\."], ["^.+\\u0000$"]],
           },
         ],
       },
@@ -154,8 +156,9 @@ module.exports = {
             // The default grouping, but with type imports first as a separate
             // group, sorting that group like non-type imports are grouped.
             groups: [
-              ["^@?\\w.*\\u0000$", "^[^.].*\\u0000$", "^\\..*\\u0000$"],
+              ["^node:.*\\u0000$", "^@?\\w.*\\u0000$", "^[^.].*\\u0000$", "^\\..*\\u0000$"],
               ["^\\u0000"],
+              ["^node:"],
               ["^@?\\w"],
               ["^"],
               ["^\\."],
@@ -175,10 +178,11 @@ module.exports = {
             // group, sorting that group like non-type imports are grouped.
             groups: [
               ["^\\u0000"],
+              ["^node:"],
               ["^@?\\w"],
               ["^"],
               ["^\\."],
-              ["^@?\\w.*\\u0000$", "^[^.].*\\u0000$", "^\\..*\\u0000$"],
+              ["^node:.*\\u0000$", "^@?\\w.*\\u0000$", "^[^.].*\\u0000$", "^\\..*\\u0000$"],
             ],
           },
         ],
@@ -194,6 +198,7 @@ module.exports = {
             // The default grouping, but with type imports first in each group.
             groups: [
               ["^\\u0000"],
+              ["^node:.*\\u0000$", "^node:"],
               ["^@?\\w.*\\u0000$", "^@?\\w"],
               ["(?<=\\u0000)$", "^"],
               ["^\\..*\\u0000$", "^\\."],
@@ -212,6 +217,7 @@ module.exports = {
             // The default grouping, but with type imports last in each group.
             groups: [
               ["^\\u0000"],
+              ["^node:", "^node:.*\\u0000$"],
               ["^@?\\w", "^@?\\w.*\\u0000$"],
               ["(?<!\\u0000)$", "(?<=\\u0000)$"],
               ["^\\.", "^\\..*\\u0000$"],
