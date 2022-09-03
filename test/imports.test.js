@@ -1677,7 +1677,7 @@ const flowTests = {
     {
       code: input`
           |import json from "./foo.json" assert { type: "json" };
-          |import {b, a} from "./bar.json" assert {
+          |import {default as b} from "./bar.json" assert {
           |  // json
           |  type: "json",
           |  a: "b",
@@ -1687,7 +1687,7 @@ const flowTests = {
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
-          |import {a,b} from "./bar.json" assert {
+          |import {default as b} from "./bar.json" assert {
           |  // json
           |  type: "json",
           |  a: "b",

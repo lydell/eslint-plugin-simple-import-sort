@@ -22,12 +22,7 @@ const FILES_TO_COPY = [
     .map((file) => ({ src: path.join(SRC, file), dest: file })),
 ];
 
-if (fs.rmSync !== undefined) {
-  fs.rmSync(BUILD, { recursive: true, force: true });
-} else if (fs.existsSync(BUILD)) {
-  fs.rmdirSync(BUILD, { recursive: true });
-}
-
+fs.rmSync(BUILD, { recursive: true, force: true });
 fs.mkdirSync(BUILD);
 
 for (const { src, dest = src, transform } of FILES_TO_COPY) {

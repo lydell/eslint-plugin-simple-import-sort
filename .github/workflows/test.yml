@@ -12,25 +12,25 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [12.x, 14.x, 16.x]
+        node-version: [14.x, 16.x, 18.x]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
           node-version: "${{ matrix.node-version }}"
 
       - name: Cache node_modules
         id: cache-node_modules
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: node_modules
-          key: node_modules-${{ matrix.node-version }}-${{ hashFiles('package-lock.json') }}
+          key: node_modules-${{ matrix.node-version }}-${{ hashFiles('package.json', 'package-lock.json') }}
 
       - name: npm ci
         if: steps.cache-node_modules.outputs.cache-hit != 'true'
         run: npm ci
 
       - name: Jest
-        run: npx --no-install jest --coverage
+        run: npx jest --coverage
