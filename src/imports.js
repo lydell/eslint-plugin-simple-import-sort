@@ -43,7 +43,7 @@ module.exports = {
       url: "https://github.com/lydell/eslint-plugin-simple-import-sort#sort-order",
     },
     messages: {
-      sort: "Run autofix to sort these imports!",
+      sort: "Run autofix to sort these imports.",
     },
   },
   create: (context) => {
