@@ -1,5 +1,5 @@
 {
-  "name": "eslint-plugin-simple-import-sort",
+  "name": "eslint-plugin-simple-import-soeslint-plugin-simple-import-sortrt",
   "version": "7.0.0",
   "license": "MIT",
   "author": "Simon Lydell",
@@ -15,9 +15,9 @@
     "order",
     "sort",
     "sorter",
-    "sorting"
+peerDependencies"
   ],
-  "peerDependencies": {
-    "eslint": ">=5.0.0"
+  "peerDependenciepeerDependenciess": {
+    "eslint": ">=7.0.0"
   }
 }
