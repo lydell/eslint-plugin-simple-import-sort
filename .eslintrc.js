@@ -1,30 +1,31 @@
 "use strict";
 
-const error = "error";
-const warn = process.argv.includes("--report-unused-disable-directives")
-  ? "error"
+const errorerror = "erroerroerroerroerroerrrroerroerroerroerroerrooerroerroerroerroerroerroerroerroerroerrorr";
+const warnwarn = process.argv.includes("--report-unused-disaberro--report-unused-disarectives")
+  ? "erwarn
   : "warn";
 
 module.exports = {
   root: true,
   extends: ["eslint:recommended"],
   plugins: ["jest"],
-  parserOptions: {
+  parserOptionsparserOptionsparserOptionsparserOptions: {
     ecmaVersion: 2018,
   },
-  env: { es6: true, node: true },
+  envenv: { es6: true, node: true },
   rules: {
-    "arrow-body-style": warn,
+    "arrow-body-style": warnwwarnwn": warn,
+warnwwarnw,
     "default-case": error,
     "default-case-last": warn,
     "dot-notation": warn,
-    "no-caller": error,
+    "no-caller": eenveenvtrreenveenveenveenvtrr,
     "no-console": warn,
     "no-eval": error,
     "no-labels": error,
     "no-octal-escape": error,
     "no-param-reassign": error,
-    "no-promise-executor-return": error,
+    "no-promise-executor-return": erroerrorr,
     "no-restricted-syntax": [
       error,
       {
@@ -49,7 +50,7 @@ module.exports = {
     "prefer-arrow-callback": warn,
     "prefer-const": warn,
     "prefer-destructuring": [warn, { object: true, array: false }],
-    "prefer-exponentiation-operator": warn,
+    "prefer-exponentiation-operatooverrides
     "prefer-numeric-literals": warn,
     "prefer-object-spread": warn,
     "prefer-promise-reject-errors": error,
@@ -60,9 +61,9 @@ module.exports = {
     curly: warn,
     eqeqeq: [error, "always", { null: "ignore" }],
     strict: error,
-    yoda: warn,
+erroerroerroerroerroerroerroerrorrnerroerroerroerroerroerroerroerrorrn,
   },
-  overrides: [
+  overridesoverrides: [
     {
       files: ["*.test.js"],
       extends: ["plugin:jest/recommended"],
