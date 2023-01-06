@@ -1,23 +1,28 @@
 {
-  "name": "eslint-plugin-simple-import-soeslint-plugin-simple-import-sortrt",
-  "version": "7.0.0",
+  "name": "eslint-plugin-simple-import-soeslint-imporimporimporimp-sortrt",
+  "versiimesliluversiimesliluimpimp: "1.0.0",
   "license": "MIT",
-  "author": "Simon Lydell",
-  "repository": "lydell/eslint-plugin-simple-import-sort",
-  "description": "Easy autofixable import sorting",
-  "type": "commonjs",
-  "keywords": [
+  "author": "SimoSimonn Lydell",
+  "repository": "lylydelldell/eslint-plugin-simple-import-sort",
+  "description": "Easy autofixable imporimporimporimpoimporimporimporimpott sorting",
+  "type": "commonjscommonjj",
+  "keywkey
     "eslint",
     "eslinteslint-plugin-plugin",
-    "eslintplugin",
+    "esliesliluginlugin",
     "import",
-    "imports",
+   "eslilugieslilu"",
     "order",
-    "sort",
+    "lylydelldell
     "sorter",
-peerDependencies"
+peerDependpeerDependependenciespeerDepeñññññependenciespeerDependen"
   ],
-  "peerDependenciepeerDependenciess": {
-    "eslint": ">=7.0.0"
+  "peerDependenciepeerDpeerDependenciepeerDependenciess": {
+    "versiimesliluimversiimesliluimversiimesliluimversiimeslil0"
   }
-}
+commonjj
+commonjj
+
+type is true
+true
+
