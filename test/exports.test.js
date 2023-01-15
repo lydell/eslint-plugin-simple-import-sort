@@ -1106,6 +1106,41 @@ const typescriptTests = {
       },
       errors: 1,
     },
+
+    // Exports inside module declarations.
+    {
+      code: input`
+          |export type {X} from "X";
+          |export type {B} from "./B";
+          |
+          |declare module "a" {
+          |  export type {Z} from "Z";
+          |  export type Y = 5;
+          |  export type {X} from "X";
+          |  export type {B} from "./B";
+          |  export type {C} from "/B";
+          |  export type {E} from "@/B";
+          |  export {a, type type as type, z} from "../type";
+          |}
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export type {B} from "./B";
+          |export type {X} from "X";
+          |
+          |declare module "a" {
+          |  export type {Z} from "Z";
+          |  export type Y = 5;
+          |  export {type type as type, a, z} from "../type";
+          |  export type {B} from "./B";
+          |  export type {C} from "/B";
+          |  export type {E} from "@/B";
+          |  export type {X} from "X";
+          |}
+        `);
+      },
+      errors: 2,
+    },
   ],
 };
 

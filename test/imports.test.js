@@ -2000,6 +2000,31 @@ const typescriptTests = {
       },
       errors: 1,
     },
+
+    // Imports inside module declarations.
+    {
+      code: input`
+          |import type { ParsedPath } from 'path';
+          |import type { CopyOptions } from 'fs';
+          |
+          |declare module 'my-module' {
+          |  import type { ParsedPath } from 'path';
+          |  import type { CopyOptions } from 'fs';
+          |}
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import type { CopyOptions } from 'fs';
+          |import type { ParsedPath } from 'path';
+          |
+          |declare module 'my-module' {
+          |  import type { CopyOptions } from 'fs';
+          |  import type { ParsedPath } from 'path';
+          |}
+        `);
+      },
+      errors: 2,
+    },
   ],
 };
 
