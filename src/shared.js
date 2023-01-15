@@ -2,12 +2,12 @@
 
 // A “chunk” is a sequence of statements of a certain type with only comments
 // and whitespace between.
-function extractChunks(programNode, isPartOfChunk) {
+function extractChunks(parentNode, isPartOfChunk) {
   const chunks = [];
   let chunk = [];
   let lastNode = undefined;
 
-  for (const node of programNode.body) {
+  for (const node of parentNode.body) {
     const result = isPartOfChunk(node, lastNode);
     switch (result) {
       case "PartOfChunk":

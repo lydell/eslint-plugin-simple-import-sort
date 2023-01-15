@@ -48,16 +48,27 @@ module.exports = {
   },
   create: (context) => {
     const { groups: rawGroups = defaultGroups } = context.options[0] || {};
+
     const outerGroups = rawGroups.map((groups) =>
       groups.map((item) => RegExp(item, "u"))
     );
+
+    const parents = new Set();
+
     return {
-      Program: (programNode) => {
-        for (const chunk of shared.extractChunks(programNode, (node) =>
-          isImport(node) ? "PartOfChunk" : "NotPartOfChunk"
-        )) {
-          maybeReportChunkSorting(chunk, context, outerGroups);
+      ImportDeclaration: (node) => {
+        parents.add(node.parent);
+      },
+
+      "Program:exit": () => {
+        for (const parent of parents) {
+          for (const chunk of shared.extractChunks(parent, (node) =>
+            isImport(node) ? "PartOfChunk" : "NotPartOfChunk"
+          )) {
+            maybeReportChunkSorting(chunk, context, outerGroups);
+          }
         }
+        parents.clear();
       },
     };
   },
