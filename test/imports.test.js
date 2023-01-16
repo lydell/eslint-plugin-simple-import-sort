@@ -2008,8 +2008,13 @@ const typescriptTests = {
           |import type { CopyOptions } from 'fs';
           |
           |declare module 'my-module' {
-          |  import type { ParsedPath } from 'path';
-          |  import type { CopyOptions } from 'fs';
+          |  import type { PlatformPath, ParsedPath } from 'path';
+          |  import { type CopyOptions } from 'fs';
+          |  export function normalize(p: string): string;
+          |  // comment
+          |    import "d"
+          |import c from "c"; /*
+          |  */\timport * as b from "b"; // b
           |}
       `,
       output: (actual) => {
@@ -2018,12 +2023,19 @@ const typescriptTests = {
           |import type { ParsedPath } from 'path';
           |
           |declare module 'my-module' {
-          |  import type { CopyOptions } from 'fs';
-          |  import type { ParsedPath } from 'path';
+          |  import { type CopyOptions } from 'fs';
+          |  import type { ParsedPath,PlatformPath } from 'path';
+          |  export function normalize(p: string): string;
+          |  // comment
+          |    import "d"
+          |
+          |/*
+          |  */→import * as b from "b"; // b
+          |import c from "c"; 
           |}
         `);
       },
-      errors: 2,
+      errors: 3,
     },
   ],
 };

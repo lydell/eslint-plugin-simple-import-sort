@@ -1113,14 +1113,14 @@ const typescriptTests = {
           |export type {X} from "X";
           |export type {B} from "./B";
           |
-          |declare module "a" {
-          |  export type {Z} from "Z";
-          |  export type Y = 5;
-          |  export type {X} from "X";
-          |  export type {B} from "./B";
-          |  export type {C} from "/B";
-          |  export type {E} from "@/B";
+          |declare module 'my-module' {
+          |  export type { PlatformPath, ParsedPath } from 'path';
+          |  export { type CopyOptions } from 'fs'; interface Something {}
           |  export {a, type type as type, z} from "../type";
+          |  // comment
+          |    export * as d from "d"
+          |export {c} from "c"; /*
+          |  */\texport {} from "b"; // b
           |}
       `,
       output: (actual) => {
@@ -1128,18 +1128,19 @@ const typescriptTests = {
           |export type {B} from "./B";
           |export type {X} from "X";
           |
-          |declare module "a" {
-          |  export type {Z} from "Z";
-          |  export type Y = 5;
+          |declare module 'my-module' {
+          |  export { type CopyOptions } from 'fs'; 
+          |  export type { ParsedPath,PlatformPath } from 'path';interface Something {}
           |  export {type type as type, a, z} from "../type";
-          |  export type {B} from "./B";
-          |  export type {C} from "/B";
-          |  export type {E} from "@/B";
-          |  export type {X} from "X";
+          |  // comment
+          |/*
+          |  */→export {} from "b"; // b
+          |export {c} from "c"; 
+          |    export * as d from "d"
           |}
         `);
       },
-      errors: 2,
+      errors: 4,
     },
   ],
 };
