@@ -14,21 +14,39 @@ module.exports = {
       sort: "Run autofix to sort these exports!",
     },
   },
-  create: (context) => ({
-    Program: (programNode) => {
-      const sourceCode = context.getSourceCode();
-      for (const chunk of shared.extractChunks(programNode, (node, lastNode) =>
-        isPartOfChunk(node, lastNode, sourceCode)
-      )) {
-        maybeReportChunkSorting(chunk, context);
+  create: (context) => {
+    const parents = new Set();
+
+    const addParent = (node) => {
+      if (isExportFrom(node)) {
+        parents.add(node.parent);
       }
-    },
-    ExportNamedDeclaration: (node) => {
-      if (node.source == null && node.declaration == null) {
-        maybeReportExportSpecifierSorting(node, context);
-      }
-    },
-  }),
+    };
+
+    return {
+      ExportNamedDeclaration: (node) => {
+        if (node.source == null && node.declaration == null) {
+          maybeReportExportSpecifierSorting(node, context);
+        } else {
+          addParent(node);
+        }
+      },
+
+      ExportAllDeclaration: addParent,
+
+      "Program:exit": () => {
+        const sourceCode = context.getSourceCode();
+        for (const parent of parents) {
+          for (const chunk of shared.extractChunks(parent, (node, lastNode) =>
+            isPartOfChunk(node, lastNode, sourceCode)
+          )) {
+            maybeReportChunkSorting(chunk, context);
+          }
+        }
+        parents.clear();
+      },
+    };
+  },
 };
 
 function maybeReportChunkSorting(chunk, context) {

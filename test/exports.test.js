@@ -1106,6 +1106,42 @@ const typescriptTests = {
       },
       errors: 1,
     },
+
+    // Exports inside module declarations.
+    {
+      code: input`
+          |export type {X} from "X";
+          |export type {B} from "./B";
+          |
+          |declare module 'my-module' {
+          |  export type { PlatformPath, ParsedPath } from 'path';
+          |  export { type CopyOptions } from 'fs'; interface Something {}
+          |  export {a, type type as type, z} from "../type";
+          |  // comment
+          |    export * as d from "d"
+          |export {c} from "c"; /*
+          |  */\texport {} from "b"; // b
+          |}
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export type {B} from "./B";
+          |export type {X} from "X";
+          |
+          |declare module 'my-module' {
+          |  export { type CopyOptions } from 'fs'; 
+          |  export type { ParsedPath,PlatformPath } from 'path';interface Something {}
+          |  export {type type as type, a, z} from "../type";
+          |  // comment
+          |/*
+          |  */→export {} from "b"; // b
+          |export {c} from "c"; 
+          |    export * as d from "d"
+          |}
+        `);
+      },
+      errors: 4,
+    },
   ],
 };
 

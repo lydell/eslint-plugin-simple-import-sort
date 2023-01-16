@@ -2000,6 +2000,43 @@ const typescriptTests = {
       },
       errors: 1,
     },
+
+    // Imports inside module declarations.
+    {
+      code: input`
+          |import type { ParsedPath } from 'path';
+          |import type { CopyOptions } from 'fs';
+          |
+          |declare module 'my-module' {
+          |  import type { PlatformPath, ParsedPath } from 'path';
+          |  import { type CopyOptions } from 'fs';
+          |  export function normalize(p: string): string;
+          |  // comment
+          |    import "d"
+          |import c from "c"; /*
+          |  */\timport * as b from "b"; // b
+          |}
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import type { CopyOptions } from 'fs';
+          |import type { ParsedPath } from 'path';
+          |
+          |declare module 'my-module' {
+          |  import { type CopyOptions } from 'fs';
+          |  import type { ParsedPath,PlatformPath } from 'path';
+          |  export function normalize(p: string): string;
+          |  // comment
+          |    import "d"
+          |
+          |/*
+          |  */→import * as b from "b"; // b
+          |import c from "c"; 
+          |}
+        `);
+      },
+      errors: 3,
+    },
   ],
 };
 
