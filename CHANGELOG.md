@@ -1,3 +1,11 @@
+### Version 9.0.0 (2023-01-16)
+
+This version adds support for [eslint-plugin-svelte], and for `declare module` in TypeScript.
+
+More generally, imports and exports are now supported _anywhere,_ by finding the set of parents of all imports and exports and working with those. Previously, the plugin only sorted imports and exports directly inside a `Program` node. For eslint-plugin-svelte and `declare module` that didn’t cut it.
+
+This is only a breaking change if you imports or exports in `declare module` in TypeScript, and only in the form of that you need to autofix your files.
+
 ### Version 8.0.0 (2022-09-03)
 
 Node.js builtin modules prefixed with `node:` are now in a separate group by default (regex: `^node:`), above the packages group. (Node.js builtins _without_ `node:` are still sorted together with npm packages like before.)
@@ -105,6 +113,7 @@ This is only a breaking change if you use the `groups` option and your regexes c
 [@typescript-eslint/parser]: https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/parser
 [#7]: https://github.com/lydell/eslint-plugin-simple-import-sort/issues/7
 [custom sorting]: https://github.com/lydell/eslint-plugin-simple-import-sort/tree/06c4db7d92a82ec2e265ad1bbb0c0a3d76566222#custom-grouping
+[eslint-plugin-svelte]: https://github.com/ota-meshi/eslint-plugin-svelte
 [flow type imports]: https://flow.org/en/docs/types/modules/
 [prettier]: https://prettier.io/
 [sort-from]: README.md#why-sort-on-from

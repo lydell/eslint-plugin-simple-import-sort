@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-simple-import-sort",
-  "version": "8.0.0",
+  "version": "9.0.0",
   "license": "MIT",
   "author": "Simon Lydell",
   "repository": "lydell/eslint-plugin-simple-import-sort",
