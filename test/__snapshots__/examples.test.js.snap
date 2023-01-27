@@ -432,7 +432,7 @@ import {/* comment at start */ f, /* f */g/* g */ } from "wherever3";
 
 `;
 
-exports[`examples readme-example.prettier.js 1`] = `
+exports[`examples readme-example.prettier.ts 1`] = `
 import classnames from "classnames";
 import PropTypes from "prop-types";
 import React from "react";
@@ -468,7 +468,7 @@ export * from "y";
 
 `;
 
-exports[`examples readme-order.prettier.js 1`] = `
+exports[`examples readme-order.prettier.ts 1`] = `
 // Side effect imports. (These are not sorted internally.)
 import "./setup";
 import "some-polyfill";
@@ -491,7 +491,6 @@ import Error from "@/components/error.vue";
 // Relative imports.
 import e from "../..";
 import type { B } from "../types";
-import typeof C from "../types";
 import f from "../Utils"; // Case insensitive.
 import g from ".";
 import h from "./constants";
@@ -524,17 +523,10 @@ export { named, other as renamed };
 export type { T, U as V };
 export default whatever;
 
-var named, other;
-type T = 1;
-type U = 1;
-
 `;
 
-exports[`examples readme-order-items.prettier.js 1`] = `
+exports[`examples readme-order-items.prettier.ts 1`] = `
 import {
-  // First, type imports. (\`export { type x, typeof y }\` is a syntax error).
-  type x,
-  typeof y,
   // Numbers are sorted by their numeric value:
   img1,
   img2,
@@ -544,7 +536,9 @@ import {
   L, // Case insensitive.
   m as anotherName, // Sorted by the “external interface” name “m”, not “anotherName”.
   m as tie, // But do use the file-local name in case of a tie.
-  n,
+  // Types are sorted as if the \`type\` keyword wasn’t there.
+  type x,
+  y,
 } from "./x";
 
 export {
@@ -552,7 +546,9 @@ export {
   L, // Case insensitive.
   anotherName as m, // Sorted by the “external interface” name “m”, not “anotherName”.
   // tie as m, // For exports there can’t be ties – all exports must be unique.
-  n,
+  // Types are sorted as if the \`type\` keyword wasn’t there.
+  type x,
+  y,
 };
 export type { A, B, A as C };
 

@@ -1131,7 +1131,7 @@ const typescriptTests = {
           |declare module 'my-module' {
           |  export { type CopyOptions } from 'fs'; 
           |  export type { ParsedPath,PlatformPath } from 'path';interface Something {}
-          |  export {type type as type, a, z} from "../type";
+          |  export {a, type type as type, z} from "../type";
           |  // comment
           |/*
           |  */→export {} from "b"; // b

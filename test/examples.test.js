@@ -39,7 +39,7 @@ describe("examples", () => {
         const code = name.includes("prettier")
           ? prettier.format(
               item.output || fs.readFileSync(item.filePath, "utf8"),
-              { parser: "babel" }
+              { parser: "babel-ts" }
             )
           : item.output;
         expect(code).toMatchSnapshot();
