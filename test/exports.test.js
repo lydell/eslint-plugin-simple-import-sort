@@ -1107,6 +1107,19 @@ const typescriptTests = {
       errors: 1,
     },
 
+    // Type import with same name as regular import comes first.
+    {
+      code: input`
+          |export {MyClass, type MyClass} from "../type";
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(
+          `export {type MyClass,MyClass} from "../type";`
+        );
+      },
+      errors: 1,
+    },
+
     // Exports inside module declarations.
     {
       code: input`
