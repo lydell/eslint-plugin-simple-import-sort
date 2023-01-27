@@ -245,7 +245,6 @@ import Error from "@/components/error.vue";
 // Relative imports.
 import e from "../..";
 import type { B } from "../types";
-import typeof C from "../types";
 import f from "../Utils"; // Case insensitive.
 import g from ".";
 import h from "./constants";
@@ -283,9 +282,6 @@ Regardless of group, imported items are sorted like this:
 
 ```js
 import {
-  // First, type imports. (`export { type x, typeof y }` is a syntax error).
-  type x,
-  typeof y,
   // Numbers are sorted by their numeric value:
   img1,
   img2,
@@ -295,7 +291,9 @@ import {
   L, // Case insensitive.
   m as anotherName, // Sorted by the “external interface” name “m”, not “anotherName”.
   m as tie, // But do use the file-local name in case of a tie.
-  n,
+  // Types are sorted as if the `type` keyword wasn’t there.
+  type x,
+  y,
 } from "./x";
 ```
 
@@ -307,7 +305,9 @@ export {
   L, // Case insensitive.
   anotherName as m, // Sorted by the “external interface” name “m”, not “anotherName”.
   // tie as m, // For exports there can’t be ties – all exports must be unique.
-  n,
+  // Types are sorted as if the `type` keyword wasn’t there.
+  type x,
+  y,
 };
 export type { A, B, A as C };
 ```

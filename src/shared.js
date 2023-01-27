@@ -730,12 +730,7 @@ function sortImportExportItems(items) {
 function sortSpecifierItems(items) {
   return items.slice().sort(
     (itemA, itemB) =>
-      // Put type imports/exports before regular ones.
-      compare(
-        getImportExportKind(itemA.node),
-        getImportExportKind(itemB.node)
-      ) ||
-      // Then compare by imported or exported name (external interface name).
+      // Compare by imported or exported name (external interface name).
       // import { a as b } from "a"
       //          ^
       // export { b as a }
@@ -750,6 +745,11 @@ function sortSpecifierItems(items) {
       // export { b as a }
       //          ^
       compare(itemA.node.local.name, itemB.node.local.name) ||
+      // Then put type specifiers before regular ones.
+      compare(
+        getImportExportKind(itemA.node),
+        getImportExportKind(itemB.node)
+      ) ||
       // Keep the original order if the names are the same. It’s not worth
       // trying to compare anything else, `import {a, a} from "mod"` is a syntax
       // error anyway (but @babel/eslint-parser kind of supports it).
