@@ -1,3 +1,69 @@
+### Version 10.0.0 (2023-01-27)
+
+This release might move some imported items with `type` around. This is a breaking formatting change (that only affects TypeScript and Flow), but only in the form of that you need to autofix your files.
+
+In previous versions, `type` specifiers came first:
+
+```ts
+import { type B, a } from "a";
+export { type B, a } from "a";
+```
+
+Now, all specifiers are sorted alphabetically, regardless of `type`:
+
+```ts
+import { a, type B } from "a";
+export { a, type B } from "a";
+```
+
+Motivation:
+
+You might import a class for a type annotation using:
+
+<!-- prettier-ignore -->
+```ts
+import {
+  type MyClass,
+  coolFunction,
+} from "example";
+```
+
+Later, you also start instantiating that class in the same file (`new MyClass()`), so you remove `type`.
+
+Previously, this resulted in a messy diff due to the class moving:
+
+```diff
+ import {
+-  type MyClass,
+   coolFunction,
++  MyClass,
+ } from "example";
+```
+
+Now, the sorting with the `type` keyword would be:
+
+<!-- prettier-ignore -->
+```ts
+import {
+  coolFunction,
+  type MyClass,
+} from "example";
+```
+
+Now there’s no reordering diff, just the `type` keyword being removed:
+
+```diff
+ import {
+   coolFunction,
+-   type MyClass,
++   MyClass,
+ } from "example";
+```
+
+This is consistent with [“Why sort on `from`?”][sort-from].
+
+Thanks to Jake Bailey (@jakebailey) for reporting and suggesting the fix!
+
 ### Version 9.0.0 (2023-01-16)
 
 This version adds support for [eslint-plugin-svelte], and for `declare module` in TypeScript.
