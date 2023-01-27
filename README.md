@@ -25,7 +25,7 @@ This is for those who use `eslint --fix` (autofix) a lot and want to completely 
 ## Example
 
 <!-- prettier-ignore -->
-```js
+```ts
 import React from "react";
 import Button from "../Button";
 
@@ -41,7 +41,7 @@ import { truncate, formatNumber } from "../../utils";
 ⬇️
 
 <!-- prettier-ignore -->
-```js
+```ts
 import classnames from "classnames";
 import PropTypes from "prop-types";
 import React from "react";
@@ -222,7 +222,7 @@ If both `import type` _and_ regular imports are used for the same source, the ty
 ### Example
 
 <!-- prettier-ignore -->
-```js
+```ts
 // Side effect imports. (These are not sorted internally.)
 import "./setup";
 import "some-polyfill";
@@ -245,7 +245,6 @@ import Error from "@/components/error.vue";
 // Relative imports.
 import e from "../..";
 import type { B } from "../types";
-import typeof C from "../types";
 import f from "../Utils"; // Case insensitive.
 import g from ".";
 import h from "./constants";
@@ -281,11 +280,8 @@ export default whatever;
 
 Regardless of group, imported items are sorted like this:
 
-```js
+```ts
 import {
-  // First, type imports. (`export { type x, typeof y }` is a syntax error).
-  type x,
-  typeof y,
   // Numbers are sorted by their numeric value:
   img1,
   img2,
@@ -295,19 +291,23 @@ import {
   L, // Case insensitive.
   m as anotherName, // Sorted by the “external interface” name “m”, not “anotherName”.
   m as tie, // But do use the file-local name in case of a tie.
-  n,
+  // Types are sorted as if the `type` keyword wasn’t there.
+  type x,
+  y,
 } from "./x";
 ```
 
 Exported items are sorted even for exports _without_ `from` (even though the whole export statement itself isn’t sorted in relation to other exports):
 
-```js
+```ts
 export {
   k,
   L, // Case insensitive.
   anotherName as m, // Sorted by the “external interface” name “m”, not “anotherName”.
   // tie as m, // For exports there can’t be ties – all exports must be unique.
-  n,
+  // Types are sorted as if the `type` keyword wasn’t there.
+  type x,
+  y,
 };
 export type { A, B, A as C };
 ```

@@ -1591,13 +1591,13 @@ const flowTests = {
     `import typeof {    } from "a"`,
 
     // type specifiers.
-    `import { type b, type c, a } from "a"`,
+    `import { a, type b, c, type d } from "a"`,
 
     // typeof specifiers.
-    `import { typeof b, typeof c, a } from "a"`,
+    `import { a, typeof b, c, typeof d } from "a"`,
 
     // Mixed specifiers.
-    `import { type c, typeof b, a } from "a"`,
+    `import { type a, typeof b, c } from "a"`,
 
     // Sorted alphabetically.
     input`
@@ -1637,7 +1637,7 @@ const flowTests = {
           |
           |import type B from "./B";
           |import typeof D from "./D";
-          |import {type Y, typeof T, pluralize,truncate} from "./utils"
+          |import {pluralize,typeof T, truncate, type Y} from "./utils"
         `);
       },
       errors: 1,
@@ -1848,7 +1848,7 @@ const typescriptTests = {
     `import json from "./foo.json" assert { type: "json" };`,
 
     // type specifiers.
-    `import { type b, type c, a } from "a"`,
+    `import { a, type b, c, type d } from "a"`,
 
     // Sorted alphabetically.
     input`
@@ -1890,7 +1890,7 @@ const typescriptTests = {
           |import type {Button,target, type as tipe} from "../Button";
           |import type X from "../Button";
           |import Button from "../Button";
-          |import {type type as type, a, z} from "../type";
+          |import {a, type type as type, z} from "../type";
           |import styles from "./styles.css";
           |
           |function pluck<T, K extends keyof T>(o: T, names: K[]): T[K][] {

@@ -20,7 +20,6 @@ import Error from "@/components/error.vue";
 // Relative imports.
 import e from "../..";
 import type { B } from "../types";
-import typeof C from "../types";
 import f from "../Utils"; // Case insensitive.
 import g from ".";
 import h from "./constants";
@@ -52,7 +51,3 @@ export type Type = string;
 export { named, other as renamed };
 export type { T, U as V };
 export default whatever;
-
-var named, other;
-type T = 1;
-type U = 1;
