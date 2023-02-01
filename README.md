@@ -218,7 +218,7 @@ function compare(a, b) {
 
 In other words, the imports/exports within groups are sorted alphabetically, case-insensitively and treating numbers like a human would, falling back to good old character code sorting in case of ties. See [Intl.Collator] for more information. Note: `Intl.Collator` sorts punctuation in _some_ defined order. I have no idea what order punctuation sorts in, and I don’t care. There’s no ordered “alphabet” for punctuation that I know of.
 
-There’s one addition to the alphabetical rule: Directory structure. Relative imports/exports of files higher up in the directory structure come before closer ones – `"../../utils"` comes before `"../utils"`, which comes before `"."`. (In short, `.` and `/` sort before any other (non-whitespace, non-control) character. `".."` and similar sort like `"../,"` (to avoid the “shorter prefix comes first” sorting concept).)
+There’s one addition to the alphabetical rule: Directory structure. Relative imports/exports of files higher up in the directory structure come before closer ones – `"../../utils"` comes before `"../utils"`, which comes before `"."`. Note: No path or URL normalization is performed – the plugin simply looks for how many times `../` is repeated at the start of the `from` string. If you put a `./` in there (like `.././../` or `./../../`) then the directory structure sorting won’t work. Simply don’t do that. Also, you _have_ to use forward slashes – backslashes are not supported.
 
 If both `import type` _and_ regular imports are used for the same source, the type imports come first. Same thing for `export type`. (You can move type imports to their own group, as mentioned in [custom grouping].)
 
@@ -241,9 +241,9 @@ import fs2 from "fs";
 import b from "https://example.com/script.js";
 
 // Absolute imports and other imports.
+import Error from "@/components/error.vue";
 import c from "/";
 import d from "/home/user/foo";
-import Error from "@/components/error.vue";
 
 // Relative imports.
 import e from "../..";
@@ -255,8 +255,8 @@ import i from "./styles";
 
 // Different types of exports:
 export { a } from "../..";
-export { b } from "/";
 export { Error } from "@/components/error.vue";
+export { b } from "/";
 export * from "an-npm-package";
 export { readFile } from "fs";
 export * as ns from "https://example.com/script.js";
@@ -655,7 +655,7 @@ Some other differences:
 
 The first question to ask yourself is if dprint is good enough. If so, you’ve got one tool less to worry about!
 
-If you’d like to enforce grouping, though, you could still use `eslint-plugin-simple-import-sort`. However, the two might disagree slightly on some sorting edge cases. So it’s better to turn off sorting in your dprint config file:
+If you’d like to enforce grouping, though, you could still use `eslint-plugin-simple-import-sort`. There is a risk that the two might disagree slightly on some sorting edge cases. So might want to turn off sorting in your dprint config file:
 
 ```json
 {

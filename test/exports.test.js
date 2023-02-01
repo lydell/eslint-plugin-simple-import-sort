@@ -815,8 +815,8 @@ const flowTests = {
           |export type {Z} from "Z";
           |export type Y = 5;
           |export type {B} from "./B";
-          |export type {C} from "/B";
           |export type {E} from "@/B";
+          |export type {C} from "/B";
           |export type {X} from "X";
         `);
       },
@@ -1099,8 +1099,8 @@ const typescriptTests = {
           |export type Y = 5;
           |export {a, type type as type, z} from "../type";
           |export type {B} from "./B";
-          |export type {C} from "/B";
           |export type {E} from "@/B";
+          |export type {C} from "/B";
           |export type {X} from "X";
         `);
       },

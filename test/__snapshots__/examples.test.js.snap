@@ -104,8 +104,8 @@ import styles from "./styles.scss";
 exports[`examples groups.default-reverse.js 1`] = `
 import styles from "./styles";
 
-import config from "/config";
 import App from "@/App";
+import config from "/config";
 
 import { storiesOf } from "@storybook/react";
 import fs2 from "fs";
@@ -132,9 +132,9 @@ import styles from "./styles.css";
 
 exports[`examples groups.none.js 1`] = `
 import styles from "./styles";
-import config from "/config";
 import App from "@/App";
 import { storiesOf } from "@storybook/react";
+import config from "/config";
 import * as fs from "node:fs";
 import react from "react";
 
@@ -143,9 +143,9 @@ import react from "react";
 exports[`examples groups.type-imports-first.ts 1`] = `
 import type { Page } from "./page";
 import type { Css } from "./styles";
-import type { Config } from "/config";
 import type { AppRouter } from "@/App";
 import type { Story } from "@storybook/react";
+import type { Config } from "/config";
 import type { Dirent } from "node:fs";
 import type { ParsedPath } from "node:path";
 import type { Component } from "react";
@@ -159,8 +159,8 @@ import * as path from "node:path";
 import { storiesOf } from "@storybook/react";
 import react from "react";
 
-import config from "/config";
 import App from "@/App";
+import config from "/config";
 
 import page from "./page";
 import styles from "./styles";
@@ -181,10 +181,10 @@ import type { Store } from "redux";
 import { storiesOf } from "@storybook/react";
 import react from "react";
 
-import type { Config } from "/config";
 import type { AppRouter } from "@/App";
-import config from "/config";
+import type { Config } from "/config";
 import App from "@/App";
+import config from "/config";
 
 import type { Page } from "./page";
 import type { Css } from "./styles";
@@ -199,8 +199,8 @@ import type { ParsedPath } from "node:path";
 import type { Story } from "@storybook/react";
 import type { Component } from "react";
 import type { Store } from "redux";
-import type { Config } from "/config";
 import type { AppRouter } from "@/App";
+import type { Config } from "/config";
 import type { Page } from "./page";
 import type { Css } from "./styles";
 
@@ -212,8 +212,8 @@ import * as path from "node:path";
 import { storiesOf } from "@storybook/react";
 import react from "react";
 
-import config from "/config";
 import App from "@/App";
+import config from "/config";
 
 import page from "./page";
 import styles from "./styles";
@@ -229,17 +229,17 @@ import * as path from "node:path";
 import { storiesOf } from "@storybook/react";
 import react from "react";
 
-import config from "/config";
 import App from "@/App";
+import config from "/config";
 
 import page from "./page";
 import styles from "./styles";
 
 import type { Page } from "./page";
 import type { Css } from "./styles";
-import type { Config } from "/config";
 import type { AppRouter } from "@/App";
 import type { Story } from "@storybook/react";
+import type { Config } from "/config";
 import type { Dirent } from "node:fs";
 import type { ParsedPath } from "node:path";
 import type { Component } from "react";
@@ -261,10 +261,10 @@ import type { Story } from "@storybook/react";
 import type { Component } from "react";
 import type { Store } from "redux";
 
-import config from "/config";
 import App from "@/App";
-import type { Config } from "/config";
+import config from "/config";
 import type { AppRouter } from "@/App";
+import type { Config } from "/config";
 
 import page from "./page";
 import styles from "./styles";
@@ -282,8 +282,8 @@ import * as path from "node:path";
 import { storiesOf } from "@storybook/react";
 import react from "react";
 
-import config from "/config";
 import App from "@/App";
+import config from "/config";
 
 import page from "./page";
 import styles from "./styles";
@@ -293,8 +293,8 @@ import type { ParsedPath } from "node:path";
 import type { Story } from "@storybook/react";
 import type { Component } from "react";
 import type { Store } from "redux";
-import type { Config } from "/config";
 import type { AppRouter } from "@/App";
+import type { Config } from "/config";
 import type { Page } from "./page";
 import type { Css } from "./styles";
 
@@ -484,9 +484,9 @@ import fs2 from "fs";
 import b from "https://example.com/script.js";
 
 // Absolute imports and other imports.
+import Error from "@/components/error.vue";
 import c from "/";
 import d from "/home/user/foo";
-import Error from "@/components/error.vue";
 
 // Relative imports.
 import e from "../..";
@@ -498,8 +498,8 @@ import i from "./styles";
 
 // Different types of exports:
 export { a } from "../..";
-export { b } from "/";
 export { Error } from "@/components/error.vue";
+export { b } from "/";
 export * from "an-npm-package";
 export { readFile } from "fs";
 export * as ns from "https://example.com/script.js";

@@ -874,55 +874,55 @@ const baseTests = (expect) => ({
           |import {} from "react";
           |
           |import {} from "";
+          |import {} from "@/components/Alert"
+          |import {} from "@/components/error.vue"
           |import {} from "/";
           |import {} from "/a";
           |import {} from "/a/b";
-          |import {} from "@/components/Alert"
-          |import {} from "@/components/error.vue"
           |import {} from "#/test"
           |import {} from "~/test"
           |
-          |import {} from "...";
-          |import {} from ".../";
           |import {} from "../../..";
           |import {} from "../../../";
-          |import {} from "../../../,";
           |import {} from "../../../_a";
+          |import {} from "../../../,";
           |import {} from "../../../[id]";
           |import {} from "../../../a";
           |import {} from "../../../utils";
           |import {} from "../..";
           |import {} from "../../";
-          |import {} from "../../,";
           |import {} from "../../_a";
-          |import {} from "../../[id]";
           |import {} from "../../-a";
+          |import {} from "../../,";
+          |import {} from "../../[id]";
           |import {} from "../../a";
           |import {} from "../../utils";
           |import {} from "..";
           |import {} from "../";
-          |import {} from "../,";
           |import {} from "../_a";
-          |import {} from "../[id]";
           |import {} from "../-a";
+          |import {} from "../,";
+          |import {} from "../[id]";
           |import {} from "../a";
           |import {} from "../a/..";
           |import {} from "../a/...";
           |import {} from "../a/../";
           |import {} from "../a/../b";
-          |import {} from ".//";
           |import {} from ".";
+          |import {} from "...";
+          |import {} from ".../";
           |import {} from "./";
-          |import {} from "./,";
           |import {} from "./_a";
-          |import {} from "./[id]";
           |import {} from "./-a";
+          |import {} from "./,";
+          |import {} from "./[id]";
+          |import {} from ".//";
           |import {} from "./A";
           |import {} from "./a";
           |import {} from "./ä"; // “a” followed by “̈̈” (COMBINING DIAERESIS).
           |import {} from "./ä";
-          |import {} from "./a/.";
           |import {} from "./a/-";
+          |import {} from "./a/.";
           |import {} from "./a/0";
           |import {} from "./B"; // B1
           |import {} from "./B"; // B2
@@ -1570,6 +1570,30 @@ const baseTests = (expect) => ({
       },
       errors: 1,
     },
+
+    // groups – all in one group.
+    {
+      options: [{ groups: [] }],
+      code: input`
+          |import styles from "./styles";
+          |import App from "@/App";
+          |import { storiesOf } from "@storybook/react";
+          |import config from "/config";
+          |import react from "react";
+          |import * as fs from "node:fs";
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import styles from "./styles";
+          |import App from "@/App";
+          |import { storiesOf } from "@storybook/react";
+          |import config from "/config";
+          |import * as fs from "node:fs";
+          |import react from "react";
+        `);
+      },
+      errors: 1,
+    },
   ],
 });
 
@@ -1632,8 +1656,8 @@ const flowTests = {
           |import type {X} from "X";
           |import type {Z} from "Z";
           |
-          |import type C from "/B";
           |import type E from "@/B";
+          |import type C from "/B";
           |
           |import type B from "./B";
           |import typeof D from "./D";
