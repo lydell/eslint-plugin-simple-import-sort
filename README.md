@@ -8,6 +8,7 @@ Easy autofixable import sorting.
 - ✅️ Handles type imports/exports
 - ✅️ [TypeScript] friendly \(via [@typescript-eslint/parser])
 - ✅️ [Prettier] friendly
+- ✅️ [dprint] friendly ([with configuration])
 - ✅️ [eslint-plugin-import] friendly
 - ✅️ `git diff` friendly
 - ✅️ 100% code coverage
@@ -17,10 +18,12 @@ Easy autofixable import sorting.
 This is for those who use `eslint --fix` (autofix) a lot and want to completely forget about sorting imports!
 
 [@typescript-eslint/parser]: https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/parser
+[dprint]: https://dprint.dev/
 [eslint-plugin-import]: https://github.com/import-js/eslint-plugin-import/
 [no-require]: https://github.com/lydell/eslint-plugin-simple-import-sort/#does-it-support-require
 [prettier]: https://prettier.io/
 [typescript]: https://www.typescriptlang.org/
+[with configuration]: https://github.com/lydell/eslint-plugin-simple-import-sort/#TODO
 
 ## Example
 
@@ -645,6 +648,24 @@ Some other differences:
 
 - This plugin gives you a single error for each chunk of imports/exports, while `import/order` can give multiple (see [Can I use this without autofix?][autofix] for details). In other words, this plugin is noisier in terms of underlined lines in your editor, while `import/order` is noisier in terms of error count.
 - This plugin has a single (though very powerful) option that is a bunch of regexes, while `import/order` has bunch of different options. It’s unclear which is easier to configure. But `eslint-plugin-simple-import-sort` tries to do the maximum out of the box.
+
+### How do I use this with `dprint`?
+
+[dprint] also sorts imports and exports – but does not group them. Instead, it preserves your own grouping.
+
+The first question to ask yourself is if dprint is good enough. If so, you’ve got one tool less to worry about!
+
+If you’d like to enforce grouping, though, you could still use `eslint-plugin-simple-import-sort`. However, the two might disagree slightly on some sorting edge cases. So it’s better to turn off sorting in your dprint config file:
+
+```json
+{
+  "typescript": {
+    "module.sortImportDeclarations": "maintain"
+  }
+}
+```
+
+Source: https://dprint.dev/plugins/typescript/config/
 
 ## License
 
