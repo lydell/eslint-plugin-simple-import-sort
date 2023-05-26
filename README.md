@@ -329,7 +329,7 @@ There is **one** option (see [Not for everyone]) called `groups` that allows you
 
 - Move `src/Button`, `@company/Button` and similar out of the (third party) “packages” group, into their own group.
 - Move `react` first.
-- Remove blank lines between groups.
+- Avoid blank lines between imports by using a single group.
 - Make a separate group for style imports.
 - Separate `./` and `../` imports.
 - Not use groups at all and only sort alphabetically.
