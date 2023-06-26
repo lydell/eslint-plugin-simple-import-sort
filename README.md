@@ -2,7 +2,7 @@
 
 Easy autofixable import sorting.
 
-- ✅️ Runs via `eslint --fix` – no new tooling
+- ✅️ Runs via [`eslint --fix`][eslint-fix] – no new tooling
 - ✅️ Also sorts exports where possible
 - ✅️ Handles comments
 - ✅️ Handles type imports/exports
@@ -15,10 +15,11 @@ Easy autofixable import sorting.
 - ✅️ No dependencies
 - ❌ [Does not support `require`][no-require]
 
-This is for those who use `eslint --fix` (autofix) a lot and want to completely forget about sorting imports!
+This is for those who use [`eslint --fix`][eslint-fix] (autofix) a lot and want to completely forget about sorting imports!
 
 [@typescript-eslint/parser]: https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/parser
 [dprint]: https://dprint.dev/
+[eslint-fix]: https://eslint.org/docs/user-guide/command-line-interface#--fix
 [eslint-plugin-import]: https://github.com/import-js/eslint-plugin-import/
 [no-require]: https://github.com/lydell/eslint-plugin-simple-import-sort/#does-it-support-require
 [prettier]: https://prettier.io/
@@ -624,7 +625,7 @@ The reason the whitespace can end up weird is because this plugin re-uses and mo
 
 ### Can I use this without autofix?
 
-Not really. The error message for this rule is literally “Run autofix to sort these imports!” Why? To actively encourage you to use autofix, and not waste time on manually doing something that the computer does a lot better. I’ve seen people painstakingly fixing cryptic (and annoying!) sorting errors from other rules one by one, not realizing they could have been autofixed. Finally, not trying to make more detailed messages makes the code of this plugin _much_ easier to work with.
+Not really. The error message for this rule is literally “Run autofix to sort these imports!” Why? To actively encourage you to use [`eslint --fix`][eslint-fix] (autofix), and not waste time on manually doing something that the computer does a lot better. I’ve seen people painstakingly fixing cryptic (and annoying!) sorting errors from other rules one by one, not realizing they could have been autofixed. Finally, not trying to make more detailed messages makes the code of this plugin _much_ easier to work with.
 
 ### How do I use eslint-ignore for this rule?
 
@@ -674,7 +675,6 @@ Source: https://dprint.dev/plugins/typescript/config/
 [autofix]: #can-i-use-this-without-autofix
 [comment-handling]: #comment-and-whitespace-handling
 [custom grouping]: #custom-grouping
-[eslint-fix]: https://eslint.org/docs/user-guide/command-line-interface#--fix
 [eslint-getting-started]: https://eslint.org/docs/user-guide/getting-started
 [eslint]: https://eslint.org/
 [example-ignore]: ./examples/ignore.js
