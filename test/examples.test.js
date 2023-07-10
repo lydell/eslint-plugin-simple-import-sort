@@ -27,7 +27,7 @@ describe("examples", () => {
 
   for (const item of output) {
     const name = path.basename(item.filePath);
-    if (!name.startsWith(".")) {
+    if (!(name.startsWith(".") || name === "README.md")) {
       test(`${name}`, () => {
         expect(item).toMatchObject({
           messages: [],

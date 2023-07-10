@@ -326,20 +326,7 @@ Workaround to make the next section to appear in the table of contents.
 
 ## Custom grouping
 
-There is **one** option (see [Not for everyone]) called `groups` that allows you to:
-
-- Move `src/Button`, `@company/Button` and similar out of the (third party) “packages” group, into their own group.
-- Move `react` first.
-- Avoid blank lines between imports by using a single group.
-- Make a separate group for style imports.
-- Separate `./` and `../` imports.
-- Not use groups at all and only sort alphabetically.
-
-> If you’re looking at custom grouping because you want to move `src/Button`, `@company/Button` and similar – also consider using names that do not look like npm packages, such as `@/Button` and `~company/Button`. Then you won’t need to customize the grouping at all, and as a bonus things might be less confusing for other people working on the code base.
->
-> See [issue #31] for some tips on what you can do if you have very complex requirements.
->
-> Note: For exports the grouping is manual using comments – see [exports].
+There is **one** option (see [Not for everyone]) called `groups` that is useful for a bunch of different use cases.
 
 `groups` is an array of arrays of strings:
 
@@ -349,23 +336,38 @@ type Options = {
 };
 ```
 
-Each string is a regex (with the `u` flag) and defines a group. (Remember to escape backslashes – it’s `"\\w"`, not `"\w"`, for example.)
+Each string is a regex (with the [`u` flag]). The regexes decide which imports go where. (Remember to escape backslashes – it’s `"\\w"`, not `"\w"`, for example.)
 
-Each `import` is matched against _all_ regexes on the `from` string. The import ends up in the group with **the longest match.** In case of a tie, the **first** matching group wins.
+The inner arrays are joined with one newline; the outer arrays are joined with two – creating a blank line. That’s why there are two levels of arrays – it lets you choose where to have blank lines.
 
-> If an import ends up in the wrong group – try making the desired group regex match more of the `from` string, or use negative lookahead (`(?!x)`) to exclude things from other groups.
+Here are some things you can do:
 
-Imports that don’t match any regex are grouped together last.
+- Move non-standard import paths like `src/Button` and `@company/Button` out of the (third party) “packages” group, into their own group.
+- Move `react` first.
+- [Avoid blank lines between imports](#how-do-i-remove-all-blank-lines-between-imports) by using a single inner array.
+- Make a separate group for style imports.
+- Separate `./` and `../` imports.
+- Not use groups at all and only sort alphabetically.
+
+> If you’re looking at custom grouping because you want to move non-standard import paths like `src/Button` (with no leading `./` or `../`) and `@company/Button` – consider instead using names that do not look like npm packages, such as `@/Button` and `~company/Button`. Then you won’t need to customize the grouping at all, and as a bonus things might be less confusing for other people working on the code base.
+>
+> See [issue #31] for some tips on what you can do if you have very complex requirements.
+>
+> Note: For exports the grouping is manual using comments – see [exports].
+
+Each `import` is matched against _all_ regexes on the `from` string. The import ends up at the regex with **the longest match.** In case of a tie, the **first** matching regex wins.
+
+> If an import ends up in the wrong place – try making the desired regex match more of the `from` string, or use negative lookahead (`(?!x)`) to exclude things from other groups.
+
+Imports that don’t match any regex are put together last.
 
 Side effect imports have `\u0000` _prepended_ to their `from` string (starts with `\u0000`). You can match them with `"^\\u0000"`.
 
-Type imports have `\u0000` _appended_ to their `from` string (ends with `\u0000`). You can match them with `"\\u0000$"` – but you probably need more than that to avoid them also being matched by other groups.
+Type imports have `\u0000` _appended_ to their `from` string (ends with `\u0000`). You can match them with `"\\u0000$"` – but you probably need more than that to avoid them also being matched by other regexes.
 
-The inner arrays are joined with one newline; the outer arrays are joined with two (creating a blank line).
+All imports that match the same regex are sorted internally as mentioned in [Sort order].
 
-Every group is sorted internally as mentioned in [Sort order]. Side effect imports are always placed first in the group and keep their internal order. It’s recommended to keep side effect imports in their own group.
-
-These are the default groups:
+This is the default value for the `groups` option:
 
 ```js
 [
@@ -668,10 +670,23 @@ If you’d like to enforce grouping, though, you could still use `eslint-plugin-
 
 Source: https://dprint.dev/plugins/typescript/config/
 
+### How do I remove all blank lines between imports?
+
+Use [custom grouping], setting the `groups` option to only have a single inner array.
+
+For example, here’s the default value but changed to a single inner array:
+
+```js
+[["^\\u0000", "^node:", "^@?\\w", "^", "^\\."]];
+```
+
+(By default, each string is in its _own_ array (that’s 5 inner arrays) – causing a blank line between each.)
+
 ## License
 
 [MIT](LICENSE)
 
+[`u` flag]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicode
 [autofix]: #can-i-use-this-without-autofix
 [comment-handling]: #comment-and-whitespace-handling
 [custom grouping]: #custom-grouping
