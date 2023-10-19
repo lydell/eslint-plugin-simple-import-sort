@@ -13,9 +13,9 @@ import fs2 from "fs";
 import b from "https://example.com/script.js";
 
 // Absolute imports and other imports.
+import Error from "@/components/error.vue";
 import c from "/";
 import d from "/home/user/foo";
-import Error from "@/components/error.vue";
 
 // Relative imports.
 import e from "../..";
@@ -27,8 +27,8 @@ import i from "./styles";
 
 // Different types of exports:
 export { a } from "../..";
-export { b } from "/";
 export { Error } from "@/components/error.vue";
+export { b } from "/";
 export * from "an-npm-package";
 export { readFile } from "fs";
 export * as ns from "https://example.com/script.js";
