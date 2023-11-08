@@ -2037,6 +2037,24 @@ const typescriptTests = {
       },
       errors: 3,
     },
+
+    // Namespace imports.
+    {
+      code: input`
+          |import { Namespace } from './namespace';
+          |import Foo = Namespace.Foo;
+          |import { bar } from './a';
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import { bar } from './a';
+          |import { Namespace } from './namespace';
+          |
+          |import Foo = Namespace.Foo;
+        `);
+      },
+      errors: 1,
+    },
   ],
 };
 

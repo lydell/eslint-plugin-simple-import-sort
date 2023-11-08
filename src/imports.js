@@ -16,6 +16,9 @@ const defaultGroups = [
   // Relative imports.
   // Anything that starts with a dot.
   ["^\\."],
+  // Namespace import.
+  // Anything that starts with an equal sign.
+  ["^= "],
 ];
 
 module.exports = {
@@ -56,7 +59,7 @@ module.exports = {
     const parents = new Set();
 
     return {
-      ImportDeclaration: (node) => {
+      "ImportDeclaration,TSImportEqualsDeclaration": (node) => {
         parents.add(node.parent);
       },
 
@@ -132,12 +135,20 @@ function makeSortedItems(items, outerGroups) {
 
 // Exclude "ImportDefaultSpecifier" – the "def" in `import def, {a, b}`.
 function getSpecifiers(importNode) {
-  return importNode.specifiers.filter((node) => isImportSpecifier(node));
+  switch (importNode.type) {
+    case "TSImportEqualsDeclaration":
+      return [];
+    default:
+      return importNode.specifiers.filter((node) => isImportSpecifier(node));
+  }
 }
 
 // Full import statement.
 function isImport(node) {
-  return node.type === "ImportDeclaration";
+  return (
+    node.type === "ImportDeclaration" ||
+    node.type === "TSImportEqualsDeclaration"
+  );
 }
 
 // import def, { a, b as c, type d } from "A"
@@ -150,9 +161,17 @@ function isImportSpecifier(node) {
 // But not: import {} from "setup"
 // And not: import type {} from "setup"
 function isSideEffectImport(importNode, sourceCode) {
-  return (
-    importNode.specifiers.length === 0 &&
-    (!importNode.importKind || importNode.importKind === "value") &&
-    !shared.isPunctuator(sourceCode.getFirstToken(importNode, { skip: 1 }), "{")
-  );
+  switch (importNode.type) {
+    case "TSImportEqualsDeclaration":
+      return false;
+    default:
+      return (
+        importNode.specifiers.length === 0 &&
+        (!importNode.importKind || importNode.importKind === "value") &&
+        !shared.isPunctuator(
+          sourceCode.getFirstToken(importNode, { skip: 1 }),
+          "{"
+        )
+      );
+  }
 }

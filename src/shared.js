@@ -164,7 +164,7 @@ function getImportExportItems(
     const [start] = all[0].range;
     const [, end] = all[all.length - 1].range;
 
-    const source = getSource(node);
+    const source = getSource(sourceCode, node);
 
     return {
       node,
@@ -795,8 +795,18 @@ function isNewline(node) {
   return node.type === "Newline";
 }
 
-function getSource(node) {
-  const source = node.source.value;
+function getSource(sourceCode, node) {
+  let source;
+  switch (node.type) {
+    case "TSImportEqualsDeclaration": {
+      source = `= ${sourceCode.text.slice(...node.moduleReference.range)}`;
+      break;
+    }
+    default: {
+      source = node.source.value;
+      break;
+    }
+  }
 
   return {
     // Sort by directory level rather than by string length.
