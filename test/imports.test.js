@@ -2038,7 +2038,7 @@ const typescriptTests = {
       errors: 3,
     },
 
-    // Namespace imports.
+    // Import assignments.
     {
       code: input`
           |import { Namespace } from './namespace';
@@ -2051,6 +2051,39 @@ const typescriptTests = {
           |import { Namespace } from './namespace';
           |
           |import Foo = Namespace.Foo;
+        `);
+      },
+      errors: 1,
+    },
+    {
+      code: input`
+          |import B = require('./b');
+          |import A = require('./a');
+          |import Foo = require('foo');
+          |import Bar = require('../foo');
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import Foo = require('foo');
+          |
+          |import Bar = require('../foo');
+          |import A = require('./a');
+          |import B = require('./b');
+        `);
+      },
+      errors: 1,
+    },
+    {
+      code: input`
+          |import B = Namespace/*aaaa*/.B;
+          |import AB = Namespace.A.B;
+          |import A = Namespace.A.A;
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import A = Namespace.A.A;
+          |import AB = Namespace.A.B;
+          |import B = Namespace/*aaaa*/.B;
         `);
       },
       errors: 1,

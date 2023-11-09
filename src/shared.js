@@ -795,11 +795,55 @@ function isNewline(node) {
   return node.type === "Newline";
 }
 
+function getSourceFromTSQualifiedName(sourceCode, node) {
+  let left;
+  let right;
+  switch (node.left.type) {
+    case "Identifier": {
+      left = node.left.name;
+      break;
+    }
+    case "TSQualifiedName": {
+      left = getSourceFromTSQualifiedName(sourceCode, node.left);
+      break;
+    }
+    default: {
+      left = ``;
+      break;
+    }
+  }
+  switch (node.right.type) {
+    case "Identifier": {
+      right = `.${node.right.name}`;
+      break;
+    }
+    default: {
+      right = ``;
+      break;
+    }
+  }
+  return left + right;
+}
+
+function getSourceFromModuleReference(sourceCode, node) {
+  switch (node.type) {
+    case "TSExternalModuleReference": {
+      return node.expression.value;
+    }
+    case "TSQualifiedName": {
+      return `= ${getSourceFromTSQualifiedName(sourceCode, node)}`;
+    }
+    default: {
+      return ``;
+    }
+  }
+}
+
 function getSource(sourceCode, node) {
   let source;
   switch (node.type) {
     case "TSImportEqualsDeclaration": {
-      source = `= ${sourceCode.text.slice(...node.moduleReference.range)}`;
+      source = getSourceFromModuleReference(sourceCode, node.moduleReference);
       break;
     }
     default: {
