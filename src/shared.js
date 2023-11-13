@@ -828,7 +828,14 @@ function getSourceFromTSQualifiedName(sourceCode, node) {
 function getSourceFromModuleReference(sourceCode, node) {
   switch (node.type) {
     case "TSExternalModuleReference": {
-      return node.expression.value;
+      switch (node.expression.type) {
+        case "Literal": {
+          return node.expression.value;
+        }
+        default: {
+          return sourceCode.text.slice(...node.expression.range);
+        }
+      }
     }
     case "TSQualifiedName": {
       return `= ${getSourceFromTSQualifiedName(sourceCode, node)}`;

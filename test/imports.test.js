@@ -2075,6 +2075,21 @@ const typescriptTests = {
     },
     {
       code: input`
+          |import Foo = require('foo');
+          |import Bar = require(cool().thing);
+          |import Bar = require(1 + 1);
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import Bar = require(1 + 1);
+          |import Bar = require(cool().thing);
+          |import Foo = require('foo');
+        `);
+      },
+      errors: 1,
+    },
+    {
+      code: input`
           |import B = Namespace/*aaaa*/.B;
           |import AB = Namespace.A.B;
           |import A = Namespace.A.A;
