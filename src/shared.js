@@ -840,6 +840,9 @@ function getSourceFromModuleReference(sourceCode, node) {
     case "TSQualifiedName": {
       return `= ${getSourceFromTSQualifiedName(sourceCode, node)}`;
     }
+    case "Identifier": {
+      return `= ${node.name}`;
+    }
     default: {
       return ``;
     }

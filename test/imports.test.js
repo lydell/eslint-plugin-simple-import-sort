@@ -1855,6 +1855,13 @@ const typescriptTests = {
           |import type x1 from "a";
           |import type x2 from "b"
     `,
+    input`
+          |export namespace Foo {
+          |  import A = _A;
+          |  export import Enum = _Enum;
+          |  import B = _B;
+          |}
+      `,
   ],
   invalid: [
     // Type imports.
@@ -2099,6 +2106,25 @@ const typescriptTests = {
           |import A = Namespace.A.A;
           |import AB = Namespace.A.B;
           |import B = Namespace/*aaaa*/.B;
+        `);
+      },
+      errors: 1,
+    },
+    {
+      code: input`
+          |export namespace Foo {
+          |  import B = _B;
+          |  import A = _A;
+          |  export import Enum = _Enum;
+          |}
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export namespace Foo {
+          |  import A = _A;
+          |  import B = _B;
+          |  export import Enum = _Enum;
+          |}
         `);
       },
       errors: 1,
