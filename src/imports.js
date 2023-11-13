@@ -147,7 +147,7 @@ function getSpecifiers(importNode) {
 function isImport(node) {
   return (
     node.type === "ImportDeclaration" ||
-    (node.type === "TSImportEqualsDeclaration" && !node.isExport)
+    node.type === "TSImportEqualsDeclaration"
   );
 }
 

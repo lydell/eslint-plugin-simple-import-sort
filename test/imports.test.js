@@ -1858,8 +1858,8 @@ const typescriptTests = {
     input`
           |export namespace Foo {
           |  import A = _A;
-          |  export import Enum = _Enum;
           |  import B = _B;
+          |  export import Enum = _Enum;
           |}
       `,
   ],
@@ -2114,8 +2114,8 @@ const typescriptTests = {
       code: input`
           |export namespace Foo {
           |  import B = _B;
-          |  import A = _A;
           |  export import Enum = _Enum;
+          |  import A = _A;
           |}
       `,
       output: (actual) => {
