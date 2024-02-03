@@ -44,7 +44,7 @@ function extractChunks(parentNode, isPartOfChunk) {
 }
 
 function maybeReportSorting(context, sorted, start, end) {
-  const sourceCode = context.getSourceCode();
+  const sourceCode = getSourceCode(context);
   const original = sourceCode.getText().slice(start, end);
   if (original !== sorted) {
     context.report({
@@ -854,10 +854,17 @@ function flatMap(array, fn) {
   return [].concat(...array.map(fn));
 }
 
+function getSourceCode(context) {
+  // `.getSourceCode()` is deprecated in favor of `.sourceCode`.
+  // We support both for now.
+  return context.sourceCode || context.getSourceCode();
+}
+
 module.exports = {
   extractChunks,
   flatMap,
   getImportExportItems,
+  getSourceCode,
   isPunctuator,
   maybeReportSorting,
   printSortedItems,

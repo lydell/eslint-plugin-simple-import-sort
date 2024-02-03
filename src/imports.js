@@ -75,7 +75,7 @@ module.exports = {
 };
 
 function maybeReportChunkSorting(chunk, context, outerGroups) {
-  const sourceCode = context.getSourceCode();
+  const sourceCode = shared.getSourceCode(context);
   const items = shared.getImportExportItems(
     chunk,
     sourceCode,
