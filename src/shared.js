@@ -795,72 +795,8 @@ function isNewline(node) {
   return node.type === "Newline";
 }
 
-function getSourceFromTSQualifiedName(sourceCode, node) {
-  let left;
-  let right;
-  switch (node.left.type) {
-    case "Identifier": {
-      left = node.left.name;
-      break;
-    }
-    case "TSQualifiedName": {
-      left = getSourceFromTSQualifiedName(sourceCode, node.left);
-      break;
-    }
-    default: {
-      left = ``;
-      break;
-    }
-  }
-  switch (node.right.type) {
-    case "Identifier": {
-      right = `.${node.right.name}`;
-      break;
-    }
-    default: {
-      right = ``;
-      break;
-    }
-  }
-  return left + right;
-}
-
-function getSourceFromModuleReference(sourceCode, node) {
-  switch (node.type) {
-    case "TSExternalModuleReference": {
-      switch (node.expression.type) {
-        case "Literal": {
-          return node.expression.value;
-        }
-        default: {
-          return sourceCode.text.slice(...node.expression.range);
-        }
-      }
-    }
-    case "TSQualifiedName": {
-      return `= ${getSourceFromTSQualifiedName(sourceCode, node)}`;
-    }
-    case "Identifier": {
-      return `= ${node.name}`;
-    }
-    default: {
-      return ``;
-    }
-  }
-}
-
 function getSource(sourceCode, node) {
-  let source;
-  switch (node.type) {
-    case "TSImportEqualsDeclaration": {
-      source = getSourceFromModuleReference(sourceCode, node.moduleReference);
-      break;
-    }
-    default: {
-      source = node.source.value;
-      break;
-    }
-  }
+  const [source, kind] = getSourceTextAndKind(sourceCode, node);
 
   return {
     // Sort by directory level rather than by string length.
@@ -870,7 +806,7 @@ function getSource(sourceCode, node) {
       // Make `../` sort after `../../` but before `../a` etc.
       // Why a comma? See the next comment.
       .replace(/^[./]*\/$/, "$&,")
-      // Make `.` and `/` sort before any other punctation.
+      // Make `.` and `/` sort before any other punctuation.
       // The default order is: _ - , x x x . x x x / x x x
       // We’re changing it to: . / , x x x _ x x x - x x x
       .replace(/[./_-]/g, (char) => {
@@ -889,16 +825,71 @@ function getSource(sourceCode, node) {
         }
       }),
     originalSource: source,
-    kind: getImportExportKind(node),
+    kind,
   };
+}
+
+function getSourceTextAndKind(sourceCode, node) {
+  switch (node.type) {
+    case "TSImportEqualsDeclaration":
+      return getSourceTextAndKindFromModuleReference(
+        sourceCode,
+        node.moduleReference
+      );
+    default:
+      return [node.source.value, getImportExportKind(node)];
+  }
+}
+
+const KIND_VALUE = "value";
+const KIND_TS_IMPORT_ASSIGNMENT_REQUIRE = "z_require";
+const KIND_TS_IMPORT_ASSIGNMENT_NAMESPACE = "z_namespace";
+
+function getSourceTextAndKindFromModuleReference(sourceCode, node) {
+  switch (node.type) {
+    case "TSExternalModuleReference":
+      switch (node.expression.type) {
+        case "Literal":
+          return [
+            typeof node.expression.value === "string"
+              ? node.expression.value
+              : node.expression.raw,
+            KIND_TS_IMPORT_ASSIGNMENT_REQUIRE,
+          ];
+        default: {
+          const [start, end] = node.expression.range;
+          return [
+            sourceCode.text.slice(start, end),
+            KIND_TS_IMPORT_ASSIGNMENT_REQUIRE,
+          ];
+        }
+      }
+    case "TSQualifiedName":
+      return [
+        getSourceTextFromTSQualifiedName(sourceCode, node),
+        KIND_TS_IMPORT_ASSIGNMENT_NAMESPACE,
+      ];
+    default:
+      return [node.name, KIND_TS_IMPORT_ASSIGNMENT_NAMESPACE];
+  }
+}
+
+function getSourceTextFromTSQualifiedName(sourceCode, node) {
+  switch (node.left.type) {
+    case "TSQualifiedName":
+      return `${getSourceTextFromTSQualifiedName(sourceCode, node.left)}.${
+        node.right.name
+      }`;
+    default: {
+      return `${node.left.name}.${node.right.name}`;
+    }
+  }
 }
 
 function getImportExportKind(node) {
   // `type` and `typeof` imports, as well as `type` exports (there are no
-  // `typeof` exports). In Flow, import specifiers can also have a kind. Default
-  // to "value" (like TypeScript) to make regular imports/exports come after the
-  // type imports/exports.
-  return node.importKind || node.exportKind || "value";
+  // `typeof` exports).
+  return node.importKind || node.exportKind || KIND_VALUE;
 }
 
 // Like `Array.prototype.findIndex`, but searches from the end.
@@ -923,6 +914,9 @@ module.exports = {
   flatMap,
   getImportExportItems,
   isPunctuator,
+  KIND_TS_IMPORT_ASSIGNMENT_NAMESPACE,
+  KIND_TS_IMPORT_ASSIGNMENT_REQUIRE,
+  KIND_VALUE,
   maybeReportSorting,
   printSortedItems,
   printWithSortedSpecifiers,

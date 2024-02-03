@@ -1846,6 +1846,13 @@ const typescriptTests = {
     `import type {} from "a"`,
     `import type {    } from "a"`,
     `import json from "./foo.json" assert { type: "json" };`,
+    `import A = B`,
+    `import A = B.C`,
+    `import A = require("A")`,
+
+    // These are parsed as type imports, but they are not valid in TypeScript:
+    `import A = require(1)`,
+    `import A = require({ b, a })`,
 
     // type specifiers.
     `import { a, type b, c, type d } from "a"`,
@@ -2050,6 +2057,7 @@ const typescriptTests = {
       code: input`
           |import { Namespace } from './namespace';
           |import Foo = Namespace.Foo;
+          |import old = require('./old');
           |import { bar } from './a';
       `,
       output: (actual) => {
@@ -2057,6 +2065,7 @@ const typescriptTests = {
           |import { bar } from './a';
           |import { Namespace } from './namespace';
           |
+          |import old = require('./old');
           |import Foo = Namespace.Foo;
         `);
       },
@@ -2064,67 +2073,175 @@ const typescriptTests = {
     },
     {
       code: input`
+          |import _ = require('');
+          |import _ = require("");
+          |import _ = require('');
           |import B = require('./b');
           |import A = require('./a');
           |import Foo = require('foo');
-          |import Bar = require('../foo');
+          |import Foo = require('../foo');
+          |import Foo = require('../');
+          |import Foo = require('..');
+          |import At = require("@org/name");
+          |import fs = require("node:fs");
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
+          |import _ = require('');
+          |import _ = require("");
+          |import _ = require('');
+          |import Foo = require('..');
+          |import Foo = require('../');
+          |import Foo = require('../foo');
+          |import A = require('./a');
+          |import B = require('./b');
+          |import At = require("@org/name");
           |import Foo = require('foo');
+          |import fs = require("node:fs");
+        `);
+      },
+      errors: 1,
+    },
+    {
+      code: input`
+          |import A = require(null);
+          |import A = require(cool().thing);
+          |import A = require(1 + 1);
+          |import A = require({ a });
+          |import A = require('foo');
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import A = require({ a });
+          |import A = require(1 + 1);
+          |import A = require(cool().thing);
+          |import A = require('foo');
+          |import A = require(null);
+        `);
+      },
+      errors: 1,
+    },
+    {
+      code: input`
+          |/*1*/import/*2*/B/*3*/=/*4*/require/*5*/(/*6*/"B"/*7*/)/*8*/;/*9*//*10
+          |*/import B
+          |   //11
+          |   = require('A'); //12
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |/*10
+          |*/import B
+          |   //11
+          |   = require('A'); //12
+          |/*1*/import/*2*/B/*3*/=/*4*/require/*5*/(/*6*/"B"/*7*/)/*8*/;/*9*/
+        `);
+      },
+      errors: 1,
+    },
+    {
+      code: input`
+          |/*1*/import/*2*/B/*3*/=/*4*/Namespace/*5*/./*5*/B/*6*/;/*7*//*8
+          |*/import AB = Namespace.A.B; //9
+          |import A =
+          | //10
+          |  Namespace.A.A;
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import A =
+          | //10
+          |  Namespace.A.A;
+          |/*8
+          |*/import AB = Namespace.A.B; //9
+          |/*1*/import/*2*/B/*3*/=/*4*/Namespace/*5*/./*5*/B/*6*/;/*7*/
+        `);
+      },
+      errors: 1,
+    },
+    {
+      code: input`
+          |export namespace Foo {
+          |  import B = _B;
+          |  export import Enum = _Enum;
+          |  import A = _A;
+          |}
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export namespace Foo {
+          |  import A = _A;
+          |  import B = _B;
+          |  export import Enum = _Enum;
+          |}
+        `);
+      },
+      errors: 1,
+    },
+    {
+      options: [{ groups: [] }],
+      code: input`
+          |import {} from 'A.B.C';
+          |import type {} from 'A.B.C';
+          |import A = require('A.B.C');
+          |import B = A.B.C;
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import type {} from 'A.B.C';
+          |import {} from 'A.B.C';
+          |import B = A.B.C;
+          |import A = require('A.B.C');
+        `);
+      },
+      errors: 1,
+    },
+    {
+      options: [{ groups: [] }],
+      code: input`
+          |import type {} from 'D';
+          |import {} from 'C';
+          |import B = B;
+          |import A = require('A');
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import A = require('A');
+          |import B = B;
+          |import {} from 'C';
+          |import type {} from 'D';
+        `);
+      },
+      errors: 1,
+    },
+    {
+      options: [{ groups: [] }],
+      code: input`
+          |import A = require('./A');
+          |import {} from '../parent';
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import {} from '../parent';
+          |import A = require('./A');
+        `);
+      },
+      errors: 1,
+    },
+    {
+      options: [{ groups: [["^\\u0002"], ["^"], ["^\\u0001"]] }],
+      code: input`
+          |import A = require('./A');
+          |import {} from '../parent';
+          |import B = B;
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import B = B;
           |
-          |import Bar = require('../foo');
-          |import A = require('./a');
-          |import B = require('./b');
-        `);
-      },
-      errors: 1,
-    },
-    {
-      code: input`
-          |import Foo = require('foo');
-          |import Bar = require(cool().thing);
-          |import Bar = require(1 + 1);
-      `,
-      output: (actual) => {
-        expect(actual).toMatchInlineSnapshot(`
-          |import Bar = require(1 + 1);
-          |import Bar = require(cool().thing);
-          |import Foo = require('foo');
-        `);
-      },
-      errors: 1,
-    },
-    {
-      code: input`
-          |import B = Namespace/*aaaa*/.B;
-          |import AB = Namespace.A.B;
-          |import A = Namespace.A.A;
-      `,
-      output: (actual) => {
-        expect(actual).toMatchInlineSnapshot(`
-          |import A = Namespace.A.A;
-          |import AB = Namespace.A.B;
-          |import B = Namespace/*aaaa*/.B;
-        `);
-      },
-      errors: 1,
-    },
-    {
-      code: input`
-          |export namespace Foo {
-          |  import B = _B;
-          |  export import Enum = _Enum;
-          |  import A = _A;
-          |}
-      `,
-      output: (actual) => {
-        expect(actual).toMatchInlineSnapshot(`
-          |export namespace Foo {
-          |  import A = _A;
-          |  import B = _B;
-          |  export import Enum = _Enum;
-          |}
+          |import {} from '../parent';
+          |
+          |import A = require('./A');
         `);
       },
       errors: 1,

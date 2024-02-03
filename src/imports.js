@@ -16,9 +16,8 @@ const defaultGroups = [
   // Relative imports.
   // Anything that starts with a dot.
   ["^\\."],
-  // Namespace import.
-  // Anything that starts with an equal sign.
-  ["^= "],
+  // TypeScript import assignments.
+  ["^\\u0001", "^\\u0002"],
 ];
 
 module.exports = {
@@ -100,14 +99,15 @@ function makeSortedItems(items, outerGroups) {
 
   for (const item of items) {
     const { originalSource } = item.source;
-    const source = item.isSideEffectImport
+    const sourceWithControlCharacter = item.isSideEffectImport
       ? `\0${originalSource}`
-      : item.source.kind !== "value"
-      ? `${originalSource}\0`
-      : originalSource;
+      : getSourceWithControlCharacterFromKind(originalSource, item.source.kind);
     const [matchedGroup] = shared
       .flatMap(itemGroups, (groups) =>
-        groups.map((group) => [group, group.regex.exec(source)])
+        groups.map((group) => [
+          group,
+          group.regex.exec(sourceWithControlCharacter),
+        ])
       )
       .reduce(
         ([group, longestMatch], [nextGroup, nextMatch]) =>
@@ -131,6 +131,20 @@ function makeSortedItems(items, outerGroups) {
     .map((groups) =>
       groups.map((group) => shared.sortImportExportItems(group.items))
     );
+}
+
+function getSourceWithControlCharacterFromKind(originalSource, kind) {
+  switch (kind) {
+    case shared.KIND_VALUE:
+      return originalSource;
+    case shared.KIND_TS_IMPORT_ASSIGNMENT_REQUIRE:
+      return `\u0001${originalSource}`;
+    case shared.KIND_TS_IMPORT_ASSIGNMENT_NAMESPACE:
+      return `\u0002${originalSource}`;
+    default:
+      // `type` and `typeof`.
+      return `${originalSource}\u0000`;
+  }
 }
 
 // Exclude "ImportDefaultSpecifier" – the "def" in `import def, {a, b}`.
@@ -167,7 +181,8 @@ function isSideEffectImport(importNode, sourceCode) {
     default:
       return (
         importNode.specifiers.length === 0 &&
-        (!importNode.importKind || importNode.importKind === "value") &&
+        (!importNode.importKind ||
+          importNode.importKind === shared.KIND_VALUE) &&
         !shared.isPunctuator(
           sourceCode.getFirstToken(importNode, { skip: 1 }),
           "{"
