@@ -857,6 +857,7 @@ function flatMap(array, fn) {
 function getSourceCode(context) {
   // `.getSourceCode()` is deprecated in favor of `.sourceCode`.
   // We support both for now.
+  // istanbul ignore next
   return context.sourceCode || context.getSourceCode();
 }
 
