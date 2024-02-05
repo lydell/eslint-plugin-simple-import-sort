@@ -153,10 +153,13 @@ function getSourceWithControlCharacter(originalSource, item) {
 // Exclude "ImportDefaultSpecifier" – the "def" in `import def, {a, b}`.
 function getSpecifiers(importNode) {
   switch (importNode.type) {
+    case "ImportDeclaration":
+      return importNode.specifiers.filter((node) => isImportSpecifier(node));
     case "TSImportEqualsDeclaration":
       return [];
-    default: // ImportDeclaration
-      return importNode.specifiers.filter((node) => isImportSpecifier(node));
+    // istanbul ignore next
+    default:
+      throw new Error(`Unsupported import node type: ${importNode.type}`);
   }
 }
 
@@ -179,9 +182,7 @@ function isImportSpecifier(node) {
 // And not: import type {} from "setup"
 function isSideEffectImport(importNode, sourceCode) {
   switch (importNode.type) {
-    case "TSImportEqualsDeclaration":
-      return false;
-    default: // ImportDeclaration
+    case "ImportDeclaration":
       return (
         importNode.specifiers.length === 0 &&
         (!importNode.importKind ||
@@ -191,5 +192,10 @@ function isSideEffectImport(importNode, sourceCode) {
           "{"
         )
       );
+    case "TSImportEqualsDeclaration":
+      return false;
+    // istanbul ignore next
+    default:
+      throw new Error(`Unsupported import node type: ${importNode.type}`);
   }
 }

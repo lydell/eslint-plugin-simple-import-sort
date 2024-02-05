@@ -831,13 +831,18 @@ function getSource(sourceCode, node) {
 
 function getSourceTextAndKind(sourceCode, node) {
   switch (node.type) {
+    case "ImportDeclaration":
+    case "ExportNamedDeclaration":
+    case "ExportAllDeclaration":
+      return [node.source.value, getImportExportKind(node)];
     case "TSImportEqualsDeclaration":
       return getSourceTextAndKindFromModuleReference(
         sourceCode,
         node.moduleReference
       );
-    default: // ImportDeclaration, ExportNamedDeclaration, ExportAllDeclaration
-      return [node.source.value, getImportExportKind(node)];
+    // istanbul ignore next
+    default:
+      throw new Error(`Unsupported import node type: ${node.type}`);
   }
 }
 
@@ -873,19 +878,25 @@ function getSourceTextAndKindFromModuleReference(sourceCode, node) {
         getSourceTextFromTSQualifiedName(sourceCode, node),
         KIND_TS_IMPORT_ASSIGNMENT_NAMESPACE,
       ];
-    default: // Identifier
+    case "Identifier":
       return [node.name, KIND_TS_IMPORT_ASSIGNMENT_NAMESPACE];
+    // istanbul ignore next
+    default:
+      throw new Error(`Unsupported module reference node type: ${node.type}`);
   }
 }
 
 function getSourceTextFromTSQualifiedName(sourceCode, node) {
   switch (node.left.type) {
+    case "Identifier":
+      return `${node.left.name}.${node.right.name}`;
     case "TSQualifiedName":
       return `${getSourceTextFromTSQualifiedName(sourceCode, node.left)}.${
         node.right.name
       }`;
-    default: // Identifier
-      return `${node.left.name}.${node.right.name}`;
+    // istanbul ignore next
+    default:
+      throw new Error(`Unsupported TS qualified name node type: ${node.type}`);
   }
 }
 
