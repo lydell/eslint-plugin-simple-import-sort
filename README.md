@@ -515,6 +515,8 @@ The final whitespace rule is that this plugin puts one import/export per line. I
 
 No. This is intentional to keep things simple. Use some other sorting rule, such as [import/order], for sorting `require`. Or consider migrating your code using `require` to `import`. `import` is well supported these days.
 
+The only `require`-like thing supported is TypeScript import assignments like `import Thing = require("something")`. They’re much easier to support since they are very restricted: The thing to the left of the `=` has to be a single identifier, and inside `require()` there has to be a single string literal. This makes it sortable as if it was `import Thing from "something"`.
+
 ### Why sort on `from`?
 
 Some other import sorting rules sort based on the first name after `import`, rather than the string after `from`. This plugin intentionally sorts on the `from` string to be `git diff` friendly.
