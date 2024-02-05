@@ -2103,6 +2103,8 @@ const typescriptTests = {
       errors: 1,
     },
     {
+      // This is invalid TypeScript, but supported by the parser.
+      // The order here doesn’t matter – we should just not crash.
       code: input`
           |import A = require(null);
           |import A = require(cool().thing);

@@ -848,6 +848,10 @@ const KIND_TS_IMPORT_ASSIGNMENT_NAMESPACE = "z_namespace";
 function getSourceTextAndKindFromModuleReference(sourceCode, node) {
   switch (node.type) {
     case "TSExternalModuleReference":
+      // Only string literals inside `require()` are allowed by
+      // TypeScript, but the parser supports anything. Sorting
+      // is defined for string literals only. For other expressions,
+      // we just make sure not to crash.
       switch (node.expression.type) {
         case "Literal":
           return [
