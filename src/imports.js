@@ -145,8 +145,7 @@ function getSourceWithControlCharacter(originalSource, item) {
       return `\u0001${originalSource}`;
     case shared.KIND_TS_IMPORT_ASSIGNMENT_NAMESPACE:
       return `\u0002${originalSource}`;
-    default:
-      // `type` and `typeof`.
+    default: // `type` and `typeof`.
       return `${originalSource}\u0000`;
   }
 }
@@ -156,7 +155,7 @@ function getSpecifiers(importNode) {
   switch (importNode.type) {
     case "TSImportEqualsDeclaration":
       return [];
-    default:
+    default: // ImportDeclaration
       return importNode.specifiers.filter((node) => isImportSpecifier(node));
   }
 }
@@ -182,7 +181,7 @@ function isSideEffectImport(importNode, sourceCode) {
   switch (importNode.type) {
     case "TSImportEqualsDeclaration":
       return false;
-    default:
+    default: // ImportDeclaration
       return (
         importNode.specifiers.length === 0 &&
         (!importNode.importKind ||

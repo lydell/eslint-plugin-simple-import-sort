@@ -836,7 +836,7 @@ function getSourceTextAndKind(sourceCode, node) {
         sourceCode,
         node.moduleReference
       );
-    default:
+    default: // ImportDeclaration, ExportNamedDeclaration, ExportAllDeclaration
       return [node.source.value, getImportExportKind(node)];
   }
 }
@@ -873,7 +873,7 @@ function getSourceTextAndKindFromModuleReference(sourceCode, node) {
         getSourceTextFromTSQualifiedName(sourceCode, node),
         KIND_TS_IMPORT_ASSIGNMENT_NAMESPACE,
       ];
-    default:
+    default: // Identifier
       return [node.name, KIND_TS_IMPORT_ASSIGNMENT_NAMESPACE];
   }
 }
@@ -884,9 +884,8 @@ function getSourceTextFromTSQualifiedName(sourceCode, node) {
       return `${getSourceTextFromTSQualifiedName(sourceCode, node.left)}.${
         node.right.name
       }`;
-    default: {
+    default: // Identifier
       return `${node.left.name}.${node.right.name}`;
-    }
   }
 }
 
