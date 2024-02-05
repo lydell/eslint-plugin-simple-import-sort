@@ -99,9 +99,10 @@ function makeSortedItems(items, outerGroups) {
 
   for (const item of items) {
     const { originalSource } = item.source;
-    const sourceWithControlCharacter = item.isSideEffectImport
-      ? `\0${originalSource}`
-      : getSourceWithControlCharacterFromKind(originalSource, item.source.kind);
+    const sourceWithControlCharacter = getSourceWithControlCharacter(
+      originalSource,
+      item
+    );
     const [matchedGroup] = shared
       .flatMap(itemGroups, (groups) =>
         groups.map((group) => [
@@ -133,8 +134,11 @@ function makeSortedItems(items, outerGroups) {
     );
 }
 
-function getSourceWithControlCharacterFromKind(originalSource, kind) {
-  switch (kind) {
+function getSourceWithControlCharacter(originalSource, item) {
+  if (item.isSideEffectImport) {
+    return `\0${originalSource}`;
+  }
+  switch (item.source.kind) {
     case shared.KIND_VALUE:
       return originalSource;
     case shared.KIND_TS_IMPORT_ASSIGNMENT_REQUIRE:
