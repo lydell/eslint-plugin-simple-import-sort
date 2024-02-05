@@ -8,7 +8,7 @@ Easy autofixable import sorting.
 - ✅️ Handles type imports/exports
 - ✅️ [TypeScript] friendly \(via [@typescript-eslint/parser])
 - ✅️ [Prettier] friendly
-- ✅️ [dprint] friendly ([with configuration])
+- ✅️ [dprint] friendly ([with configuration][dprint-configuration])
 - ✅️ [eslint-plugin-import] friendly
 - ✅️ `git diff` friendly
 - ✅️ 100% code coverage
@@ -18,13 +18,13 @@ Easy autofixable import sorting.
 This is for those who use [`eslint --fix`][eslint-fix] (autofix) a lot and want to completely forget about sorting imports!
 
 [@typescript-eslint/parser]: https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/parser
+[dprint-configuration]: https://github.com/lydell/eslint-plugin-simple-import-sort/#how-do-i-use-this-with-dprint
 [dprint]: https://dprint.dev/
 [eslint-fix]: https://eslint.org/docs/user-guide/command-line-interface#--fix
 [eslint-plugin-import]: https://github.com/import-js/eslint-plugin-import/
 [no-require]: https://github.com/lydell/eslint-plugin-simple-import-sort/#does-it-support-require
 [prettier]: https://prettier.io/
 [typescript]: https://www.typescriptlang.org/
-[with configuration]: https://github.com/lydell/eslint-plugin-simple-import-sort/#TODO
 
 ## Example
 
