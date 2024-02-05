@@ -842,7 +842,7 @@ function getSourceTextAndKind(sourceCode, node) {
       );
     // istanbul ignore next
     default:
-      throw new Error(`Unsupported import node type: ${node.type}`);
+      throw new Error(`Unsupported import/export node type: ${node.type}`);
   }
 }
 
