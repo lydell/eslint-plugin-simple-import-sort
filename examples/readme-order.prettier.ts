@@ -27,12 +27,12 @@ import i from "./styles";
 
 // TypeScript import assignments.
 import J = require("../parent");
-import J = require("./sibling");
-export import K = require("an-npm-package");
-import L = require("different-npm-package");
-import M = Namespace;
-export import N = Namespace.A.B.C;
-import O = Namespace.A.C;
+import K = require("./sibling");
+export import L = require("an-npm-package");
+import M = require("different-npm-package");
+import N = Namespace;
+export import O = Namespace.A.B.C;
+import P = Namespace.A.C;
 
 // Different types of exports:
 export { a } from "../..";
