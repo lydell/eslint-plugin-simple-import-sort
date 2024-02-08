@@ -1,3 +1,11 @@
+### Version 11.0.0 (2024-02-08)
+
+This release adds support for TypeScript import assignments (`import A = B.C` and `import A = require("module")`). Thanks to Szabolcs Kurdi (@szku01) and Svyatoslav Zaytsev (@MillerSvt)!
+
+It’s only a breaking change if you use TypeScript import assignments, and only in the form that you need to autofix your files.
+
+In other news, this release adds the `meta` plugin property in preparation for ESLint Flat Config, and avoids the deprecated `context.getSourceCode()` method (while still being backwards compatible).
+
 ### Version 10.0.0 (2023-01-27)
 
 This release might move some imported items with `type` around. This is a breaking formatting change (that only affects TypeScript and Flow), but only in the form of that you need to autofix your files.
