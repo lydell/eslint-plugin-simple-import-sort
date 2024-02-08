@@ -69,24 +69,39 @@ npm install --save-dev eslint-plugin-simple-import-sort
 
 ## Usage
 
-Add `"simple-import-sort"` to `"plugins"` in your .eslintrc:
+- [eslintrc]: Add `"simple-import-sort"` to the "plugins" array in your `.eslintrc.*` file, and add the rules for sorting imports and exports. By default ESLint doesn’t parse `import` syntax – the "parserOptions" is an example of how to enable that.
 
-```json
-{
-  "plugins": ["simple-import-sort"]
-}
-```
-
-Then add the rules for sorting imports and exports:
-
-```json
-{
-  "rules": {
-    "simple-import-sort/imports": "error",
-    "simple-import-sort/exports": "error"
+  ```json
+  {
+    "plugins": ["simple-import-sort"],
+    "rules": {
+      "simple-import-sort/imports": "error",
+      "simple-import-sort/exports": "error"
+    },
+    "parserOptions": {
+      "sourceType": "module",
+      "ecmaVersion": "latest"
+    }
   }
-}
-```
+  ```
+
+- [eslint.config.js (flat config)]: Import eslint-plugin-simple-import-sort, put it in the `plugins` object, and add the rules for sorting imports and exports. With flat config, `import` syntax is enabled by default.
+
+  ```js
+  import simpleImportSort from "eslint-plugin-simple-import-sort";
+
+  export default [
+    {
+      plugins: {
+        "simple-import-sort": simpleImportSort,
+      },
+      rules: {
+        "simple-import-sort/imports": "error",
+        "simple-import-sort/exports": "error",
+      },
+    },
+  ];
+  ```
 
 Make sure _not_ to use other sorting rules at the same time:
 
@@ -104,9 +119,9 @@ It is recommended to also set up [Prettier], to help formatting your imports (an
 ```json
 {
   "parserOptions": {
-    "sourceType": "module"
+    "sourceType": "module",
+    "ecmaVersion": "latest"
   },
-  "env": { "es6": true },
   "plugins": ["simple-import-sort", "import"],
   "rules": {
     "simple-import-sort/imports": "error",
@@ -118,7 +133,7 @@ It is recommended to also set up [Prettier], to help formatting your imports (an
 }
 ```
 
-- `"sourceType": "module"` is needed so ESLint doesn’t report `import` and `export` as syntax errors.
+- `"sourceType": "module"` and `"ecmaVersion": "latest"` are needed so ESLint doesn’t report `import` and `export` as syntax errors.
 - `simple-import-sort/imports` and `simple-import-sort/exports` are turned on for all files.
 - [import/first] makes sure all imports are at the top of the file. (autofixable)
 - [import/newline-after-import] makes sure there’s a newline after the imports. (autofixable)
@@ -706,7 +721,9 @@ For example, here’s the default value but changed to a single inner array:
 [comment-handling]: #comment-and-whitespace-handling
 [custom grouping]: #custom-grouping
 [eslint-getting-started]: https://eslint.org/docs/user-guide/getting-started
+[eslint.config.js (flat config)]: https://eslint.org/docs/latest/use/configure/configuration-files-new
 [eslint]: https://eslint.org/
+[eslintrc]: https://eslint.org/docs/latest/use/configure/configuration-files
 [example-ignore]: ./examples/ignore.js
 [examples]: ./examples/.eslintrc.js
 [exports]: #exports
