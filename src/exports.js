@@ -35,7 +35,7 @@ module.exports = {
       ExportAllDeclaration: addParent,
 
       "Program:exit": () => {
-        const sourceCode = context.getSourceCode();
+        const sourceCode = shared.getSourceCode(context);
         for (const parent of parents) {
           for (const chunk of shared.extractChunks(parent, (node, lastNode) =>
             isPartOfChunk(node, lastNode, sourceCode)
@@ -50,7 +50,7 @@ module.exports = {
 };
 
 function maybeReportChunkSorting(chunk, context) {
-  const sourceCode = context.getSourceCode();
+  const sourceCode = shared.getSourceCode(context);
   const items = shared.getImportExportItems(
     chunk,
     sourceCode,
@@ -67,7 +67,7 @@ function maybeReportChunkSorting(chunk, context) {
 function maybeReportExportSpecifierSorting(node, context) {
   const sorted = shared.printWithSortedSpecifiers(
     node,
-    context.getSourceCode(),
+    shared.getSourceCode(context),
     getSpecifiers
   );
   const [start, end] = node.range;
