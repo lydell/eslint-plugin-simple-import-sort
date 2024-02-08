@@ -2,6 +2,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const PACKAGE = require("./package-real.json");
 
 const DIR = __dirname;
 const SRC = "src";
@@ -19,7 +20,11 @@ const FILES_TO_COPY = [
   },
   ...fs
     .readdirSync(SRC)
-    .map((file) => ({ src: path.join(SRC, file), dest: file })),
+    .map((file) => ({
+      src: path.join(SRC, file),
+      dest: file,
+      transform: (content) => content.replace(/%VERSION%/g, PACKAGE.version),
+    })),
 ];
 
 fs.rmSync(BUILD, { recursive: true, force: true });
