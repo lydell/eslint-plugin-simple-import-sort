@@ -25,6 +25,15 @@ import g from ".";
 import h from "./constants";
 import i from "./styles";
 
+// TypeScript import assignments.
+import J = require("../parent");
+import K = require("./sibling");
+export import L = require("an-npm-package");
+import M = require("different-npm-package");
+import N = Namespace;
+export import O = Namespace.A.B.C;
+import P = Namespace.A.C;
+
 // Different types of exports:
 export { a } from "../..";
 export { b } from "/";
