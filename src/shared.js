@@ -832,7 +832,6 @@ function getSource(sourceCode, node) {
 function getSourceTextAndKind(sourceCode, node) {
   switch (node.type) {
     case "ImportDeclaration":
-    case "ExportNamedDeclaration":
     case "ExportAllDeclaration":
       return [node.source.value, getImportExportKind(node)];
     case "TSImportEqualsDeclaration":
@@ -840,6 +839,18 @@ function getSourceTextAndKind(sourceCode, node) {
         sourceCode,
         node.moduleReference
       );
+    case "ExportNamedDeclaration": {
+      if (
+        node.declaration &&
+        node.declaration.type === "TSImportEqualsDeclaration"
+      ) {
+        return getSourceTextAndKindFromModuleReference(
+          sourceCode,
+          node.declaration.moduleReference
+        );
+      }
+      return [node.source.value, getImportExportKind(node)];
+    }
     // istanbul ignore next
     default:
       throw new Error(`Unsupported import/export node type: ${node.type}`);

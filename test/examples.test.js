@@ -23,6 +23,10 @@ describe("examples", () => {
     }
   );
 
+  if (result.stderr) {
+    throw new Error(result.stderr);
+  }
+
   const output = JSON.parse(result.stdout);
 
   for (const item of output) {

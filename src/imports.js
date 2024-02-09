@@ -58,8 +58,15 @@ module.exports = {
     const parents = new Set();
 
     return {
-      "ImportDeclaration,TSImportEqualsDeclaration": (node) => {
+      ImportDeclaration: (node) => {
         parents.add(node.parent);
+      },
+      TSImportEqualsDeclaration: (node) => {
+        let { parent } = node;
+        while (parent && !["TSModuleBlock", "Program"].includes(parent.type)) {
+          ({ parent } = parent);
+        }
+        parents.add(parent);
       },
 
       "Program:exit": () => {
@@ -155,6 +162,7 @@ function getSpecifiers(importNode) {
   switch (importNode.type) {
     case "ImportDeclaration":
       return importNode.specifiers.filter((node) => isImportSpecifier(node));
+    case "ExportNamedDeclaration":
     case "TSImportEqualsDeclaration":
       return [];
     // istanbul ignore next
@@ -167,7 +175,10 @@ function getSpecifiers(importNode) {
 function isImport(node) {
   return (
     node.type === "ImportDeclaration" ||
-    node.type === "TSImportEqualsDeclaration"
+    node.type === "TSImportEqualsDeclaration" ||
+    (node.type === "ExportNamedDeclaration" &&
+      node.declaration &&
+      node.declaration.type === "TSImportEqualsDeclaration")
   );
 }
 
@@ -192,6 +203,7 @@ function isSideEffectImport(importNode, sourceCode) {
           "{"
         )
       );
+    case "ExportNamedDeclaration":
     case "TSImportEqualsDeclaration":
       return false;
     // istanbul ignore next

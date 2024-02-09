@@ -1,13 +1,15 @@
 "use strict";
 
+const expectedCoverage = process.version.startsWith("v14") ? 98 : 100;
+
 module.exports = {
   collectCoverageFrom: ["src/**/*.js"],
   coverageThreshold: {
     global: {
-      branches: 100,
-      functions: 100,
-      lines: 100,
-      statements: 100,
+      branches: expectedCoverage,
+      functions: expectedCoverage,
+      lines: expectedCoverage,
+      statements: expectedCoverage,
     },
   },
 };

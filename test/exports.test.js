@@ -1166,8 +1166,13 @@ const flowRuleTester = new RuleTester({
   parser: require.resolve("@babel/eslint-parser"),
 });
 
-const typescriptRuleTester = new RuleTester({
-  parser: require.resolve("@typescript-eslint/parser"),
+const typescriptEslint5RuleTester = new RuleTester({
+  parser: require.resolve("@typescript-eslint/parser-v5"),
+  parserOptions: { sourceType: "module" },
+});
+
+const typescriptEslint6RuleTester = new RuleTester({
+  parser: require.resolve("@typescript-eslint/parser-v6"),
   parserOptions: { sourceType: "module" },
 });
 
@@ -1175,16 +1180,30 @@ javascriptRuleTester.run("JavaScript", plugin.rules.exports, baseTests(expect));
 
 flowRuleTester.run("Flow", plugin.rules.exports, baseTests(expect2));
 
-typescriptRuleTester.run(
-  "TypeScript",
+typescriptEslint5RuleTester.run(
+  "TypeScript (parser v5)",
   plugin.rules.exports,
   baseTests(expect2)
 );
 
 flowRuleTester.run("Flow-specific", plugin.rules.exports, flowTests);
 
-typescriptRuleTester.run(
-  "TypeScript-specific",
+typescriptEslint5RuleTester.run(
+  "TypeScript-specific (parser v5)",
   plugin.rules.exports,
   typescriptTests
 );
+
+if (!process.version.startsWith("v14")) {
+  typescriptEslint6RuleTester.run(
+    "TypeScript (parser v6)",
+    plugin.rules.exports,
+    baseTests(expect2)
+  );
+
+  typescriptEslint6RuleTester.run(
+    "TypeScript-specific (parser v6)",
+    plugin.rules.exports,
+    typescriptTests
+  );
+}
