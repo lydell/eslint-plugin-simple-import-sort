@@ -16,8 +16,6 @@ const defaultGroups = [
   // Relative imports.
   // Anything that starts with a dot.
   ["^\\."],
-  // TypeScript import assignments.
-  ["^\\u0001", "^\\u0002"],
 ];
 
 module.exports = {
@@ -58,7 +56,7 @@ module.exports = {
     const parents = new Set();
 
     return {
-      "ImportDeclaration,TSImportEqualsDeclaration": (node) => {
+      ImportDeclaration: (node) => {
         parents.add(node.parent);
       },
 
@@ -99,16 +97,14 @@ function makeSortedItems(items, outerGroups) {
 
   for (const item of items) {
     const { originalSource } = item.source;
-    const sourceWithControlCharacter = getSourceWithControlCharacter(
-      originalSource,
-      item
-    );
+    const source = item.isSideEffectImport
+      ? `\0${originalSource}`
+      : item.source.kind !== "value"
+      ? `${originalSource}\0`
+      : originalSource;
     const [matchedGroup] = shared
       .flatMap(itemGroups, (groups) =>
-        groups.map((group) => [
-          group,
-          group.regex.exec(sourceWithControlCharacter),
-        ])
+        groups.map((group) => [group, group.regex.exec(source)])
       )
       .reduce(
         ([group, longestMatch], [nextGroup, nextMatch]) =>
@@ -134,41 +130,14 @@ function makeSortedItems(items, outerGroups) {
     );
 }
 
-function getSourceWithControlCharacter(originalSource, item) {
-  if (item.isSideEffectImport) {
-    return `\0${originalSource}`;
-  }
-  switch (item.source.kind) {
-    case shared.KIND_VALUE:
-      return originalSource;
-    case shared.KIND_TS_IMPORT_ASSIGNMENT_REQUIRE:
-      return `\u0001${originalSource}`;
-    case shared.KIND_TS_IMPORT_ASSIGNMENT_NAMESPACE:
-      return `\u0002${originalSource}`;
-    default: // `type` and `typeof`.
-      return `${originalSource}\u0000`;
-  }
-}
-
 // Exclude "ImportDefaultSpecifier" – the "def" in `import def, {a, b}`.
 function getSpecifiers(importNode) {
-  switch (importNode.type) {
-    case "ImportDeclaration":
-      return importNode.specifiers.filter((node) => isImportSpecifier(node));
-    case "TSImportEqualsDeclaration":
-      return [];
-    // istanbul ignore next
-    default:
-      throw new Error(`Unsupported import node type: ${importNode.type}`);
-  }
+  return importNode.specifiers.filter((node) => isImportSpecifier(node));
 }
 
 // Full import statement.
 function isImport(node) {
-  return (
-    node.type === "ImportDeclaration" ||
-    node.type === "TSImportEqualsDeclaration"
-  );
+  return node.type === "ImportDeclaration";
 }
 
 // import def, { a, b as c, type d } from "A"
@@ -181,21 +150,9 @@ function isImportSpecifier(node) {
 // But not: import {} from "setup"
 // And not: import type {} from "setup"
 function isSideEffectImport(importNode, sourceCode) {
-  switch (importNode.type) {
-    case "ImportDeclaration":
-      return (
-        importNode.specifiers.length === 0 &&
-        (!importNode.importKind ||
-          importNode.importKind === shared.KIND_VALUE) &&
-        !shared.isPunctuator(
-          sourceCode.getFirstToken(importNode, { skip: 1 }),
-          "{"
-        )
-      );
-    case "TSImportEqualsDeclaration":
-      return false;
-    // istanbul ignore next
-    default:
-      throw new Error(`Unsupported import node type: ${importNode.type}`);
-  }
+  return (
+    importNode.specifiers.length === 0 &&
+    (!importNode.importKind || importNode.importKind === "value") &&
+    !shared.isPunctuator(sourceCode.getFirstToken(importNode, { skip: 1 }), "{")
+  );
 }

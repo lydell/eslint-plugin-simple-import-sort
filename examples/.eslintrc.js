@@ -103,7 +103,7 @@ module.exports = {
           "error",
           {
             // The default grouping, but with no blank lines.
-            groups: [["^\\u0000", "^node:", "^@?\\w", "^", "^\\.", "^\\u0001", "^\\u0002"]],
+            groups: [["^\\u0000", "^node:", "^@?\\w", "^", "^\\."]],
           },
         ],
       },
@@ -115,7 +115,7 @@ module.exports = {
           "error",
           {
             // The default grouping, but in reverse.
-            groups: [["^\\u0001", "^\\u0002"], ["^\\."], ["^"], ["^@?\\w"], ["^node:"], ["^\\u0000"]],
+            groups: [["^\\."], ["^"], ["^@?\\w"], ["^node:"], ["^\\u0000"]],
           },
         ],
       },
@@ -128,7 +128,7 @@ module.exports = {
           "error",
           {
             // The default grouping, but with type imports first as a separate group.
-            groups: [["^.*\\u0000$"], ["^\\u0000"], ["^node:"], ["^@?\\w"], ["^"], ["^\\."], ["^\\u0001", "^\\u0002"]],
+            groups: [["^.*\\u0000$"], ["^\\u0000"], ["^node:"], ["^@?\\w"], ["^"], ["^\\."]],
           },
         ],
       },
@@ -141,7 +141,7 @@ module.exports = {
           "error",
           {
             // The default grouping, but with type imports last as a separate group.
-            groups: [["^\\u0000"], ["^node:"], ["^@?\\w"], ["^"], ["^\\."], ["^\\u0001", "^\\u0002"], ["^.+\\u0000$"]],
+            groups: [["^\\u0000"], ["^node:"], ["^@?\\w"], ["^"], ["^\\."], ["^.+\\u0000$"]],
           },
         ],
       },
@@ -162,7 +162,6 @@ module.exports = {
               ["^@?\\w"],
               ["^"],
               ["^\\."],
-              ["^\\u0001", "^\\u0002"],
             ],
           },
         ],
@@ -183,7 +182,6 @@ module.exports = {
               ["^@?\\w"],
               ["^"],
               ["^\\."],
-              ["^\\u0001", "^\\u0002"],
               ["^node:.*\\u0000$", "^@?\\w.*\\u0000$", "^[^.].*\\u0000$", "^\\..*\\u0000$"],
             ],
           },
@@ -204,7 +202,6 @@ module.exports = {
               ["^@?\\w.*\\u0000$", "^@?\\w"],
               ["(?<=\\u0000)$", "^"],
               ["^\\..*\\u0000$", "^\\."],
-              ["^\\u0001", "^\\u0002"],
             ],
           },
         ],

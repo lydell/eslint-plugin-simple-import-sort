@@ -269,15 +269,6 @@ import g from ".";
 import h from "./constants";
 import i from "./styles";
 
-// TypeScript import assignments.
-import J = require("../parent");
-import K = require("./sibling");
-export import L = require("an-npm-package");
-import M = require("different-npm-package");
-import N = Namespace;
-export import O = Namespace.A.B.C;
-import P = Namespace.A.C;
-
 // Different types of exports:
 export { a } from "../..";
 export { b } from "/";
@@ -389,8 +380,6 @@ Side effect imports have `\u0000` _prepended_ to their `from` string (starts wit
 
 Type imports have `\u0000` _appended_ to their `from` string (ends with `\u0000`). You can match them with `"\\u0000$"` – but you probably need more than that to avoid them also being matched by other regexes.
 
-TypeScript import assignments have `\u0001` (for `import A = require("A")`) or `\u0002` (for `import A = B.C.D`) prepended to their `from` string (starts with `\u0001` or `\u0002`). It is _not_ possible to distinguish `export import A =` and `import A =`.
-
 All imports that match the same regex are sorted internally as mentioned in [Sort order].
 
 This is the default value for the `groups` option:
@@ -410,8 +399,6 @@ This is the default value for the `groups` option:
   // Relative imports.
   // Anything that starts with a dot.
   ["^\\."],
-  // TypeScript import assignments.
-  ["^\\u0001", "^\\u0002"],
 ];
 ```
 
@@ -529,8 +516,6 @@ The final whitespace rule is that this plugin puts one import/export per line. I
 ### Does it support `require`?
 
 No. This is intentional to keep things simple. Use some other sorting rule, such as [import/order], for sorting `require`. Or consider migrating your code using `require` to `import`. `import` is well supported these days.
-
-The only `require`-like thing supported is TypeScript import assignments like `import Thing = require("something")`. They’re much easier to support since they are very restricted: The thing to the left of the `=` has to be a single identifier, and inside `require()` there has to be a single string literal. This makes it sortable as if it was `import Thing from "something"`.
 
 ### Why sort on `from`?
 
@@ -707,7 +692,7 @@ Use [custom grouping], setting the `groups` option to only have a single inner a
 For example, here’s the default value but changed to a single inner array:
 
 ```js
-[["^\\u0000", "^node:", "^@?\\w", "^", "^\\.", "^\\u0001", "^\\u0002"]];
+[["^\\u0000", "^node:", "^@?\\w", "^", "^\\."]];
 ```
 
 (By default, each string is in its _own_ array (that’s 5 inner arrays) – causing a blank line between each.)
