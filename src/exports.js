@@ -38,7 +38,7 @@ module.exports = {
         const sourceCode = shared.getSourceCode(context);
         for (const parent of parents) {
           for (const chunk of shared.extractChunks(parent, (node, lastNode) =>
-            isPartOfChunk(node, lastNode, sourceCode)
+            isPartOfChunk(node, lastNode, sourceCode),
           )) {
             maybeReportChunkSorting(chunk, context);
           }
@@ -55,7 +55,7 @@ function maybeReportChunkSorting(chunk, context) {
     chunk,
     sourceCode,
     () => false, // isSideEffectImport
-    getSpecifiers
+    getSpecifiers,
   );
   const sortedItems = [[shared.sortImportExportItems(items)]];
   const sorted = shared.printSortedItems(sortedItems, items, sourceCode);
@@ -68,7 +68,7 @@ function maybeReportExportSpecifierSorting(node, context) {
   const sorted = shared.printWithSortedSpecifiers(
     node,
     shared.getSourceCode(context),
-    getSpecifiers
+    getSpecifiers,
   );
   const [start, end] = node.range;
   shared.maybeReportSorting(context, sorted, start, end);
@@ -89,7 +89,7 @@ function isPartOfChunk(node, lastNode, sourceCode) {
     .some(
       (comment) =>
         (lastNode == null || comment.loc.start.line > lastNode.loc.end.line) &&
-        comment.loc.end.line < node.loc.start.line
+        comment.loc.end.line < node.loc.start.line,
     );
 
   return hasGroupingComment ? "PartOfNewChunk" : "PartOfChunk";

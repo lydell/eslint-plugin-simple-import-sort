@@ -32,7 +32,7 @@ for (const { src, dest = src, transform } of FILES_TO_COPY) {
   if (transform) {
     fs.writeFileSync(
       path.join(BUILD, dest),
-      transform(fs.readFileSync(path.join(DIR, src), "utf8"))
+      transform(fs.readFileSync(path.join(DIR, src), "utf8")),
     );
   } else {
     fs.copyFileSync(path.join(DIR, src), path.join(BUILD, dest));

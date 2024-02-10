@@ -1,12 +1,15 @@
-"use strict";
+import { RuleTester } from "eslint";
+import { describe, expect, test } from "vitest";
 
-const { RuleTester } = require("eslint");
+import plugin from "../src/index.js";
+import { input, setup } from "./helpers.js";
 
-const plugin = require("../src");
-const { input, setup } = require("./helpers");
+RuleTester.it = test;
+RuleTester.describe = describe;
 
 const expect2 = setup(expect);
 
+// eslint-disable-next-line no-shadow
 const baseTests = (expect) => ({
   valid: [
     // Simple cases.
@@ -199,7 +202,7 @@ const baseTests = (expect) => ({
       code: `import { e, b, a as c } from "specifiers"`,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
-          `import { a as c,b, e } from "specifiers"`
+          `import { a as c,b, e } from "specifiers"`,
         );
       },
       errors: 1,
@@ -210,7 +213,7 @@ const baseTests = (expect) => ({
       code: `import d, { e, b, a as c } from "specifiers-default"`,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
-          `import d, { a as c,b, e } from "specifiers-default"`
+          `import d, { a as c,b, e } from "specifiers-default"`,
         );
       },
       errors: 1,
@@ -221,7 +224,7 @@ const baseTests = (expect) => ({
       code: `import d, { e, b, a as c, } from "specifiers-trailing-comma"`,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
-          `import d, { a as c,b, e,  } from "specifiers-trailing-comma"`
+          `import d, { a as c,b, e,  } from "specifiers-trailing-comma"`,
         );
       },
       errors: 1,
@@ -232,7 +235,7 @@ const baseTests = (expect) => ({
       code: `import { a as c, a as b2, b, a } from "specifiers-renames"`,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
-          `import { a,a as b2, a as c, b } from "specifiers-renames"`
+          `import { a,a as b2, a as c, b } from "specifiers-renames"`,
         );
       },
       errors: 1,
@@ -298,7 +301,7 @@ const baseTests = (expect) => ({
       code: `import { aaNotKeyword, zzNotKeyword, abstract, as, asserts, any, async, /*await,*/ boolean, constructor, declare, get, infer, is, keyof, module, namespace, never, readonly, require, number, object, set, string, symbol, type, undefined, unique, unknown, from, global, bigint, of } from 'keyword-identifiers';`,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
-          `import { aaNotKeyword, abstract, any, as, asserts, async, /*await,*/ bigint, boolean, constructor, declare, from, get, global, infer, is, keyof, module, namespace, never, number, object, of,readonly, require, set, string, symbol, type, undefined, unique, unknown, zzNotKeyword } from 'keyword-identifiers';`
+          `import { aaNotKeyword, abstract, any, as, asserts, async, /*await,*/ bigint, boolean, constructor, declare, from, get, global, infer, is, keyof, module, namespace, never, number, object, of,readonly, require, set, string, symbol, type, undefined, unique, unknown, zzNotKeyword } from 'keyword-identifiers';`,
         );
       },
       errors: 1,
@@ -309,7 +312,7 @@ const baseTests = (expect) => ({
       code: `import {e,b,a as c} from "specifiers-no-spaces"`,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
-          `import {a as c,b,e} from "specifiers-no-spaces"`
+          `import {a as c,b,e} from "specifiers-no-spaces"`,
         );
       },
       errors: 1,
@@ -320,7 +323,7 @@ const baseTests = (expect) => ({
       code: `import { b,a} from "specifiers-no-space-before"`,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
-          `import { a,b} from "specifiers-no-space-before"`
+          `import { a,b} from "specifiers-no-space-before"`,
         );
       },
       errors: 1,
@@ -331,7 +334,7 @@ const baseTests = (expect) => ({
       code: `import {b,a } from "specifiers-no-space-after"`,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
-          `import {a,b } from "specifiers-no-space-after"`
+          `import {a,b } from "specifiers-no-space-after"`,
         );
       },
       errors: 1,
@@ -342,7 +345,7 @@ const baseTests = (expect) => ({
       code: `import {b,a, } from "specifiers-no-space-after-trailing"`,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
-          `import {a,b, } from "specifiers-no-space-after-trailing"`
+          `import {a,b, } from "specifiers-no-space-after-trailing"`,
         );
       },
       errors: 1,
@@ -402,7 +405,7 @@ const baseTests = (expect) => ({
       code: `import { b /* b */, a } from "specifiers-comment-between"`,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
-          `import { a,b /* b */ } from "specifiers-comment-between"`
+          `import { a,b /* b */ } from "specifiers-comment-between"`,
         );
       },
       errors: 1,
@@ -522,7 +525,7 @@ const baseTests = (expect) => ({
       code: `/*1*//*2*/import/*3*/def,/*4*/{/*{*/e/*e1*/,/*e2*//*e3*/b/*b1*/,/*b2*/a/*a1*/as/*a2*/c/*a3*/,/*a4*/}/*5*/from/*6*/"specifiers-lots-of-comments"/*7*//*8*/`,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
-          `/*1*//*2*/import/*3*/def,/*4*/{/*{*/a/*a1*/as/*a2*/c/*a3*/,/*a4*/b/*b1*/,/*b2*/e/*e1*/,/*e2*//*e3*/}/*5*/from/*6*/"specifiers-lots-of-comments"/*7*//*8*/`
+          `/*1*//*2*/import/*3*/def,/*4*/{/*{*/a/*a1*/as/*a2*/c/*a3*/,/*a4*/b/*b1*/,/*b2*/e/*e1*/,/*e2*//*e3*/}/*5*/from/*6*/"specifiers-lots-of-comments"/*7*//*8*/`,
         );
       },
       errors: 1,
@@ -2060,7 +2063,7 @@ flowRuleTester.run("Flow", plugin.rules.imports, baseTests(expect2));
 typescriptRuleTester.run(
   "TypeScript",
   plugin.rules.imports,
-  baseTests(expect2)
+  baseTests(expect2),
 );
 
 flowRuleTester.run("Flow-specific", plugin.rules.imports, flowTests);
@@ -2068,5 +2071,5 @@ flowRuleTester.run("Flow-specific", plugin.rules.imports, flowTests);
 typescriptRuleTester.run(
   "TypeScript-specific",
   plugin.rules.imports,
-  typescriptTests
+  typescriptTests,
 );

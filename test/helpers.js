@@ -1,6 +1,4 @@
-"use strict";
-
-function setup(expect) {
+export function setup(expect) {
   const assert = require("assert");
 
   // Hack to allow using `.toMatchInlineSnapshot` for `output` in `RuleTester`.
@@ -37,11 +35,11 @@ function setup(expect) {
 // the string, even when lines start with whitespace.
 // Additionally, the string must start with a newline (with no spaces before
 // it), and end with a newline (optionally followed by spaces).
-function input(strings) {
+export function input(strings) {
   if (strings.length !== 1) {
     const loc = getLoc();
     throw new Error(
-      `input: ${loc} Expected no interpolations, but got ${strings.length} separate parts.`
+      `input: ${loc} Expected no interpolations, but got ${strings.length} separate parts.`,
     );
   }
 
@@ -50,7 +48,7 @@ function input(strings) {
   if (!/^(?:\n {10}\|[^\n]*)+\n[^\S\n]*$/.test(string)) {
     const loc = getLoc();
     throw new Error(
-      `input: ${loc} Every line must start with 10 spaces and a \`|\`.`
+      `input: ${loc} Every line must start with 10 spaces and a \`|\`.`,
     );
   }
 
@@ -75,7 +73,7 @@ function getLoc(depth = 1) {
 }
 
 // Run `baseTests` with all parsers, but only use `.toMatchInlineSnapshot` with
-// the first one, because Jest can’t update the snapshots otherwise.
+// the first one, because Vitest can’t update the snapshots otherwise.
 const expect2 =
   (expect) =>
   (...args) => {
@@ -84,8 +82,3 @@ const expect2 =
       ret.toBe(strip(string, { keepPipes: true }));
     return ret;
   };
-
-module.exports = {
-  input,
-  setup,
-};
