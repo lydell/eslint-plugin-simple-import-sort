@@ -1,3 +1,13 @@
+### Version 12.0.0 (2024-02-10)
+
+This release removes the support for import assignments added in version 11.0.0:
+
+- Turns out it was broken in some cases.
+- The suggested fix went past my complexity tolerance for such an esoteric feature.
+- I also learned that they aren’t really imports, and that I don’t understand their semantics well enough to know how sorting them affects your program.
+
+If you miss the support for import assignments, I suggest you write your own ESLint rule which moves them out of the way from the actual imports, sorting them or not.
+
 ### Version 11.0.0 (2024-02-08)
 
 This release adds support for TypeScript import assignments (`import A = B.C` and `import A = require("module")`). Thanks to Szabolcs Kurdi (@szku01) and Svyatoslav Zaytsev (@MillerSvt)!
