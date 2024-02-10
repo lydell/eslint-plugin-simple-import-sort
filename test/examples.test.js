@@ -1,8 +1,8 @@
-import { describe, expect, test } from "vitest";
 import { spawnSync } from "child_process";
 import { readFileSync } from "fs";
 import { basename } from "path";
 import { format } from "prettier";
+import { describe, expect, test } from "vitest";
 
 // Make snapshots easier to read.
 // Before: `"\\"string\\""`
