@@ -477,7 +477,7 @@ function getSpecifierItems(tokens) {
       const newlineIndexRaw = after.findIndex((token2) => isNewline(token2));
       const newlineIndex = newlineIndexRaw === -1 ? -1 : newlineIndexRaw + 1;
 
-      // If there’s a multiline block comment, put everything _befor_ that
+      // If there’s a multiline block comment, put everything _before_ that
       // comment in the specifiers’s `.after`.
       const multilineBlockCommentIndex = after.findIndex(
         (token2) => isBlockComment(token2) && hasNewline(token2.code)
@@ -806,7 +806,7 @@ function getSource(node) {
       // Make `../` sort after `../../` but before `../a` etc.
       // Why a comma? See the next comment.
       .replace(/^[./]*\/$/, "$&,")
-      // Make `.` and `/` sort before any other punctation.
+      // Make `.` and `/` sort before any other punctuation.
       // The default order is: _ - , x x x . x x x / x x x
       // We’re changing it to: . / , x x x _ x x x - x x x
       .replace(/[./_-]/g, (char) => {
@@ -831,9 +831,7 @@ function getSource(node) {
 
 function getImportExportKind(node) {
   // `type` and `typeof` imports, as well as `type` exports (there are no
-  // `typeof` exports). In Flow, import specifiers can also have a kind. Default
-  // to "value" (like TypeScript) to make regular imports/exports come after the
-  // type imports/exports.
+  // `typeof` exports).
   return node.importKind || node.exportKind || "value";
 }
 
