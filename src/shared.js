@@ -164,7 +164,7 @@ function getImportExportItems(
     const [start] = all[0].range;
     const [, end] = all[all.length - 1].range;
 
-    const source = getSource(sourceCode, node);
+    const source = getSource(node);
 
     return {
       node,
@@ -795,8 +795,8 @@ function isNewline(node) {
   return node.type === "Newline";
 }
 
-function getSource(sourceCode, node) {
-  const [source, kind] = getSourceTextAndKind(sourceCode, node);
+function getSource(node) {
+  const source = node.source.value;
 
   return {
     // Sort by directory level rather than by string length.
@@ -806,7 +806,7 @@ function getSource(sourceCode, node) {
       // Make `../` sort after `../../` but before `../a` etc.
       // Why a comma? See the next comment.
       .replace(/^[./]*\/$/, "$&,")
-      // Make `.` and `/` sort before any other punctuation.
+      // Make `.` and `/` sort before any other punctation.
       // The default order is: _ - , x x x . x x x / x x x
       // We’re changing it to: . / , x x x _ x x x - x x x
       .replace(/[./_-]/g, (char) => {
@@ -825,85 +825,16 @@ function getSource(sourceCode, node) {
         }
       }),
     originalSource: source,
-    kind,
+    kind: getImportExportKind(node),
   };
-}
-
-function getSourceTextAndKind(sourceCode, node) {
-  switch (node.type) {
-    case "ImportDeclaration":
-    case "ExportNamedDeclaration":
-    case "ExportAllDeclaration":
-      return [node.source.value, getImportExportKind(node)];
-    case "TSImportEqualsDeclaration":
-      return getSourceTextAndKindFromModuleReference(
-        sourceCode,
-        node.moduleReference
-      );
-    // istanbul ignore next
-    default:
-      throw new Error(`Unsupported import/export node type: ${node.type}`);
-  }
-}
-
-const KIND_VALUE = "value";
-const KIND_TS_IMPORT_ASSIGNMENT_REQUIRE = "z_require";
-const KIND_TS_IMPORT_ASSIGNMENT_NAMESPACE = "z_namespace";
-
-function getSourceTextAndKindFromModuleReference(sourceCode, node) {
-  switch (node.type) {
-    case "TSExternalModuleReference":
-      // Only string literals inside `require()` are allowed by
-      // TypeScript, but the parser supports anything. Sorting
-      // is defined for string literals only. For other expressions,
-      // we just make sure not to crash.
-      switch (node.expression.type) {
-        case "Literal":
-          return [
-            typeof node.expression.value === "string"
-              ? node.expression.value
-              : node.expression.raw,
-            KIND_TS_IMPORT_ASSIGNMENT_REQUIRE,
-          ];
-        default: {
-          const [start, end] = node.expression.range;
-          return [
-            sourceCode.text.slice(start, end),
-            KIND_TS_IMPORT_ASSIGNMENT_REQUIRE,
-          ];
-        }
-      }
-    case "TSQualifiedName":
-      return [
-        getSourceTextFromTSQualifiedName(sourceCode, node),
-        KIND_TS_IMPORT_ASSIGNMENT_NAMESPACE,
-      ];
-    case "Identifier":
-      return [node.name, KIND_TS_IMPORT_ASSIGNMENT_NAMESPACE];
-    // istanbul ignore next
-    default:
-      throw new Error(`Unsupported module reference node type: ${node.type}`);
-  }
-}
-
-function getSourceTextFromTSQualifiedName(sourceCode, node) {
-  switch (node.left.type) {
-    case "Identifier":
-      return `${node.left.name}.${node.right.name}`;
-    case "TSQualifiedName":
-      return `${getSourceTextFromTSQualifiedName(sourceCode, node.left)}.${
-        node.right.name
-      }`;
-    // istanbul ignore next
-    default:
-      throw new Error(`Unsupported TS qualified name node type: ${node.type}`);
-  }
 }
 
 function getImportExportKind(node) {
   // `type` and `typeof` imports, as well as `type` exports (there are no
-  // `typeof` exports).
-  return node.importKind || node.exportKind || KIND_VALUE;
+  // `typeof` exports). In Flow, import specifiers can also have a kind. Default
+  // to "value" (like TypeScript) to make regular imports/exports come after the
+  // type imports/exports.
+  return node.importKind || node.exportKind || "value";
 }
 
 // Like `Array.prototype.findIndex`, but searches from the end.
@@ -936,9 +867,6 @@ module.exports = {
   getImportExportItems,
   getSourceCode,
   isPunctuator,
-  KIND_TS_IMPORT_ASSIGNMENT_NAMESPACE,
-  KIND_TS_IMPORT_ASSIGNMENT_REQUIRE,
-  KIND_VALUE,
   maybeReportSorting,
   printSortedItems,
   printWithSortedSpecifiers,
