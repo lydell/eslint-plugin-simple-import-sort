@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`examples 1.spaces.just-sort.js 1`] = `
+exports[`examples > 1.spaces.just-sort.js 1`] = `
 // The spacing inside \`{…}\` might look a bit weird after sorting:
 import {bar, baz,foo} from "example";
 
@@ -17,7 +17,7 @@ import {
 
 `;
 
-exports[`examples 2.spaces.eslint-builtin.js 1`] = `
+exports[`examples > 2.spaces.eslint-builtin.js 1`] = `
 // This file uses other ESLint rules to fix the spacing inside \`{…}\`:
 import {bar, baz, foo} from "example";
 
@@ -34,7 +34,7 @@ import {
 
 `;
 
-exports[`examples 3.spaces.prettier.js 1`] = `
+exports[`examples > 3.spaces.prettier.js 1`] = `
 // This file uses Prettier to fix the spacing inside \`{…}\`:
 import { bar, baz, foo } from "example";
 
@@ -51,7 +51,7 @@ import {
 
 `;
 
-exports[`examples eslint-plugin-import.js 1`] = `
+exports[`examples > eslint-plugin-import.js 1`] = `
 // This file uses rules from eslint-plugin-import
 // (https://github.com/benmosher/eslint-plugin-import/) if you want hoist
 // imports to the top, add a blank line after them and merge duplicates.
@@ -65,7 +65,7 @@ bar();
 
 `;
 
-exports[`examples groups.custom.js 1`] = `
+exports[`examples > groups.custom.js 1`] = `
 import assert from "assert";
 import fs from "fs";
 
@@ -101,7 +101,7 @@ import styles from "./styles.scss";
 
 `;
 
-exports[`examples groups.default-reverse.js 1`] = `
+exports[`examples > groups.default-reverse.js 1`] = `
 import styles from "./styles";
 
 import config from "/config";
@@ -118,7 +118,7 @@ import "./polyfills";
 
 `;
 
-exports[`examples groups.no-blank-lines.js 1`] = `
+exports[`examples > groups.no-blank-lines.js 1`] = `
 import classnames from "classnames";
 import PropTypes from "prop-types";
 import React from "react";
@@ -130,7 +130,7 @@ import styles from "./styles.css";
 
 `;
 
-exports[`examples groups.none.js 1`] = `
+exports[`examples > groups.none.js 1`] = `
 import styles from "./styles";
 import config from "/config";
 import App from "@/App";
@@ -140,7 +140,7 @@ import react from "react";
 
 `;
 
-exports[`examples groups.type-imports-first.ts 1`] = `
+exports[`examples > groups.type-imports-first.ts 1`] = `
 import type { Page } from "./page";
 import type { Css } from "./styles";
 import type { Config } from "/config";
@@ -167,7 +167,7 @@ import styles from "./styles";
 
 `;
 
-exports[`examples groups.type-imports-first-in-each-group.ts 1`] = `
+exports[`examples > groups.type-imports-first-in-each-group.ts 1`] = `
 import "./polyfills";
 
 import type { Dirent } from "node:fs";
@@ -193,7 +193,7 @@ import styles from "./styles";
 
 `;
 
-exports[`examples groups.type-imports-first-sorted.ts 1`] = `
+exports[`examples > groups.type-imports-first-sorted.ts 1`] = `
 import type { Dirent } from "node:fs";
 import type { ParsedPath } from "node:path";
 import type { Story } from "@storybook/react";
@@ -220,7 +220,7 @@ import styles from "./styles";
 
 `;
 
-exports[`examples groups.type-imports-last.ts 1`] = `
+exports[`examples > groups.type-imports-last.ts 1`] = `
 import "./polyfills";
 
 import fs from "node:fs";
@@ -247,7 +247,7 @@ import type { Store } from "redux";
 
 `;
 
-exports[`examples groups.type-imports-last-in-each-group.ts 1`] = `
+exports[`examples > groups.type-imports-last-in-each-group.ts 1`] = `
 import "./polyfills";
 
 import fs from "node:fs";
@@ -273,7 +273,7 @@ import type { Css } from "./styles";
 
 `;
 
-exports[`examples groups.type-imports-last-sorted.ts 1`] = `
+exports[`examples > groups.type-imports-last-sorted.ts 1`] = `
 import "./polyfills";
 
 import fs from "node:fs";
@@ -300,7 +300,7 @@ import type { Css } from "./styles";
 
 `;
 
-exports[`examples ignore.js 1`] = `
+exports[`examples > ignore.js 1`] = `
 // First off, imports that are only used for side effects stay in the input
 // order. These won’t be sorted:
 import "b";
@@ -345,7 +345,7 @@ separator();
 
 `;
 
-exports[`examples markdown.md 1`] = `
+exports[`examples > markdown.md 1`] = `
 # Markdown
 
 \`\`\`js
@@ -382,7 +382,7 @@ End text.
 
 `;
 
-exports[`examples prettier-comments.js 1`] = `
+exports[`examples > prettier-comments.js 1`] = `
 // This is just a test to make sure that this plugin plays well with Prettier.
 
 import def, { // start
@@ -399,7 +399,7 @@ import { /* start */ a, /*a*/ b /*b*/ } from "t";
 
 `;
 
-exports[`examples readme-comments.js 1`] = `
+exports[`examples > readme-comments.js 1`] = `
 // comment before import chunk
 // a1
 /* a2
@@ -412,7 +412,7 @@ import b from "b"; // b2
 
 `;
 
-exports[`examples readme-comments-items.js 1`] = `
+exports[`examples > readme-comments-items.js 1`] = `
 import { // comment at start
 /* a1
   */ a, 
@@ -432,7 +432,7 @@ import {/* comment at start */ f, /* f */g/* g */ } from "wherever3";
 
 `;
 
-exports[`examples readme-example.prettier.ts 1`] = `
+exports[`examples > readme-example.prettier.ts 1`] = `
 import classnames from "classnames";
 import PropTypes from "prop-types";
 import React from "react";
@@ -445,7 +445,7 @@ import styles from "./styles.css";
 
 `;
 
-exports[`examples readme-exports-grouping.prettier.js 1`] = `
+exports[`examples > readme-exports-grouping.prettier.js 1`] = `
 export * from "x";
 export * from "y";
 
@@ -458,7 +458,7 @@ export * from "./";
 
 `;
 
-exports[`examples readme-exports-grouping-less-comments.prettier.js 1`] = `
+exports[`examples > readme-exports-grouping-less-comments.prettier.js 1`] = `
 export * from "./";
 /* This one does not. */ export * from "a"; // Neither does this one.
 /* Nor this
@@ -468,7 +468,7 @@ export * from "y";
 
 `;
 
-exports[`examples readme-order.prettier.ts 1`] = `
+exports[`examples > readme-order.prettier.ts 1`] = `
 // Side effect imports. (These are not sorted internally.)
 import "./setup";
 import "some-polyfill";
@@ -525,7 +525,7 @@ export default whatever;
 
 `;
 
-exports[`examples readme-order-items.prettier.ts 1`] = `
+exports[`examples > readme-order-items.prettier.ts 1`] = `
 import {
   // Numbers are sorted by their numeric value:
   img1,
@@ -558,7 +558,7 @@ type B = 1;
 
 `;
 
-exports[`examples typescript.ts 1`] = `
+exports[`examples > typescript.ts 1`] = `
 import classnames from "classnames";
 import PropTypes from "prop-types";
 import React from "react";
@@ -577,7 +577,7 @@ function pluck<T, K extends keyof T>(o: T, names: K[]): T[K][] {
 
 `;
 
-exports[`examples vue.vue 1`] = `
+exports[`examples > vue.vue 1`] = `
 <script lang="ts">
   /* a */ import a from "a"; 
   // b

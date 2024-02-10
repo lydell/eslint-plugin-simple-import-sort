@@ -8,7 +8,7 @@ const warn = process.argv.includes("--report-unused-disable-directives")
 module.exports = {
   root: true,
   extends: ["eslint:recommended"],
-  plugins: ["jest"],
+  plugins: ["vitest"],
   parserOptions: {
     ecmaVersion: 2018,
   },
@@ -64,9 +64,18 @@ module.exports = {
   },
   overrides: [
     {
+      files: ["test/*.js", "*.mjs"],
+      parserOptions: {
+        sourceType: "module",
+      },
+    },
+    {
       files: ["*.test.js"],
-      extends: ["plugin:jest/recommended"],
-      env: { "jest/globals": true },
+      extends: ["plugin:vitest/recommended"],
+      rules: {
+        "vitest/no-disabled-tests": warn,
+        "vitest/no-focused-tests": warn,
+      },
     },
   ],
 };

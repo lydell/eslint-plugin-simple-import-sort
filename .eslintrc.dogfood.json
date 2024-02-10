@@ -1,0 +1,10 @@
+{
+  "rules": {
+    "imports": "error",
+    "exports": "error"
+  },
+  "parserOptions": {
+    "sourceType": "module",
+    "ecmaVersion": "latest"
+  }
+}

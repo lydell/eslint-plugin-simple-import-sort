@@ -1,12 +1,15 @@
-"use strict";
+import { RuleTester } from "eslint";
+import { describe, expect, test } from "vitest";
 
-const { RuleTester } = require("eslint");
+import plugin from "../src/index.js";
+import { input, setup } from "./helpers.js";
 
-const plugin = require("../src");
-const { input, setup } = require("./helpers");
+RuleTester.it = test;
+RuleTester.describe = describe;
 
 const expect2 = setup(expect);
 
+// eslint-disable-next-line no-shadow
 const baseTests = (expect) => ({
   valid: [
     // Simple cases.
@@ -131,7 +134,7 @@ const baseTests = (expect) => ({
       code: `export { d, a as c, a as b2, b, a } from "specifiers"`,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
-          `export { a,b, a as b2, a as c, d } from "specifiers"`
+          `export { a,b, a as b2, a as c, d } from "specifiers"`,
         );
       },
       errors: 1,
@@ -140,7 +143,7 @@ const baseTests = (expect) => ({
       code: `export { d, a as c, a as b2, b, a, }; var d, a, b;`,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
-          `export { a,b, a as b2, a as c, d,  }; var d, a, b;`
+          `export { a,b, a as b2, a as c, d,  }; var d, a, b;`,
         );
       },
       errors: 1,
@@ -406,7 +409,7 @@ const baseTests = (expect) => ({
       code: `export { something, something as default } from './something'`,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
-          `export { something as default,something } from './something'`
+          `export { something as default,something } from './something'`,
         );
       },
       errors: 1,
@@ -417,7 +420,7 @@ const baseTests = (expect) => ({
       code: `export {default as default, default as def, default as fault} from "b"`,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
-          `export {default as def, default as default, default as fault} from "b"`
+          `export {default as def, default as default, default as fault} from "b"`,
         );
       },
       errors: 1,
@@ -1114,7 +1117,7 @@ const typescriptTests = {
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(
-          `export {type MyClass,MyClass} from "../type";`
+          `export {type MyClass,MyClass} from "../type";`,
         );
       },
       errors: 1,
@@ -1178,7 +1181,7 @@ flowRuleTester.run("Flow", plugin.rules.exports, baseTests(expect2));
 typescriptRuleTester.run(
   "TypeScript",
   plugin.rules.exports,
-  baseTests(expect2)
+  baseTests(expect2),
 );
 
 flowRuleTester.run("Flow-specific", plugin.rules.exports, flowTests);
@@ -1186,5 +1189,5 @@ flowRuleTester.run("Flow-specific", plugin.rules.exports, flowTests);
 typescriptRuleTester.run(
   "TypeScript-specific",
   plugin.rules.exports,
-  typescriptTests
+  typescriptTests,
 );

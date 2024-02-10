@@ -50,7 +50,7 @@ module.exports = {
     const { groups: rawGroups = defaultGroups } = context.options[0] || {};
 
     const outerGroups = rawGroups.map((groups) =>
-      groups.map((item) => RegExp(item, "u"))
+      groups.map((item) => RegExp(item, "u")),
     );
 
     const parents = new Set();
@@ -63,7 +63,7 @@ module.exports = {
       "Program:exit": () => {
         for (const parent of parents) {
           for (const chunk of shared.extractChunks(parent, (node) =>
-            isImport(node) ? "PartOfChunk" : "NotPartOfChunk"
+            isImport(node) ? "PartOfChunk" : "NotPartOfChunk",
           )) {
             maybeReportChunkSorting(chunk, context, outerGroups);
           }
@@ -80,7 +80,7 @@ function maybeReportChunkSorting(chunk, context, outerGroups) {
     chunk,
     sourceCode,
     isSideEffectImport,
-    getSpecifiers
+    getSpecifiers,
   );
   const sortedItems = makeSortedItems(items, outerGroups);
   const sorted = shared.printSortedItems(sortedItems, items, sourceCode);
@@ -91,7 +91,7 @@ function maybeReportChunkSorting(chunk, context, outerGroups) {
 
 function makeSortedItems(items, outerGroups) {
   const itemGroups = outerGroups.map((groups) =>
-    groups.map((regex) => ({ regex, items: [] }))
+    groups.map((regex) => ({ regex, items: [] })),
   );
   const rest = [];
 
@@ -100,11 +100,11 @@ function makeSortedItems(items, outerGroups) {
     const source = item.isSideEffectImport
       ? `\0${originalSource}`
       : item.source.kind !== "value"
-      ? `${originalSource}\0`
-      : originalSource;
+        ? `${originalSource}\0`
+        : originalSource;
     const [matchedGroup] = shared
       .flatMap(itemGroups, (groups) =>
-        groups.map((group) => [group, group.regex.exec(source)])
+        groups.map((group) => [group, group.regex.exec(source)]),
       )
       .reduce(
         ([group, longestMatch], [nextGroup, nextMatch]) =>
@@ -112,7 +112,7 @@ function makeSortedItems(items, outerGroups) {
           (longestMatch == null || nextMatch[0].length > longestMatch[0].length)
             ? [nextGroup, nextMatch]
             : [group, longestMatch],
-        [undefined, undefined]
+        [undefined, undefined],
       );
     if (matchedGroup == null) {
       rest.push(item);
@@ -126,7 +126,7 @@ function makeSortedItems(items, outerGroups) {
     .map((groups) => groups.filter((group) => group.items.length > 0))
     .filter((groups) => groups.length > 0)
     .map((groups) =>
-      groups.map((group) => shared.sortImportExportItems(group.items))
+      groups.map((group) => shared.sortImportExportItems(group.items)),
     );
 }
 

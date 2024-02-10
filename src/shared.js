@@ -28,9 +28,10 @@ function extractChunks(parentNode, isPartOfChunk) {
         }
         break;
 
-      // istanbul ignore next
+      /* v8 ignore start */
       default:
         throw new Error(`Unknown chunk result: ${result}`);
+      /* v8 ignore stop */
     }
 
     lastNode = node;
@@ -65,7 +66,7 @@ function printSortedItems(sortedItems, originalItems, sourceCode) {
     .map((groups) =>
       groups
         .map((groupItems) => groupItems.map((item) => item.code).join(newline))
-        .join(newline)
+        .join(newline),
     )
     .join(newline + newline);
 
@@ -103,7 +104,7 @@ function getImportExportItems(
   passedChunk,
   sourceCode,
   isSideEffectImport,
-  getSpecifiers
+  getSpecifiers,
 ) {
   const chunk = handleLastSemicolon(passedChunk, sourceCode);
   return chunk.map((node, nodeIndex) => {
@@ -125,7 +126,7 @@ function getImportExportItems(
         (comment) =>
           comment.loc.start.line <= node.loc.start.line &&
           comment.loc.end.line > lastLine &&
-          (nodeIndex > 0 || comment.loc.start.line > lastLine)
+          (nodeIndex > 0 || comment.loc.start.line > lastLine),
       );
 
     // Get all comments after the import/export that are on the same line.
@@ -142,7 +143,7 @@ function getImportExportItems(
     // any, to support indentation in `<script>` tags.
     const indentation = getIndentation(
       commentsBefore.length > 0 ? commentsBefore[0] : node,
-      sourceCode
+      sourceCode,
     );
 
     // Print spaces after the import/export or its last comment, if any, to
@@ -150,7 +151,7 @@ function getImportExportItems(
     // trailing spaces among the imports/exports.
     const trailingSpaces = getTrailingSpaces(
       commentsAfter.length > 0 ? commentsAfter[commentsAfter.length - 1] : node,
-      sourceCode
+      sourceCode,
     );
 
     const code =
@@ -230,10 +231,10 @@ function handleLastSemicolon(chunk, sourceCode) {
 function printWithSortedSpecifiers(node, sourceCode, getSpecifiers) {
   const allTokens = getAllTokens(node, sourceCode);
   const openBraceIndex = allTokens.findIndex((token) =>
-    isPunctuator(token, "{")
+    isPunctuator(token, "{"),
   );
   const closeBraceIndex = allTokens.findIndex((token) =>
-    isPunctuator(token, "}")
+    isPunctuator(token, "}"),
   );
 
   const specifiers = getSpecifiers(node);
@@ -262,7 +263,7 @@ function printWithSortedSpecifiers(node, sourceCode, getSpecifiers) {
   // comments and whitespace.
   const hasTrailingComma = isPunctuator(
     sourceCode.getTokenBefore(allTokens[closeBraceIndex]),
-    ","
+    ",",
   );
 
   const lastIndex = sortedItems.length - 1;
@@ -292,7 +293,7 @@ function printWithSortedSpecifiers(node, sourceCode, getSpecifiers) {
     }
 
     const nonBlankIndex = item.after.findIndex(
-      (token) => !isNewline(token) && !isSpaces(token)
+      (token) => !isNewline(token) && !isSpaces(token),
     );
 
     // Remove whitespace and newlines at the start of `.after` if the item had a
@@ -301,8 +302,8 @@ function printWithSortedSpecifiers(node, sourceCode, getSpecifiers) {
     const after = !item.hadComma
       ? item.after
       : nonBlankIndex === -1
-      ? []
-      : item.after.slice(nonBlankIndex);
+        ? []
+        : item.after.slice(nonBlankIndex);
 
     return [...maybeNewline, ...item.before, ...item.specifier, ...after];
   });
@@ -390,13 +391,14 @@ function getSpecifierItems(tokens) {
         switch (token.type) {
           case "Punctuator":
             // There can only be comma punctuators, but future-proof by checking.
-            // istanbul ignore else
             if (isPunctuator(token, ",")) {
               current.hadComma = true;
               current.state = "after";
+              /* v8 ignore start */
             } else {
               current.specifier.push(token);
             }
+            /* v8 ignore stop */
             break;
 
           // When consuming the specifier part, we eat every token until a comma
@@ -441,9 +443,10 @@ function getSpecifierItems(tokens) {
         }
         break;
 
-      // istanbul ignore next
+      /* v8 ignore start */
       default:
         throw new Error(`Unknown state: ${current.state}`);
+      /* v8 ignore stop */
     }
   }
 
@@ -466,7 +469,7 @@ function getSpecifierItems(tokens) {
     case "specifier": {
       const lastIdentifierIndex = findLastIndex(
         current.specifier,
-        (token2) => isIdentifier(token2) || isKeyword(token2)
+        (token2) => isIdentifier(token2) || isKeyword(token2),
       );
 
       const specifier = current.specifier.slice(0, lastIdentifierIndex + 1);
@@ -480,7 +483,7 @@ function getSpecifierItems(tokens) {
       // If there’s a multiline block comment, put everything _before_ that
       // comment in the specifiers’s `.after`.
       const multilineBlockCommentIndex = after.findIndex(
-        (token2) => isBlockComment(token2) && hasNewline(token2.code)
+        (token2) => isBlockComment(token2) && hasNewline(token2.code),
       );
 
       const sliceIndex =
@@ -489,13 +492,13 @@ function getSpecifierItems(tokens) {
         newlineIndex >= 0 && multilineBlockCommentIndex >= 0
           ? Math.min(newlineIndex, multilineBlockCommentIndex)
           : newlineIndex >= 0
-          ? newlineIndex
-          : multilineBlockCommentIndex >= 0
-          ? multilineBlockCommentIndex
-          : // If there are no newlines, move the last whitespace into `result.after`.
-          endsWithSpaces(after)
-          ? after.length - 1
-          : -1;
+            ? newlineIndex
+            : multilineBlockCommentIndex >= 0
+              ? multilineBlockCommentIndex
+              : // If there are no newlines, move the last whitespace into `result.after`.
+                endsWithSpaces(after)
+                ? after.length - 1
+                : -1;
 
       current.specifier = specifier;
       current.after = sliceIndex === -1 ? after : after.slice(0, sliceIndex);
@@ -516,9 +519,10 @@ function getSpecifierItems(tokens) {
       result.items.push(current);
       break;
 
-    // istanbul ignore next
+    /* v8 ignore start */
     default:
       throw new Error(`Unknown state: ${current.state}`);
+    /* v8 ignore stop */
   }
 
   return result;
@@ -593,7 +597,7 @@ function parseWhitespace(whitespace) {
       .map((spacesOrNewline, index) =>
         index % 2 === 0
           ? { type: "Spaces", code: spacesOrNewline }
-          : { type: "Newline", code: spacesOrNewline }
+          : { type: "Newline", code: spacesOrNewline },
       )
       // Remove empty spaces since it makes debugging easier.
       .filter((token) => token.code !== "")
@@ -627,13 +631,13 @@ function getAllTokens(node, sourceCode) {
           commentIndex === 0 ? token : comments[commentIndex - 1];
         return [
           ...parseWhitespace(
-            sourceCode.text.slice(previous.range[1], comment.range[0])
+            sourceCode.text.slice(previous.range[1], comment.range[0]),
           ),
           { ...comment, code: sourceCode.getText(comment) },
         ];
       }),
       ...parseWhitespace(
-        sourceCode.text.slice(last.range[1], nextToken.range[0])
+        sourceCode.text.slice(last.range[1], nextToken.range[0]),
       ),
     ];
   });
@@ -668,7 +672,7 @@ function printCommentsAfter(node, comments, sourceCode) {
       const previous = index === 0 ? node : comments[index - 1];
       return (
         removeBlankLines(
-          sourceCode.text.slice(previous.range[1], comment.range[0])
+          sourceCode.text.slice(previous.range[1], comment.range[0]),
         ) + sourceCode.getText(comment)
       );
     })
@@ -709,21 +713,21 @@ function sortImportExportItems(items) {
     itemA.isSideEffectImport && itemB.isSideEffectImport
       ? itemA.index - itemB.index
       : // If one of the items is a side effect import, move it first.
-      itemA.isSideEffectImport
-      ? -1
-      : itemB.isSideEffectImport
-      ? 1
-      : // Compare the `from` part.
-        compare(itemA.source.source, itemB.source.source) ||
-        // The `.source` has been slightly tweaked. To stay fully deterministic,
-        // also sort on the original value.
-        compare(itemA.source.originalSource, itemB.source.originalSource) ||
-        // Then put type imports/exports before regular ones.
-        compare(itemA.source.kind, itemB.source.kind) ||
-        // Keep the original order if the sources are the same. It’s not worth
-        // trying to compare anything else, and you can use `import/no-duplicates`
-        // to get rid of the problem anyway.
-        itemA.index - itemB.index
+        itemA.isSideEffectImport
+        ? -1
+        : itemB.isSideEffectImport
+          ? 1
+          : // Compare the `from` part.
+            compare(itemA.source.source, itemB.source.source) ||
+            // The `.source` has been slightly tweaked. To stay fully deterministic,
+            // also sort on the original value.
+            compare(itemA.source.originalSource, itemB.source.originalSource) ||
+            // Then put type imports/exports before regular ones.
+            compare(itemA.source.kind, itemB.source.kind) ||
+            // Keep the original order if the sources are the same. It’s not worth
+            // trying to compare anything else, and you can use `import/no-duplicates`
+            // to get rid of the problem anyway.
+            itemA.index - itemB.index,
   );
 }
 
@@ -737,7 +741,7 @@ function sortSpecifierItems(items) {
       //               ^
       compare(
         (itemA.node.imported || itemA.node.exported).name,
-        (itemB.node.imported || itemB.node.exported).name
+        (itemB.node.imported || itemB.node.exported).name,
       ) ||
       // Then compare by the file-local name.
       // import { a as b } from "a"
@@ -748,13 +752,14 @@ function sortSpecifierItems(items) {
       // Then put type specifiers before regular ones.
       compare(
         getImportExportKind(itemA.node),
-        getImportExportKind(itemB.node)
+        getImportExportKind(itemB.node),
+        /* v8 ignore start */
       ) ||
       // Keep the original order if the names are the same. It’s not worth
       // trying to compare anything else, `import {a, a} from "mod"` is a syntax
       // error anyway (but @babel/eslint-parser kind of supports it).
-      // istanbul ignore next
-      itemA.index - itemB.index
+      itemA.index - itemB.index,
+    /* v8 ignore stop */
   );
 }
 
@@ -819,9 +824,10 @@ function getSource(node) {
             return ".";
           case "-":
             return "/";
-          // istanbul ignore next
+          /* v8 ignore start */
           default:
             throw new Error(`Unknown source substitution character: ${char}`);
+          /* v8 ignore stop */
         }
       }),
     originalSource: source,
@@ -842,9 +848,10 @@ function findLastIndex(array, fn) {
       return index;
     }
   }
+  /* v8 ignore start */
   // There are currently no usages of `findLastIndex` where nothing is found.
-  // istanbul ignore next
   return -1;
+  /* v8 ignore stop */
 }
 
 // Like `Array.prototype.flatMap`, had it been available.
@@ -855,7 +862,7 @@ function flatMap(array, fn) {
 function getSourceCode(context) {
   // `.getSourceCode()` is deprecated in favor of `.sourceCode`.
   // We support both for now.
-  // istanbul ignore next
+  /* v8 ignore next */
   return context.sourceCode || context.getSourceCode();
 }
 
