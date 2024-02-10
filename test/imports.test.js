@@ -1584,7 +1584,7 @@ const flowTests = {
     `import type a, {b} from "a"`,
     `import type {} from "a"`,
     `import type {    } from "a"`,
-    `import json from "./foo.json" assert { type: "json" };`,
+    `import json from "./foo.json" with { type: "json" };`,
 
     // typeof
     `import typeof a from "a"`,
@@ -1681,11 +1681,11 @@ const flowTests = {
       errors: 1,
     },
 
-    // Import assertions.
+    // Import attributes.
     {
       code: input`
-          |import json from "./foo.json" assert { type: "json" };
-          |import {default as b} from "./bar.json" assert {
+          |import json from "./foo.json" with { type: "json" };
+          |import {default as b} from "./bar.json" with {
           |  // json
           |  type: "json",
           |  a: "b",
@@ -1695,12 +1695,12 @@ const flowTests = {
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
-          |import {default as b} from "./bar.json" assert {
+          |import {default as b} from "./bar.json" with {
           |  // json
           |  type: "json",
           |  a: "b",
           |} /* bar */ 
-          |import json from "./foo.json" assert { type: "json" };/* end
+          |import json from "./foo.json" with { type: "json" };/* end
           | comment */
           |;[].forEach()
         `);
@@ -1977,11 +1977,11 @@ const typescriptTests = {
       errors: 1,
     },
 
-    // Import assertions.
+    // Import attributes.
     {
       code: input`
-          |import json from "./foo.json" assert { type: "json" };
-          |import {b, a} from "./bar.json" assert {
+          |import json from "./foo.json" with { type: "json" };
+          |import {b, a} from "./bar.json" with {
           |  // json
           |  type: "json",
           |  a: "b",
@@ -1991,12 +1991,12 @@ const typescriptTests = {
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
-          |import {a,b} from "./bar.json" assert {
+          |import {a,b} from "./bar.json" with {
           |  // json
           |  type: "json",
           |  a: "b",
           |} /* bar */ 
-          |import json from "./foo.json" assert { type: "json" };/* end
+          |import json from "./foo.json" with { type: "json" };/* end
           | comment */
           |;[].forEach()
         `);

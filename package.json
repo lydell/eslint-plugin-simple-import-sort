@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "@babel/eslint-parser": "7.23.10",
-    "@babel/plugin-syntax-import-assertions": "7.23.3",
+    "@babel/plugin-syntax-import-attributes": "7.23.3",
     "@babel/plugin-transform-flow-strip-types": "7.23.3",
     "@typescript-eslint/parser": "6.21.0",
     "@vitest/coverage-v8": "^1.2.2",
