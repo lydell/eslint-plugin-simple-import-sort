@@ -72,6 +72,10 @@ module.exports = {
     {
       files: ["*.test.js"],
       extends: ["plugin:vitest/recommended"],
+      rules: {
+        "vitest/no-disabled-tests": warn,
+        "vitest/no-focused-tests": warn,
+      },
     },
   ],
 };
