@@ -1,3 +1,7 @@
+### Version 12.1.0 (2024-04-13)
+
+This release adds TypeScript type definitions for the plugin itself. This is useful when you use TypeScript to check your ESLint configuration. It assumes that you install `@types/eslint` yourself. Thanks to @Logicer16!
+
 ### Version 12.0.0 (2024-02-10)
 
 This release removes the support for import assignments added in version 11.0.0:
