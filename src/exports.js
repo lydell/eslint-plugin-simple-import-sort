@@ -9,7 +9,7 @@ module.exports = {
     schema: [],
     docs: {
       url: "https://github.com/lydell/eslint-plugin-simple-import-sort#sort-order",
-      description: 'Automatically sort exports.',
+      description: "Automatically sort exports.",
     },
     messages: {
       sort: "Run autofix to sort these exports!",
