@@ -1,3 +1,7 @@
+### Version 12.1.1 (2024-07-02)
+
+This release adds a short `meta.docs.description` to each rule. Thanks to fisker Cheung (@fisker)!
+
 ### Version 12.1.0 (2024-04-13)
 
 This release adds TypeScript type definitions for the plugin itself. This is useful when you use TypeScript to check your ESLint configuration. It assumes that you install `@types/eslint` yourself. Thanks to @Logicer16!
