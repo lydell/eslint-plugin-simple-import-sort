@@ -714,7 +714,6 @@ For example, here’s the default value but changed to a single inner array:
 [exports]: #exports
 [flow]: https://flow.org/
 [import/first]: https://github.com/import-js/eslint-plugin-import/blob/main/docs/rules/first.md
-[import/first]: https://github.com/import-js/eslint-plugin-import/blob/main/docs/rules/first.md
 [import/newline-after-import]: https://github.com/import-js/eslint-plugin-import/blob/main/docs/rules/newline-after-import.md
 [import/no-duplicates]: https://github.com/import-js/eslint-plugin-import/blob/main/docs/rules/no-duplicates.md
 [import/order-comparison]: #how-is-this-rule-different-from-importorder
