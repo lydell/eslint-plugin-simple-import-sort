@@ -16,6 +16,7 @@
     "@typescript-eslint/parser": "6.21.0",
     "@vitest/coverage-v8": "^1.2.2",
     "eslint": "8.56.0",
+    "eslint-plugin-eslint-plugin": "^6.2.0",
     "eslint-plugin-import": "2.29.1",
     "eslint-plugin-markdown": "3.0.1",
     "eslint-plugin-vitest": "0.3.22",

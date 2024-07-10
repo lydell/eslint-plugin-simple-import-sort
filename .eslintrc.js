@@ -7,8 +7,8 @@ const warn = process.argv.includes("--report-unused-disable-directives")
 
 module.exports = {
   root: true,
-  extends: ["eslint:recommended"],
-  plugins: ["vitest"],
+  extends: ["eslint:recommended", "plugin:eslint-plugin/recommended"],
+  plugins: ["vitest", "eslint-plugin"],
   parserOptions: {
     ecmaVersion: 2018,
   },
@@ -34,7 +34,7 @@ module.exports = {
       },
     ],
     "no-self-compare": error,
-    "no-shadow": "error",
+    "no-shadow": error,
     "no-template-curly-in-string": error,
     "no-unmodified-loop-condition": error,
     "no-unneeded-ternary": warn,
@@ -61,6 +61,9 @@ module.exports = {
     eqeqeq: [error, "always", { null: "ignore" }],
     strict: error,
     yoda: warn,
+    "eslint-plugin/require-meta-docs-description": error,
+    "eslint-plugin/require-meta-docs-url": error,
+    "eslint-plugin/require-meta-schema": error,
   },
   overrides: [
     {
