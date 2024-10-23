@@ -12,4 +12,5 @@ module.exports = {
     imports: importsRule,
     exports: exportsRule,
   },
+  defaultGroups: importsRule.defaultGroups,
 };
