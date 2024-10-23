@@ -19,6 +19,7 @@ const defaultGroups = [
 ];
 
 module.exports = {
+  defaultGroups,
   meta: {
     type: "layout",
     fixable: "code",
