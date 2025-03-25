@@ -26,6 +26,9 @@ module.exports = {
       {
         type: "object",
         properties: {
+          collapseTypesAbove: {
+            type: "boolean",
+          },
           groups: {
             type: "array",
             items: {
@@ -48,6 +51,13 @@ module.exports = {
     },
   },
   create: (context) => {
+    const { collapseTypesAbove } = context.options[0] || {};
+
+    if (collapseTypesAbove) {
+      // Type imports.
+      defaultGroups.unshift([".*\\u0000$"]);
+    }
+
     const { groups: rawGroups = defaultGroups } = context.options[0] || {};
 
     const outerGroups = rawGroups.map((groups) =>

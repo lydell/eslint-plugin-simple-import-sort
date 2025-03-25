@@ -341,12 +341,13 @@ Workaround to make the next section to appear in the table of contents.
 
 ## Custom grouping
 
-There is **one** option (see [Not for everyone]) called `groups` that is useful for a bunch of different use cases.
+There are **two** options (see [Not for everyone]). They called `collapseTypesAbove` and `groups` which are useful for a bunch of different use cases.
 
-`groups` is an array of arrays of strings:
+`collapseTypesAbove` is a boolean and `groups` is an array of arrays of strings:
 
 ```ts
 type Options = {
+  collapseTypesAbove: boolean;
   groups: Array<Array<string>>;
 };
 ```
@@ -378,7 +379,7 @@ Imports that don’t match any regex are put together last.
 
 Side effect imports have `\u0000` _prepended_ to their `from` string (starts with `\u0000`). You can match them with `"^\\u0000"`.
 
-Type imports have `\u0000` _appended_ to their `from` string (ends with `\u0000`). You can match them with `"\\u0000$"` – but you probably need more than that to avoid them also being matched by other regexes.
+Type imports have `\u0000` _appended_ to their `from` string (ends with `\u0000`). You can match them with `"\\u0000$"` – but you probably need more than that to avoid them also being matched by other regexes. If you want to put all type imports at the top, you can set the `collapseTypesAbove` config option to `true`.
 
 All imports that match the same regex are sorted internally as mentioned in [Sort order].
 
@@ -386,6 +387,9 @@ This is the default value for the `groups` option:
 
 ```js
 [
+  // Type imports.
+  // Only if "collapseTypesAbove" config option was set to true.
+  [".*\\u0000$"]
   // Side effect imports.
   ["^\\u0000"],
   // Node.js builtins prefixed with `node:`.

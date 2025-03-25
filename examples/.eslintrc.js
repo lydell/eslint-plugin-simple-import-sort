@@ -66,6 +66,19 @@ module.exports = {
       },
     },
     {
+      files: ["collapse-types-above.ts"],
+      parser: "@typescript-eslint/parser",
+      rules: {
+        imports: [
+          "error",
+          {
+            // The default grouping, but with type imports first as a separate group.
+            collapseTypesAbove: true,
+          },
+        ],
+      },
+    },
+    {
       files: ["groups.custom.js"],
       rules: {
         imports: [

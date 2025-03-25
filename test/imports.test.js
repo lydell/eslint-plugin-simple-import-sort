@@ -1939,6 +1939,42 @@ const typescriptTests = {
       errors: 1,
     },
 
+    // `collapseTypesAbove` – type imports.
+    {
+      options: [{ collapseTypesAbove: true }],
+      code: input`
+          |import '@/';
+          |import c from '@/';
+          |import type C from '@/';
+          |import b from './';
+          |import type B from './';
+          |import './';
+          |import a from 'a';
+          |import type A from 'a';
+          |import 'a';
+          |import {} from 'a';
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import type B from './';
+          |import type C from '@/';
+          |import type A from 'a';
+          |
+          |import '@/';
+          |import './';
+          |import 'a';
+          |
+          |import a from 'a';
+          |import {} from 'a';
+          |
+          |import c from '@/';
+          |
+          |import b from './';
+        `);
+      },
+      errors: 1,
+    },
+
     // `groups` – real-world example from issue #61 based on:
     // https://github.com/polkadot-js/apps/blob/074b245a725873f7c3c16fc83b80fb9c02351a65/packages/apps/src/Endpoints/Group.tsx
     // https://github.com/polkadot-js/apps/blob/074b245a725873f7c3c16fc83b80fb9c02351a65/.eslintrc.js#L31-L39
