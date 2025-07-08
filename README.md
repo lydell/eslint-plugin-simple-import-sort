@@ -605,7 +605,7 @@ export * from "./two.js";
 _main.js:_
 
 ```js
-import * as reexport from "./rexport.js";
+import * as reexport from "./reexport.js";
 console.log(reexport);
 ```
 
