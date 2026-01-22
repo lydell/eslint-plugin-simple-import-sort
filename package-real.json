@@ -4,7 +4,7 @@
   "license": "MIT",
   "author": "Simon Lydell",
   "repository": "lydell/eslint-plugin-simple-import-sort",
-  "description": "Easy autofixable import sorting",
+  "description": "Easy, autofixable import sorting",
   "type": "commonjs",
   "keywords": [
     "eslint",
