@@ -747,12 +747,47 @@ const baseTests = (expect) => ({
       errors: 4,
     },
 
-    // Original order is preserved for duplicate imports.
+    // Original order is preserved for duplicate imports with the same style.
     {
       code: input`
           |import b from "b"
           |import a1 from "a"
+          |import a2 from "a"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import a1 from "a"
+          |import a2 from "a"
+          |import b from "b"
+        `);
+      },
+      errors: 1,
+    },
+
+    // Original order is preserved for duplicate imports with the same style (reversed).
+    {
+      code: input`
+          |import b from "b"
+          |import a2 from "a"
+          |import a1 from "a"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import a2 from "a"
+          |import a1 from "a"
+          |import b from "b"
+        `);
+      },
+      errors: 1,
+    },
+
+    // Deterministic order for imports of the same module with different styles.
+    // Order: namespace < default < named
+    {
+      code: input`
+          |import b from "b"
           |import {a2} from "a"
+          |import a1 from "a"
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
@@ -764,18 +799,19 @@ const baseTests = (expect) => ({
       errors: 1,
     },
 
-    // Original order is preserved for duplicate imports (reversed example).
+    // Deterministic order for all import styles of the same module.
+    // Order: namespace < default < named
     {
       code: input`
-          |import b from "b"
-          |import {a2} from "a"
-          |import a1 from "a"
+          |import {x} from "a"
+          |import w from "a"
+          |import * as v from "a"
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
-          |import {a2} from "a"
-          |import a1 from "a"
-          |import b from "b"
+          |import * as v from "a"
+          |import w from "a"
+          |import {x} from "a"
         `);
       },
       errors: 1,
@@ -1890,8 +1926,8 @@ const typescriptTests = {
           |
           |import { getUser } from "../../api";
           |import { formatNumber,truncate } from "../../utils";
-          |import type {Button,target, type as tipe} from "../Button";
           |import type X from "../Button";
+          |import type {Button,target, type as tipe} from "../Button";
           |import Button from "../Button";
           |import {a, type type as type, z} from "../type";
           |import styles from "./styles.css";
@@ -2039,6 +2075,49 @@ const typescriptTests = {
         `);
       },
       errors: 3,
+    },
+
+    // Deterministic order for type imports from the same source.
+    // Order: type namespace < type default < type named
+    {
+      options: [{ groups: [] }],
+      code: input`
+          |import type {X} from "a"
+          |import type Y from "a"
+          |import type * as Z from "a"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import type * as Z from "a"
+          |import type Y from "a"
+          |import type {X} from "a"
+        `);
+      },
+      errors: 1,
+    },
+
+    // Deterministic order: type imports before value imports, then by style.
+    {
+      options: [{ groups: [] }],
+      code: input`
+          |import {x} from "a"
+          |import type {X} from "a"
+          |import y from "a"
+          |import type Y from "a"
+          |import * as z from "a"
+          |import type * as Z from "a"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import type * as Z from "a"
+          |import type Y from "a"
+          |import type {X} from "a"
+          |import * as z from "a"
+          |import y from "a"
+          |import {x} from "a"
+        `);
+      },
+      errors: 1,
     },
   ],
 };

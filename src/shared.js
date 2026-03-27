@@ -724,6 +724,8 @@ function sortImportExportItems(items) {
             compare(itemA.source.originalSource, itemB.source.originalSource) ||
             // Then put type imports/exports before regular ones.
             compare(itemA.source.kind, itemB.source.kind) ||
+            // Then sort by import style: namespace < default < default+named < named
+            getImportStyleSortInteger(itemA.node) - getImportStyleSortInteger(itemB.node) ||
             // Keep the original order if the sources are the same. It’s not worth
             // trying to compare anything else, and you can use `import/no-duplicates`
             // to get rid of the problem anyway.
@@ -839,6 +841,34 @@ function getImportExportKind(node) {
   // `type` and `typeof` imports, as well as `type` exports (there are no
   // `typeof` exports).
   return node.importKind || node.exportKind || "value";
+}
+
+// Returns a number representing the import style for deterministic ordering.
+// Order: namespace (1) < default (2) < named-only (3) < other (4)
+function getImportStyleSortInteger(node) {
+  const specifiers = node.specifiers || [];
+
+  if (specifiers.length === 0) {
+    return 4;
+  }
+
+  const hasNamespace = specifiers.some(
+    (s) => s.type === "ImportNamespaceSpecifier",
+  );
+  const hasDefault = specifiers.some(
+    (s) => s.type === "ImportDefaultSpecifier",
+  );
+
+  if (hasNamespace) {
+    // `import * as x from ...`
+    return 1;
+  }
+  if (hasDefault) {
+    // `import x from ...` or `import x, { y } from ...`
+    return 2;
+  }
+  // `import { x } from ...`
+  return 3;
 }
 
 // Like `Array.prototype.findIndex`, but searches from the end.
