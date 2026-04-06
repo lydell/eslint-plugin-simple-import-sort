@@ -848,14 +848,16 @@ function getImportExportKind(node) {
 }
 
 // Like `Array.prototype.findIndex`, but searches from the end.
+/* v8 ignore start */
+// Ignore coverage because:
+// - There are currently no usages of `findLastIndex` where nothing is found.
+// - vitest reports `return index;` as not covered, despite it actually being hit.
 function findLastIndex(array, fn) {
   for (let index = array.length - 1; index >= 0; index--) {
     if (fn(array[index], index, array)) {
       return index;
     }
   }
-  /* v8 ignore start */
-  // There are currently no usages of `findLastIndex` where nothing is found.
   return -1;
   /* v8 ignore stop */
 }
