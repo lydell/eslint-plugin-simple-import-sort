@@ -1,3 +1,22 @@
+### Version 13.0.0 (2026-04-06)
+
+This release puts imports from the same source, but with different import styles, in a deterministic order.
+
+```js
+// First namespace imports:
+import * as Circle from "circle;
+// Then default imports:
+import createCircle from "circle";
+// Then named imports:
+import { radius } from "circle";
+```
+
+That is especially useful if you need to have both a namespace import _and_ want to import a few things separately (since that cannot be combined into a single import statement). With the above rule, the imports end up in a deterministic order.
+
+It’s only a breaking change if you import from the same source multiple times in the same file (using different styles), and only in the form that you need to autofix your files.
+
+Thanks to Kannan Goundan (@cakoose)!
+
 ### Version 12.1.1 (2024-07-02)
 
 This release adds a short `meta.docs.description` to each rule. Thanks to fisker Cheung (@fisker)!
