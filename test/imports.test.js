@@ -801,17 +801,26 @@ const baseTests = (expect) => ({
 
     // Deterministic order for all import styles of the same module.
     // Order: namespace < default < named
+    // Note: For simplicity, we don’t try to detect default+named.
+    // There is no use case for importing the default import multiple times with different names.
+    // So the three default imports below stay in their internal original order.
     {
       code: input`
           |import {x} from "a"
-          |import w from "a"
+          |import {} from "a"
+          |import w1, {} from "a"
+          |import w2 from "a"
+          |import w3, {z} from "a"
           |import * as v from "a"
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import * as v from "a"
-          |import w from "a"
+          |import w1, {} from "a"
+          |import w2 from "a"
+          |import w3, {z} from "a"
           |import {x} from "a"
+          |import {} from "a"
         `);
       },
       errors: 1,
@@ -2080,7 +2089,6 @@ const typescriptTests = {
     // Deterministic order for type imports from the same source.
     // Order: type namespace < type default < type named
     {
-      options: [{ groups: [] }],
       code: input`
           |import type {X} from "a"
           |import type Y from "a"
@@ -2097,23 +2105,35 @@ const typescriptTests = {
     },
 
     // Deterministic order: type imports before value imports, then by style.
+    // Note: For simplicity, we don’t try to detect default+named.
+    // There is no use case for importing the default import multiple times with different names.
+    // So the default imports below stay in their internal original order.
     {
-      options: [{ groups: [] }],
       code: input`
           |import {x} from "a"
           |import type {X} from "a"
-          |import y from "a"
-          |import type Y from "a"
+          |import type {} from "a"
+          |import y1, {} from "a"
+          |import y2 from "a"
+          |import y3, {l} from "a"
+          |import type Y1, {} from "a"
+          |import type Y2 from "a"
+          |import type Y3, {L} from "a"
           |import * as z from "a"
           |import type * as Z from "a"
       `,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`
           |import type * as Z from "a"
-          |import type Y from "a"
+          |import type Y1, {} from "a"
+          |import type Y2 from "a"
+          |import type Y3, {L} from "a"
           |import type {X} from "a"
+          |import type {} from "a"
           |import * as z from "a"
-          |import y from "a"
+          |import y1, {} from "a"
+          |import y2 from "a"
+          |import y3, {l} from "a"
           |import {x} from "a"
         `);
       },

@@ -55,7 +55,7 @@ function maybeReportChunkSorting(chunk, context) {
   const items = shared.getImportExportItems(
     chunk,
     sourceCode,
-    () => false, // isSideEffectImport
+    () => 1, // getStyle
     getSpecifiers,
   );
   const sortedItems = [[shared.sortImportExportItems(items)]];

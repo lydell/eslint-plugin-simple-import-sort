@@ -103,7 +103,7 @@ function printSortedItems(sortedItems, originalItems, sourceCode) {
 function getImportExportItems(
   passedChunk,
   sourceCode,
-  isSideEffectImport,
+  getStyle,
   getSpecifiers,
 ) {
   const chunk = handleLastSemicolon(passedChunk, sourceCode);
@@ -172,7 +172,7 @@ function getImportExportItems(
       code,
       start: start - indentation.length,
       end: end + trailingSpaces.length,
-      isSideEffectImport: isSideEffectImport(node, sourceCode),
+      style: getStyle(node, sourceCode),
       source,
       index: nodeIndex,
       needsNewline:
@@ -707,15 +707,17 @@ function getTrailingSpaces(node, sourceCode) {
   return lines[0];
 }
 
+const SideEffectImport = 0;
+
 function sortImportExportItems(items) {
   return items.slice().sort((itemA, itemB) =>
     // If both items are side effect imports, keep their original order.
-    itemA.isSideEffectImport && itemB.isSideEffectImport
+    itemA.style === SideEffectImport && itemB.style === SideEffectImport
       ? itemA.index - itemB.index
       : // If one of the items is a side effect import, move it first.
-        itemA.isSideEffectImport
+        itemA.style === SideEffectImport
         ? -1
-        : itemB.isSideEffectImport
+        : itemB.style === SideEffectImport
           ? 1
           : // Compare the `from` part.
             compare(itemA.source.source, itemB.source.source) ||
@@ -724,8 +726,10 @@ function sortImportExportItems(items) {
             compare(itemA.source.originalSource, itemB.source.originalSource) ||
             // Then put type imports/exports before regular ones.
             compare(itemA.source.kind, itemB.source.kind) ||
-            // Then sort by import style: namespace < default < default+named < named
-            getImportStyleSortInteger(itemA.node) - getImportStyleSortInteger(itemB.node) ||
+            // Then sort by style.
+            // imports: namespace < default (maybe with named) < named-only
+            // exports: no styles.
+            itemA.style - itemB.style ||
             // Keep the original order if the sources are the same. It’s not worth
             // trying to compare anything else, and you can use `import/no-duplicates`
             // to get rid of the problem anyway.
@@ -843,34 +847,6 @@ function getImportExportKind(node) {
   return node.importKind || node.exportKind || "value";
 }
 
-// Returns a number representing the import style for deterministic ordering.
-// Order: namespace (1) < default (2) < named-only (3) < other (4)
-function getImportStyleSortInteger(node) {
-  const specifiers = node.specifiers || [];
-
-  if (specifiers.length === 0) {
-    return 4;
-  }
-
-  const hasNamespace = specifiers.some(
-    (s) => s.type === "ImportNamespaceSpecifier",
-  );
-  const hasDefault = specifiers.some(
-    (s) => s.type === "ImportDefaultSpecifier",
-  );
-
-  if (hasNamespace) {
-    // `import * as x from ...`
-    return 1;
-  }
-  if (hasDefault) {
-    // `import x from ...` or `import x, { y } from ...`
-    return 2;
-  }
-  // `import { x } from ...`
-  return 3;
-}
-
 // Like `Array.prototype.findIndex`, but searches from the end.
 function findLastIndex(array, fn) {
   for (let index = array.length - 1; index >= 0; index--) {
@@ -905,5 +881,6 @@ module.exports = {
   maybeReportSorting,
   printSortedItems,
   printWithSortedSpecifiers,
+  SideEffectImport,
   sortImportExportItems,
 };

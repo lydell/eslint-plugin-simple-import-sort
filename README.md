@@ -238,6 +238,21 @@ There’s one addition to the alphabetical rule: Directory structure. Relative i
 
 If both `import type` _and_ regular imports are used for the same source, the type imports come first. Same thing for `export type`. (You can move type imports to their own group, as mentioned in [custom grouping].)
 
+If multiple import styles are used for the same source, there is a defined order:
+
+```js
+// First namespace imports:
+import * as Circle from "circle;
+// Then default imports:
+import createCircle from "circle";
+// Then named imports:
+import { radius } from "circle";
+```
+
+That is especially useful if you need to have both a namespace import _and_ want to import a few things separately (since that cannot be combined into a single import statement). With the above rule, the imports end up in a deterministic order.
+
+Finally, if there are multiple imports for the same source with the same style, it’s recommended to use [import/no-duplicates] to join them into one import.
+
 ### Example
 
 <!-- prettier-ignore -->
