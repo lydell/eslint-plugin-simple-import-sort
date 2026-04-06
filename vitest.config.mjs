@@ -5,7 +5,9 @@ export default defineConfig({
     coverage: {
       enabled: true,
       include: ["src/**/*.js"],
-      100: true,
+      thresholds: {
+        100: true,
+      },
     },
   },
 });
