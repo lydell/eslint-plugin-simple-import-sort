@@ -103,7 +103,7 @@ function printSortedItems(sortedItems, originalItems, sourceCode) {
 function getImportExportItems(
   passedChunk,
   sourceCode,
-  isSideEffectImport,
+  getStyle,
   getSpecifiers,
 ) {
   const chunk = handleLastSemicolon(passedChunk, sourceCode);
@@ -172,7 +172,7 @@ function getImportExportItems(
       code,
       start: start - indentation.length,
       end: end + trailingSpaces.length,
-      isSideEffectImport: isSideEffectImport(node, sourceCode),
+      style: getStyle(node, sourceCode),
       source,
       index: nodeIndex,
       needsNewline:
@@ -707,15 +707,17 @@ function getTrailingSpaces(node, sourceCode) {
   return lines[0];
 }
 
+const SideEffectImport = 0;
+
 function sortImportExportItems(items) {
   return items.slice().sort((itemA, itemB) =>
     // If both items are side effect imports, keep their original order.
-    itemA.isSideEffectImport && itemB.isSideEffectImport
+    itemA.style === SideEffectImport && itemB.style === SideEffectImport
       ? itemA.index - itemB.index
       : // If one of the items is a side effect import, move it first.
-        itemA.isSideEffectImport
+        itemA.style === SideEffectImport
         ? -1
-        : itemB.isSideEffectImport
+        : itemB.style === SideEffectImport
           ? 1
           : // Compare the `from` part.
             compare(itemA.source.source, itemB.source.source) ||
@@ -724,6 +726,10 @@ function sortImportExportItems(items) {
             compare(itemA.source.originalSource, itemB.source.originalSource) ||
             // Then put type imports/exports before regular ones.
             compare(itemA.source.kind, itemB.source.kind) ||
+            // Then sort by style.
+            // imports: namespace < default (maybe with named) < named-only
+            // exports: no styles.
+            itemA.style - itemB.style ||
             // Keep the original order if the sources are the same. It’s not worth
             // trying to compare anything else, and you can use `import/no-duplicates`
             // to get rid of the problem anyway.
@@ -877,5 +883,6 @@ module.exports = {
   maybeReportSorting,
   printSortedItems,
   printWithSortedSpecifiers,
+  SideEffectImport,
   sortImportExportItems,
 };

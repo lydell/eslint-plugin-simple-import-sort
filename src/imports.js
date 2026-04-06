@@ -80,7 +80,7 @@ function maybeReportChunkSorting(chunk, context, outerGroups) {
   const items = shared.getImportExportItems(
     chunk,
     sourceCode,
-    isSideEffectImport,
+    getStyle,
     getSpecifiers,
   );
   const sortedItems = makeSortedItems(items, outerGroups);
@@ -98,11 +98,12 @@ function makeSortedItems(items, outerGroups) {
 
   for (const item of items) {
     const { originalSource } = item.source;
-    const source = item.isSideEffectImport
-      ? `\0${originalSource}`
-      : item.source.kind !== "value"
-        ? `${originalSource}\0`
-        : originalSource;
+    const source =
+      item.style === shared.SideEffectImport
+        ? `\0${originalSource}`
+        : item.source.kind !== "value"
+          ? `${originalSource}\0`
+          : originalSource;
     const [matchedGroup] = shared
       .flatMap(itemGroups, (groups) =>
         groups.map((group) => [group, group.regex.exec(source)]),
@@ -147,13 +148,63 @@ function isImportSpecifier(node) {
   return node.type === "ImportSpecifier";
 }
 
-// import "setup"
-// But not: import {} from "setup"
-// And not: import type {} from "setup"
-function isSideEffectImport(importNode, sourceCode) {
-  return (
-    importNode.specifiers.length === 0 &&
-    (!importNode.importKind || importNode.importKind === "value") &&
-    !shared.isPunctuator(sourceCode.getFirstToken(importNode, { skip: 1 }), "{")
-  );
+// Returns a number representing the import style for deterministic ordering.
+// Order: side-effect (0) < namespace (1) < default (2) < named-only (3)
+//
+// Note: There are two primary use cases to keep in mind for deterministic ordering.
+//
+// The first use case is mixing a namespace import with importing a few things separately:
+//
+//     import * as Mod from "mod"
+//     import Thing, { Other, type Mod } from "mod"
+//
+// It makes sense to have the namespace import first, since that feels like the “main” import.
+//
+// The second use case is type imports.
+//
+// The following is not allowed by TypeScript:
+//
+//     import type Def, {A, B} from "A"
+//
+// "A type-only import can specify a default import or named bindings, but not both."
+// It must be split into two imports:
+//
+//     import type Def from "A"
+//     import type {A, B} from "A"
+//     // Or, depending on what you meant:
+//     import {A, B} from "A"
+//
+// It makes sense to have the default import first, since a default import has to be first
+// in a regular import statement with both a default import and named imports.
+function getStyle(importNode, sourceCode) {
+  if (importNode.specifiers.length === 0) {
+    if (
+      shared.isPunctuator(
+        sourceCode.getFirstToken(importNode, {
+          skip: importNode.importKind === "type" ? 2 : 1,
+        }),
+        "{",
+      )
+    ) {
+      // `import {} from "A"` or `import type {} from "A"`
+      // This counts as named-only (with 0 named items).
+      return 3;
+    }
+
+    // `import "A"`
+    // Note that `import type "A"` is _not_ a type import:
+    // It is a default import creating a variable called `type`.
+    return shared.SideEffectImport;
+  }
+
+  const [firstSpecifier] = importNode.specifiers;
+
+  return firstSpecifier.type === "ImportNamespaceSpecifier"
+    ? // `import * as x from "A"`
+      1
+    : firstSpecifier.type === "ImportDefaultSpecifier"
+      ? // `import x from "A"` or `import x, { y } from "A"`
+        2
+      : // `import { x } from "A"`
+        3;
 }
