@@ -1,4 +1,4 @@
-import { spawnSync } from "child_process";
+import { execSync } from "child_process";
 import { readFileSync } from "fs";
 import { basename } from "path";
 import { format } from "prettier";
@@ -13,12 +13,11 @@ expect.addSnapshotSerializer({
 });
 
 describe("examples", () => {
-  const result = spawnSync("npm", ["run", "examples", "--silent"], {
+  const result = execSync("npm run examples --silent", {
     encoding: "utf8",
-    shell: true, // For Windows.
   });
 
-  const output = JSON.parse(result.stdout);
+  const output = JSON.parse(result);
 
   for (const item of output) {
     const name = basename(item.filePath);
