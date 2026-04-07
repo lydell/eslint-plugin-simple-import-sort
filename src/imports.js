@@ -4,18 +4,18 @@ const shared = require("./shared");
 
 const defaultGroups = [
   // Side effect imports.
-  ["^\\u0000"],
+  [/^\u0000/u],
   // Node.js builtins prefixed with `node:`.
-  ["^node:"],
+  [/^node:/u],
   // Packages.
   // Things that start with a letter (or digit or underscore), or `@` followed by a letter.
-  ["^@?\\w"],
+  [/^@?\w/u],
   // Absolute imports and other imports such as Vue-style `@/foo`.
   // Anything not matched in another group.
-  ["^"],
+  [/^/u],
   // Relative imports.
   // Anything that starts with a dot.
-  ["^\\."],
+  [/^\./u],
 ];
 
 module.exports = {
@@ -30,10 +30,9 @@ module.exports = {
             type: "array",
             items: {
               type: "array",
-              items: {
-                type: "string",
-              },
+              uniqueItems: true,
             },
+            uniqueItems: true,
           },
         },
         additionalProperties: false,
@@ -51,7 +50,7 @@ module.exports = {
     const { groups: rawGroups = defaultGroups } = context.options[0] || {};
 
     const outerGroups = rawGroups.map((groups) =>
-      groups.map((item) => RegExp(item, "u")),
+      groups.map((item) => (item instanceof RegExp ? item : RegExp(item, "u"))),
     );
 
     const parents = new Set();
