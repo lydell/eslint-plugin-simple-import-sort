@@ -1,3 +1,18 @@
+### Version 14.0.0 (2026-07-16)
+
+ES2022 allows string literals as module export names ("arbitrary module namespace names"):
+
+```js
+export { yukuTs as "yuku-ts" };
+import { "a-b" as c } from "a";
+```
+
+This release adds support for such quotes names. Previously, those were sorted oddly, and the autofix could suggest changes that wasn’t valid syntax.
+
+This is only a breaking change if you use string literals as module export names, and only in the form of that you need to autofix your files.
+
+Thanks to Kamronbek_Juraev (@KAMRONBEK) for fixing this!
+
 ### Version 13.0.0 (2026-04-06)
 
 This release puts imports from the same source, but with different import styles, in a deterministic order.
