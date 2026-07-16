@@ -748,15 +748,18 @@ function sortSpecifierItems(items) {
       // export { b as a }
       //               ^
       compare(
-        (itemA.node.imported || itemA.node.exported).name,
-        (itemB.node.imported || itemB.node.exported).name,
+        getSpecifierName(itemA.node.imported || itemA.node.exported),
+        getSpecifierName(itemB.node.imported || itemB.node.exported),
       ) ||
       // Then compare by the file-local name.
       // import { a as b } from "a"
       //               ^
       // export { b as a }
       //          ^
-      compare(itemA.node.local.name, itemB.node.local.name) ||
+      compare(
+        getSpecifierName(itemA.node.local),
+        getSpecifierName(itemB.node.local),
+      ) ||
       // Then put type specifiers before regular ones.
       compare(
         getImportExportKind(itemA.node),
@@ -769,6 +772,19 @@ function sortSpecifierItems(items) {
       itemA.index - itemB.index,
     /* v8 ignore stop */
   );
+}
+
+// A specifier name is usually an identifier, but it can also be a string
+// (ES2022 arbitrary module namespace names):
+//
+//     import { "a-b" as c } from "a"
+//     export { c as "a-b" }
+//
+// Compare strings by their value (`a-b`) rather than their raw source text
+// (`"a-b"`), so that the quotes (and the choice of quote character) don’t
+// affect the sort order.
+function getSpecifierName(node) {
+  return node.type === "Literal" ? node.value : node.name;
 }
 
 const collator = new Intl.Collator("en", {

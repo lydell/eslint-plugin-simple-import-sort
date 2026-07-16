@@ -797,6 +797,11 @@ const es2022Tests = {
     // Simple cases.
     `export { a as "a b", z } from "x"`,
     `export { a, z as "z z" } from "x"`,
+
+    // Quoted names are sorted by their string value, like other exported
+    // names.
+    `export { yuku, yukuTs as "yuku-ts" }; var yuku, yukuTs;`,
+    `export { oxc, oxcTs as "oxc-ts" }; var oxc, oxcTs;`,
   ],
 
   invalid: [
@@ -814,6 +819,24 @@ const es2022Tests = {
       code: `export { z, "a-a" } from "x"`,
       output: (actual) => {
         expect(actual).toMatchInlineSnapshot(`export { "a-a",z } from "x"`);
+      },
+      errors: 1,
+    },
+
+    // Quoted names are sorted by their string value.
+    {
+      code: `export { yukuTs as "yuku-ts", yuku }; var yuku, yukuTs;`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(
+          `export { yuku,yukuTs as "yuku-ts" }; var yuku, yukuTs;`,
+        );
+      },
+      errors: 1,
+    },
+    {
+      code: `export { "b-b", "a-a" } from "x"`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`export { "a-a","b-b" } from "x"`);
       },
       errors: 1,
     },
