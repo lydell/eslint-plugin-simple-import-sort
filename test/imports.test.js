@@ -1621,6 +1621,59 @@ const baseTests = (expect) => ({
   ],
 });
 
+// ES2022 arbitrary module namespace names (quoted names). These are tested
+// separately because they require `ecmaVersion: 2022`, and because the
+// TypeScript parser version used in these tests does not support them.
+const es2022Tests = {
+  valid: [
+    // Simple cases.
+    `import { "a-b" as c, d } from "x"`,
+  ],
+
+  invalid: [
+    // Quoted names are sorted by their string value.
+    {
+      code: `import { d, "a-b" as c } from "x"`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(
+          `import { "a-b" as c,d } from "x"`,
+        );
+      },
+      errors: 1,
+    },
+    {
+      code: `import { "b b" as b, "a a" as a } from "x"`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(
+          `import { "a a" as a,"b b" as b } from "x"`,
+        );
+      },
+      errors: 1,
+    },
+    {
+      code: `import { c, "a-b" as b, a } from "x"`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(
+          `import { a,"a-b" as b, c } from "x"`,
+        );
+      },
+      errors: 1,
+    },
+
+    // The string value is used for sorting (not the quote characters), so the
+    // choice of quote character doesn’t affect the order.
+    {
+      code: `import { "a-b" as y, 'a-a' as x } from "x"`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(
+          `import { 'a-a' as x,"a-b" as y } from "x"`,
+        );
+      },
+      errors: 1,
+    },
+  ],
+};
+
 const flowTests = {
   valid: [
     // Simple cases.
@@ -2155,6 +2208,10 @@ const typescriptRuleTester = new RuleTester({
   parserOptions: { sourceType: "module" },
 });
 
+const es2022RuleTester = new RuleTester({
+  parserOptions: { ecmaVersion: 2022, sourceType: "module" },
+});
+
 javascriptRuleTester.run("JavaScript", plugin.rules.imports, baseTests(expect));
 
 flowRuleTester.run("Flow", plugin.rules.imports, baseTests(expect2));
@@ -2172,3 +2229,5 @@ typescriptRuleTester.run(
   plugin.rules.imports,
   typescriptTests,
 );
+
+es2022RuleTester.run("ES2022", plugin.rules.imports, es2022Tests);
