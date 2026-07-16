@@ -789,6 +789,37 @@ const baseTests = (expect) => ({
   ],
 });
 
+// ES2022 arbitrary module namespace names (quoted names). These are tested
+// separately because they require `ecmaVersion: 2022`, and because the
+// TypeScript parser version used in these tests does not support them.
+const es2022Tests = {
+  valid: [
+    // Simple cases.
+    `export { a as "a b", z } from "x"`,
+    `export { a, z as "z z" } from "x"`,
+  ],
+
+  invalid: [
+    // A quoted name can be the last token of the last specifier.
+    {
+      code: `export { z, a as "a b" } from "x"`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(
+          `export { a as "a b",z } from "x"`,
+        );
+      },
+      errors: 1,
+    },
+    {
+      code: `export { z, "a-a" } from "x"`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`export { "a-a",z } from "x"`);
+      },
+      errors: 1,
+    },
+  ],
+};
+
 const flowTests = {
   valid: [
     // Simple cases.
@@ -1174,6 +1205,10 @@ const typescriptRuleTester = new RuleTester({
   parserOptions: { sourceType: "module" },
 });
 
+const es2022RuleTester = new RuleTester({
+  parserOptions: { ecmaVersion: 2022, sourceType: "module" },
+});
+
 javascriptRuleTester.run("JavaScript", plugin.rules.exports, baseTests(expect));
 
 flowRuleTester.run("Flow", plugin.rules.exports, baseTests(expect2));
@@ -1191,3 +1226,5 @@ typescriptRuleTester.run(
   plugin.rules.exports,
   typescriptTests,
 );
+
+es2022RuleTester.run("ES2022", plugin.rules.exports, es2022Tests);
