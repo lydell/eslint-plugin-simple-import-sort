@@ -74,6 +74,32 @@ const baseTests = (expect) => ({
           |import b from "b";    
           |import c from "c";  /* comment */  
     `,
+
+    // `caseSensitive: true` – already sorted by character code.
+    {
+      code: `import { B, a } from "a"`,
+      options: [{ caseSensitive: true }],
+    },
+    {
+      code: `import { x, x1 } from "a"`,
+      options: [{ caseSensitive: true }],
+    },
+    {
+      code: input`
+          |import b from "./Button"
+          |import a from "./api"
+      `,
+      options: [{ caseSensitive: true }],
+    },
+
+    // `caseSensitive: true` – side effect imports keep their original order.
+    {
+      code: input`
+          |import "b"
+          |import "A"
+      `,
+      options: [{ caseSensitive: true }],
+    },
   ],
 
   invalid: [
@@ -1618,6 +1644,77 @@ const baseTests = (expect) => ({
       },
       errors: 1,
     },
+
+    // `caseSensitive` – specifiers are sorted by character code.
+    {
+      options: [{ caseSensitive: true }],
+      code: `import { iconNames, Bubble, Text, Icon } from "wrapped"`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(
+          `import { Bubble, Icon,Text, iconNames } from "wrapped"`,
+        );
+      },
+      errors: 1,
+    },
+
+    // `caseSensitive` – for equal imported names, the local name decides.
+    {
+      options: [{ caseSensitive: true }],
+      code: `import { a as b, a as C } from "renames"`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(
+          `import { a as C,a as b } from "renames"`,
+        );
+      },
+      errors: 1,
+    },
+
+    // `caseSensitive` – runs of digits are still compared numerically.
+    {
+      options: [{ caseSensitive: true }],
+      code: `import { x1, x01, x100, x24, x23, x2, x } from "numeric"`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(
+          `import { x,x01, x1, x2, x23, x24, x100 } from "numeric"`,
+        );
+      },
+      errors: 1,
+    },
+
+    // `caseSensitive` – the `from` strings are sorted by character code.
+    {
+      options: [{ caseSensitive: true }],
+      code: input`
+          |import y from "./api"
+          |import x from "./Button"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import x from "./Button"
+          |import y from "./api"
+        `);
+      },
+      errors: 1,
+    },
+
+    // `caseSensitive` – works together with `groups`.
+    {
+      options: [{ caseSensitive: true, groups: [["^\\w"], ["^\\."]] }],
+      code: input`
+          |import b from "component"
+          |import c from "./local"
+          |import a from "Component"
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |import a from "Component"
+          |import b from "component"
+          |
+          |import c from "./local"
+        `);
+      },
+      errors: 1,
+    },
   ],
 });
 
@@ -1998,6 +2095,18 @@ const typescriptTests = {
           |  return names.map(n => o[n]);
           |}
         `);
+      },
+      errors: 1,
+    },
+
+    // `caseSensitive` – type specifiers are sorted by character code.
+    {
+      options: [{ caseSensitive: true }],
+      code: `import { type b, type A, C } from "wrapped"`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(
+          `import { type A, C,type b } from "wrapped"`,
+        );
       },
       errors: 1,
     },

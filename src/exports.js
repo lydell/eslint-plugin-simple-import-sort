@@ -6,7 +6,17 @@ module.exports = {
   meta: {
     type: "layout",
     fixable: "code",
-    schema: [],
+    schema: [
+      {
+        type: "object",
+        properties: {
+          caseSensitive: {
+            type: "boolean",
+          },
+        },
+        additionalProperties: false,
+      },
+    ],
     docs: {
       url: "https://github.com/lydell/eslint-plugin-simple-import-sort#sort-order",
       description: "Automatically sort exports.",
@@ -16,6 +26,8 @@ module.exports = {
     },
   },
   create: (context) => {
+    const { caseSensitive = false } = context.options[0] || {};
+
     const parents = new Set();
 
     const addParent = (node) => {
@@ -27,7 +39,7 @@ module.exports = {
     return {
       ExportNamedDeclaration: (node) => {
         if (node.source == null && node.declaration == null) {
-          maybeReportExportSpecifierSorting(node, context);
+          maybeReportExportSpecifierSorting(node, context, caseSensitive);
         } else {
           addParent(node);
         }
@@ -41,7 +53,7 @@ module.exports = {
           for (const chunk of shared.extractChunks(parent, (node, lastNode) =>
             isPartOfChunk(node, lastNode, sourceCode),
           )) {
-            maybeReportChunkSorting(chunk, context);
+            maybeReportChunkSorting(chunk, context, caseSensitive);
           }
         }
         parents.clear();
@@ -50,26 +62,28 @@ module.exports = {
   },
 };
 
-function maybeReportChunkSorting(chunk, context) {
+function maybeReportChunkSorting(chunk, context, caseSensitive) {
   const sourceCode = shared.getSourceCode(context);
   const items = shared.getImportExportItems(
     chunk,
     sourceCode,
     () => 1, // getStyle
     getSpecifiers,
+    caseSensitive,
   );
-  const sortedItems = [[shared.sortImportExportItems(items)]];
+  const sortedItems = [[shared.sortImportExportItems(items, caseSensitive)]];
   const sorted = shared.printSortedItems(sortedItems, items, sourceCode);
   const { start } = items[0];
   const { end } = items[items.length - 1];
   shared.maybeReportSorting(context, sorted, start, end);
 }
 
-function maybeReportExportSpecifierSorting(node, context) {
+function maybeReportExportSpecifierSorting(node, context, caseSensitive) {
   const sorted = shared.printWithSortedSpecifiers(
     node,
     shared.getSourceCode(context),
     getSpecifiers,
+    caseSensitive,
   );
   const [start, end] = node.range;
   shared.maybeReportSorting(context, sorted, start, end);

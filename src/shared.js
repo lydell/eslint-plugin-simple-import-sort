@@ -105,6 +105,7 @@ function getImportExportItems(
   sourceCode,
   getStyle,
   getSpecifiers,
+  caseSensitive,
 ) {
   const chunk = handleLastSemicolon(passedChunk, sourceCode);
   return chunk.map((node, nodeIndex) => {
@@ -157,7 +158,12 @@ function getImportExportItems(
     const code =
       indentation +
       before +
-      printWithSortedSpecifiers(node, sourceCode, getSpecifiers) +
+      printWithSortedSpecifiers(
+        node,
+        sourceCode,
+        getSpecifiers,
+        caseSensitive,
+      ) +
       after +
       trailingSpaces;
 
@@ -228,7 +234,12 @@ function handleLastSemicolon(chunk, sourceCode) {
   return chunk.slice(0, lastIndex).concat(newLastNode);
 }
 
-function printWithSortedSpecifiers(node, sourceCode, getSpecifiers) {
+function printWithSortedSpecifiers(
+  node,
+  sourceCode,
+  getSpecifiers,
+  caseSensitive,
+) {
   const allTokens = getAllTokens(node, sourceCode);
   const openBraceIndex = allTokens.findIndex((token) =>
     isPunctuator(token, "{"),
@@ -255,7 +266,7 @@ function printWithSortedSpecifiers(node, sourceCode, getSpecifiers) {
     node: specifiers[index],
   }));
 
-  const sortedItems = sortSpecifierItems(items);
+  const sortedItems = sortSpecifierItems(items, caseSensitive);
 
   const newline = guessNewline(sourceCode);
 
@@ -711,7 +722,7 @@ function getTrailingSpaces(node, sourceCode) {
 
 const SideEffectImport = 0;
 
-function sortImportExportItems(items) {
+function sortImportExportItems(items, caseSensitive) {
   return items.slice().sort((itemA, itemB) =>
     // If both items are side effect imports, keep their original order.
     itemA.style === SideEffectImport && itemB.style === SideEffectImport
@@ -722,12 +733,16 @@ function sortImportExportItems(items) {
         : itemB.style === SideEffectImport
           ? 1
           : // Compare the `from` part.
-            compare(itemA.source.source, itemB.source.source) ||
+            compare(itemA.source.source, itemB.source.source, caseSensitive) ||
             // The `.source` has been slightly tweaked. To stay fully deterministic,
             // also sort on the original value.
-            compare(itemA.source.originalSource, itemB.source.originalSource) ||
+            compare(
+              itemA.source.originalSource,
+              itemB.source.originalSource,
+              caseSensitive,
+            ) ||
             // Then put type imports/exports before regular ones.
-            compare(itemA.source.kind, itemB.source.kind) ||
+            compare(itemA.source.kind, itemB.source.kind, caseSensitive) ||
             // Then sort by style.
             // imports: namespace < default (maybe with named) < named-only
             // exports: no styles.
@@ -739,7 +754,7 @@ function sortImportExportItems(items) {
   );
 }
 
-function sortSpecifierItems(items) {
+function sortSpecifierItems(items, caseSensitive) {
   return items.slice().sort(
     (itemA, itemB) =>
       // Compare by imported or exported name (external interface name).
@@ -750,6 +765,7 @@ function sortSpecifierItems(items) {
       compare(
         getSpecifierName(itemA.node.imported || itemA.node.exported),
         getSpecifierName(itemB.node.imported || itemB.node.exported),
+        caseSensitive,
       ) ||
       // Then compare by the file-local name.
       // import { a as b } from "a"
@@ -759,11 +775,13 @@ function sortSpecifierItems(items) {
       compare(
         getSpecifierName(itemA.node.local),
         getSpecifierName(itemB.node.local),
+        caseSensitive,
       ) ||
       // Then put type specifiers before regular ones.
       compare(
         getImportExportKind(itemA.node),
         getImportExportKind(itemB.node),
+        caseSensitive,
         /* v8 ignore start */
       ) ||
       // Keep the original order if the names are the same. It’s not worth
@@ -792,8 +810,51 @@ const collator = new Intl.Collator("en", {
   numeric: true,
 });
 
-function compare(a, b) {
-  return collator.compare(a, b) || (a < b ? -1 : a > b ? 1 : 0);
+function compare(a, b, caseSensitive) {
+  return (
+    (caseSensitive ? compareCaseSensitive(a, b) : collator.compare(a, b)) ||
+    (a < b ? -1 : a > b ? 1 : 0)
+  );
+}
+
+const digitRuns = /(\d+)/;
+
+// Compare by character code (all uppercase letters come before all lowercase
+// ones), except that runs of digits are still compared by their numeric value,
+// like the collator does with `numeric: true` (so `x2` comes before `x10`).
+// Ties (such as `x1` vs `x01`) are left to the fallback in `compare`.
+function compareCaseSensitive(a, b) {
+  const aParts = a.split(digitRuns);
+  const bParts = b.split(digitRuns);
+  const length = Math.max(aParts.length, bParts.length);
+  let result = 0;
+  for (let index = 0; index < length && result === 0; index++) {
+    const aPart = index < aParts.length ? aParts[index] : "";
+    const bPart = index < bParts.length ? bParts[index] : "";
+    // Odd indexes are the digit runs captured by the split. They are never
+    // empty strings, so an empty string means that the whole string has ended
+    // and can be compared as usual.
+    result =
+      index % 2 === 1 && aPart !== "" && bPart !== ""
+        ? compareDigitRuns(aPart, bPart)
+        : aPart < bPart
+          ? -1
+          : aPart > bPart
+            ? 1
+            : 0;
+  }
+  return result;
+}
+
+function compareDigitRuns(a, b) {
+  const aDigits = a.replace(/^0+/, "");
+  const bDigits = b.replace(/^0+/, "");
+  return (
+    // More digits (after removing leading zeros) means a bigger number.
+    aDigits.length - bDigits.length ||
+    // With equally many digits, compare them in order.
+    (aDigits < bDigits ? -1 : aDigits > bDigits ? 1 : 0)
+  );
 }
 
 function isIdentifier(node) {

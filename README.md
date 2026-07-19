@@ -147,9 +147,9 @@ For a long time, this plugin used to have no options, which helped keeping it si
 
 While the human alphabetical sorting and comment handling seems to work for a lot of people, grouping of imports is more difficult. Projects differ too much to have a one-size-fits-all grouping.
 
-I’ve decided to have this single option but nothing more. Here are some things you can’t configure:
+I’ve decided to have these two options but nothing more. Here are some things you can’t configure:
 
-- The sorting within each group. It is what it is. See [Sorting].
+- The sorting within each group (apart from case sensitivity). It is what it is. See [Sorting].
 - Sorting of [side effect imports][safe] (they always stay in the original order).
 
 If you want more options, I recommend using the [import/order] rule (from [eslint-plugin-import]) instead. It has plenty of options, and the maintainers seem interested in expanding the feature where it makes sense.
@@ -233,6 +233,15 @@ function compare(a, b) {
 ```
 
 In other words, the imports/exports within groups are sorted alphabetically, case-insensitively and treating numbers like a human would, falling back to good old character code sorting in case of ties. See [Intl.Collator] for more information. Note: `Intl.Collator` sorts punctuation in _some_ defined order. I have no idea what order punctuation sorts in, and I don’t care. There’s no ordered “alphabet” for punctuation that I know of.
+
+If you prefer character code sorting, both rules have a `caseSensitive` option (default: `false`):
+
+```js
+"simple-import-sort/imports": ["error", { caseSensitive: true }],
+"simple-import-sort/exports": ["error", { caseSensitive: true }],
+```
+
+With `caseSensitive: true`, all uppercase letters come before all lowercase ones (`CONSTANTS`, then `Classes`, then `camelCase`). Runs of digits are still treated like a human would (`x2` comes before `x10`), and full character code sorting is still used as the fallback in case of ties. The option affects every name comparison: the `from` strings, imported/exported names and local names.
 
 There’s one addition to the alphabetical rule: Directory structure. Relative imports/exports of files higher up in the directory structure come before closer ones – `"../../utils"` comes before `"../utils"`, which comes before `"."`. (In short, `.` and `/` sort before any other (non-whitespace, non-control) character. `".."` and similar sort like `"../,"` (to avoid the “shorter prefix comes first” sorting concept).)
 
@@ -356,12 +365,13 @@ Workaround to make the next section to appear in the table of contents.
 
 ## Custom grouping
 
-There is **one** option (see [Not for everyone]) called `groups` that is useful for a bunch of different use cases.
+Besides `caseSensitive` (see [Sorting]), there is **one** more option (see [Not for everyone]) called `groups` that is useful for a bunch of different use cases. It exists for the `imports` rule only.
 
 `groups` is an array of arrays of strings:
 
 ```ts
 type Options = {
+  caseSensitive: boolean;
   groups: Array<Array<string>>;
 };
 ```

@@ -64,6 +64,19 @@ const baseTests = (expect) => ({
           |// export {b} from "b";
           |export {c} from "c";
     `,
+
+    // `caseSensitive: true` – already sorted by character code.
+    {
+      code: `export { B, a }; var B, a;`,
+      options: [{ caseSensitive: true }],
+    },
+    {
+      code: input`
+          |export * from "./Button";
+          |export * from "./api";
+      `,
+      options: [{ caseSensitive: true }],
+    },
   ],
 
   invalid: [
@@ -145,6 +158,46 @@ const baseTests = (expect) => ({
         expect(actual).toMatchInlineSnapshot(
           `export { a,b, a as b2, a as c, d,  }; var d, a, b;`,
         );
+      },
+      errors: 1,
+    },
+
+    // `caseSensitive` – specifiers are sorted by character code.
+    {
+      options: [{ caseSensitive: true }],
+      code: `export { iconNames, Bubble, Text, Icon } from "wrapped"`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(
+          `export { Bubble, Icon,Text, iconNames } from "wrapped"`,
+        );
+      },
+      errors: 1,
+    },
+
+    // `caseSensitive` – the exported (external) name is what counts.
+    {
+      options: [{ caseSensitive: true }],
+      code: `export { a as b, a as C } from "renames"`,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(
+          `export { a as C,a as b } from "renames"`,
+        );
+      },
+      errors: 1,
+    },
+
+    // `caseSensitive` – the `from` strings are sorted by character code.
+    {
+      options: [{ caseSensitive: true }],
+      code: input`
+          |export * from "./api";
+          |export * from "./Button";
+      `,
+      output: (actual) => {
+        expect(actual).toMatchInlineSnapshot(`
+          |export * from "./Button";
+          |export * from "./api";
+        `);
       },
       errors: 1,
     },

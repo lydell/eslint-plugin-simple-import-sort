@@ -26,6 +26,9 @@ module.exports = {
       {
         type: "object",
         properties: {
+          caseSensitive: {
+            type: "boolean",
+          },
           groups: {
             type: "array",
             items: {
@@ -48,7 +51,8 @@ module.exports = {
     },
   },
   create: (context) => {
-    const { groups: rawGroups = defaultGroups } = context.options[0] || {};
+    const { caseSensitive = false, groups: rawGroups = defaultGroups } =
+      context.options[0] || {};
 
     const outerGroups = rawGroups.map((groups) =>
       groups.map((item) => RegExp(item, "u")),
@@ -66,7 +70,7 @@ module.exports = {
           for (const chunk of shared.extractChunks(parent, (node) =>
             isImport(node) ? "PartOfChunk" : "NotPartOfChunk",
           )) {
-            maybeReportChunkSorting(chunk, context, outerGroups);
+            maybeReportChunkSorting(chunk, context, outerGroups, caseSensitive);
           }
         }
         parents.clear();
@@ -75,22 +79,23 @@ module.exports = {
   },
 };
 
-function maybeReportChunkSorting(chunk, context, outerGroups) {
+function maybeReportChunkSorting(chunk, context, outerGroups, caseSensitive) {
   const sourceCode = shared.getSourceCode(context);
   const items = shared.getImportExportItems(
     chunk,
     sourceCode,
     getStyle,
     getSpecifiers,
+    caseSensitive,
   );
-  const sortedItems = makeSortedItems(items, outerGroups);
+  const sortedItems = makeSortedItems(items, outerGroups, caseSensitive);
   const sorted = shared.printSortedItems(sortedItems, items, sourceCode);
   const { start } = items[0];
   const { end } = items[items.length - 1];
   shared.maybeReportSorting(context, sorted, start, end);
 }
 
-function makeSortedItems(items, outerGroups) {
+function makeSortedItems(items, outerGroups, caseSensitive) {
   const itemGroups = outerGroups.map((groups) =>
     groups.map((regex) => ({ regex, items: [] })),
   );
@@ -128,7 +133,9 @@ function makeSortedItems(items, outerGroups) {
     .map((groups) => groups.filter((group) => group.items.length > 0))
     .filter((groups) => groups.length > 0)
     .map((groups) =>
-      groups.map((group) => shared.sortImportExportItems(group.items)),
+      groups.map((group) =>
+        shared.sortImportExportItems(group.items, caseSensitive),
+      ),
     );
 }
 
