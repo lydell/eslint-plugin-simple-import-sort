@@ -4,6 +4,7 @@ const error = "error";
 const warn = process.argv.includes("--report-unused-disable-directives")
   ? "error"
   : "warn";
+const off = "off";
 
 module.exports = {
   root: true,
@@ -61,6 +62,7 @@ module.exports = {
     eqeqeq: [error, "always", { null: "ignore" }],
     strict: error,
     yoda: warn,
+    "no-control-regex": off,
   },
   overrides: [
     {
